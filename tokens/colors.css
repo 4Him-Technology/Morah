@@ -1,0 +1,108 @@
+/* ============================================================
+   MORAH — COLOR TOKENS
+   Brand rooted in the amora (blackberry): deep plum drupelets,
+   a fresh leaf-green calyx, plum-tinted neutrals.
+   ============================================================ */
+
+:root {
+  /* --- Brand: Blackberry / Amora --------------------------- */
+  --berry-50:  #FBF4FB;
+  --berry-100: #F4E4F3;
+  --berry-200: #E8C8E7;
+  --berry-300: #D49FD2;
+  --berry-400: #BD6FBA;
+  --berry-500: #A4459C;   /* primary brand */
+  --berry-600: #8A2F82;
+  --berry-700: #6F2568;
+  --berry-800: #511E4C;
+  --berry-900: #341432;   /* deep plum surfaces */
+  --berry-950: #1F0B20;   /* darkest — sidebar */
+
+  /* --- Leaf: fresh green accent (the calyx) ----------------- */
+  --leaf-50:  #ECF7EF;
+  --leaf-100: #D2EDD9;
+  --leaf-200: #A9DCB8;
+  --leaf-300: #7BC795;
+  --leaf-400: #4FAE6F;
+  --leaf-500: #3E9B63;
+  --leaf-600: #2F7D4E;
+  --leaf-700: #245F3C;
+
+  /* --- Neutrals: plum-tinted grays ------------------------- */
+  --gray-0:   #FFFFFF;
+  --gray-50:  #F8F6FA;
+  --gray-100: #F0EEF4;
+  --gray-200: #E2DFE9;
+  --gray-300: #CCC8D6;
+  --gray-400: #A7A1B5;
+  --gray-500: #7C7689;
+  --gray-600: #5B5667;
+  --gray-700: #433F4D;
+  --gray-800: #2B2833;
+  --gray-900: #1A1720;
+
+  /* --- Semantic status (NR1 result bands) ------------------ */
+  --critical-50:  #FDECEC;
+  --critical-100: #FAD6D6;
+  --critical-500: #E23D3D;   /* Crítico 1.0–2.5 */
+  --critical-700: #AE2424;
+
+  --warning-50:  #FEF5E3;
+  --warning-100: #FCE8BE;
+  --warning-500: #F5B12E;    /* Atenção 2.6–3.9 */
+  --warning-700: #B07C0C;
+
+  --success-50:  #E9F7EF;
+  --success-100: #C9ECD7;
+  --success-500: #2EA86A;    /* Adequado 4.0–5.0 */
+  --success-700: #1C7A4A;
+
+  --info-50:  #EAF1FD;
+  --info-100: #D2E1FA;
+  --info-500: #3B7BE0;
+  --info-700: #2257B5;
+
+  /* --- Soft tint backgrounds (stat cards) ------------------ */
+  --tint-berry:   #F1E6F4;
+  --tint-blue:    #E6EEFA;
+  --tint-green:   #E4F4EA;
+  --tint-amber:   #FBF1DC;
+
+  /* ========================================================
+     SEMANTIC ALIASES
+     ======================================================== */
+  --brand-ink:      #4B244D;   /* the logo's exact plum */
+  --brand:          var(--berry-500);
+  --brand-strong:   var(--berry-600);
+  --brand-deep:     var(--berry-800);
+  --brand-contrast: #FFFFFF;
+  --accent:         var(--leaf-500);
+
+  --bg-app:         var(--gray-50);
+  --surface-card:   #FFFFFF;
+  --surface-sunken: var(--gray-100);
+  --surface-raised: #FFFFFF;
+  --surface-sidebar:var(--berry-950);
+
+  --text-strong:    var(--gray-900);
+  --text-body:      var(--gray-700);
+  --text-muted:     var(--gray-500);
+  --text-faint:     var(--gray-400);
+  --text-on-brand:  #FFFFFF;
+  --text-on-dark:        rgba(255,255,255,0.92);
+  --text-on-dark-muted:  rgba(255,255,255,0.58);
+  --text-on-dark-faint:  rgba(255,255,255,0.40);
+
+  --border-subtle:  var(--gray-200);
+  --border-default: var(--gray-300);
+  --border-strong:  var(--gray-400);
+  --border-on-dark: rgba(255,255,255,0.10);
+
+  --ring-focus:     color-mix(in srgb, var(--berry-500) 45%, transparent);
+
+  /* --- Gradients ------------------------------------------- */
+  --gradient-header:  linear-gradient(118deg, #2A0E2C 0%, #3D1542 48%, #561F5C 100%); /* @kind color */
+  --gradient-sidebar: linear-gradient(184deg, #2A0F2D 0%, #1A091C 100%); /* @kind color */
+  --gradient-brand:   linear-gradient(135deg, #A4459C 0%, #6F2568 100%); /* @kind color */
+  --gradient-leaf:    linear-gradient(135deg, #4FAE6F 0%, #2F7D4E 100%); /* @kind color */
+}

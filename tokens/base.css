@@ -1,0 +1,53 @@
+/* ============================================================
+   MORAH — base element styling + small helpers.
+   Light, non-invasive: sets the app canvas, typography defaults,
+   and a few brand utility classes used across cards & kits.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-body);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  color: var(--text-strong);
+  margin: 0;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+a { color: var(--brand); text-decoration: none; }
+
+/* ---- Brand utility classes ------------------------------- */
+.morah-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.morah-wordmark {
+  font-family: var(--font-display);
+  font-weight: var(--weight-extra);
+  letter-spacing: -0.03em;
+  color: var(--berry-700);
+}
+
+/* Gradient text using the brand ramp */
+.morah-gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

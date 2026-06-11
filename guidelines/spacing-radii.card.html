@@ -1,0 +1,31 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Radii & elevation" subtitle="Corner radii and the plum-tinted shadow scale" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;padding:24px;background:var(--gray-50);font-family:var(--font-body)}
+  .wrap{display:flex;gap:34px}
+  .col{display:flex;gap:16px}
+  .item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .box{width:60px;height:60px;background:#fff;border:1px solid var(--border-subtle)}
+  .sh{width:60px;height:60px;background:#fff;border-radius:var(--radius-md)}
+  .t{font-size:10px;font-family:var(--font-mono);color:var(--text-faint)}
+  .div{width:1px;background:var(--border-subtle)}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="col">
+    <div class="item"><div class="box" style="border-radius:var(--radius-sm)"></div><span class="t">sm 8</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-md)"></div><span class="t">md 12</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-lg)"></div><span class="t">lg 16</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-xl)"></div><span class="t">xl 22</span></div>
+    <div class="item"><div class="box" style="border-radius:var(--radius-pill)"></div><span class="t">pill</span></div>
+  </div>
+  <div class="div"></div>
+  <div class="col">
+    <div class="item"><div class="sh" style="box-shadow:var(--shadow-sm)"></div><span class="t">sm</span></div>
+    <div class="item"><div class="sh" style="box-shadow:var(--shadow-card)"></div><span class="t">card</span></div>
+    <div class="item"><div class="sh" style="box-shadow:var(--shadow-md)"></div><span class="t">md</span></div>
+    <div class="item"><div class="sh" style="box-shadow:var(--shadow-lg)"></div><span class="t">lg</span></div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Gradients & tints" subtitle="Brand surfaces and KPI tile backgrounds" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;padding:20px;background:var(--surface-card);font-family:var(--font-body)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .g{display:flex;flex-direction:column;gap:6px}
+  .chip{height:84px;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05)}
+  .n{font-size:var(--text-2xs);font-weight:700;color:var(--text-body)}
+  .v{font-size:10px;font-family:var(--font-mono);color:var(--text-faint)}
+  .tints{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+  .tc{height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:var(--text-2xs);font-weight:700;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="grid">
+  <div class="g"><div class="chip" style="background:var(--gradient-brand)"></div><span class="n">--gradient-brand</span><span class="v">A4459C → 6F2568</span></div>
+  <div class="g"><div class="chip" style="background:var(--gradient-header)"></div><span class="n">--gradient-header</span><span class="v">deep plum bar</span></div>
+  <div class="g"><div class="chip" style="background:var(--gradient-sidebar)"></div><span class="n">--gradient-sidebar</span><span class="v">2A0F2D → 1A091C</span></div>
+  <div class="g"><div class="chip" style="background:var(--gradient-leaf)"></div><span class="n">--gradient-leaf</span><span class="v">4FAE6F → 2F7D4E</span></div>
+</div>
+<div class="tints">
+  <div class="tc" style="background:var(--tint-berry)">--tint-berry</div>
+  <div class="tc" style="background:var(--tint-blue)">--tint-blue</div>
+  <div class="tc" style="background:var(--tint-green)">--tint-green</div>
+  <div class="tc" style="background:var(--tint-amber)">--tint-amber</div>
+</div>
+</body></html>

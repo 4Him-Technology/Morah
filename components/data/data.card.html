@@ -1,0 +1,37 @@
+<!-- @dsCard group="Components" viewport="700x280" name="Data — StatCard & ResultBand" subtitle="KPI tiles + NR1 interpretation bands" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style> body { margin: 0; padding: 24px; background: var(--bg-app); } </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { StatCard, ResultBand } = window.MorahDesignSystem_32f810;
+  function Demo() {
+    return (
+      <div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <StatCard label="Total de Empresas" value={13} icon="building-2" tone="blue" data={[4,6,5,8,7,10,13]} />
+          <StatCard label="Avaliações Encontradas" value={15} icon="message-circle" tone="berry" data={[2,4,5,7,9,12,15]} />
+          <StatCard label="Relatórios Salvos" value={7} icon="file-text" tone="amber" data={[1,2,2,3,4,5,7]} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
+          <ResultBand score={2.1} showRange />
+          <ResultBand score={3.4} showRange />
+          <ResultBand score={4.5} showRange />
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

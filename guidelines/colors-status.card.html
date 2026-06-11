@@ -1,0 +1,37 @@
+<!-- @dsCard group="Colors" viewport="700x190" name="Status — NR1 result palette" subtitle="Crítico · Atenção · Adequado + info" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;padding:20px;background:var(--surface-card);font-family:var(--font-body)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .head{display:flex;align-items:center;gap:8px;font-size:var(--text-sm);font-weight:700;color:var(--text-strong)}
+  .dot{width:12px;height:12px;border-radius:4px}
+  .scale{display:flex;gap:5px}
+  .chip{flex:1;height:42px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.04)}
+  .rng{font-size:var(--text-2xs);font-family:var(--font-mono);color:var(--text-faint)}
+</style></head>
+<body>
+<div class="grid">
+  <div class="col">
+    <div class="head"><span class="dot" style="background:var(--critical-500)"></span>Crítico</div>
+    <div class="scale"><div class="chip" style="background:var(--critical-50)"></div><div class="chip" style="background:var(--critical-100)"></div><div class="chip" style="background:var(--critical-500)"></div><div class="chip" style="background:var(--critical-700)"></div></div>
+    <span class="rng">1.0 – 2.5 · intervenção imediata</span>
+  </div>
+  <div class="col">
+    <div class="head"><span class="dot" style="background:var(--warning-500)"></span>Atenção</div>
+    <div class="scale"><div class="chip" style="background:var(--warning-50)"></div><div class="chip" style="background:var(--warning-100)"></div><div class="chip" style="background:var(--warning-500)"></div><div class="chip" style="background:var(--warning-700)"></div></div>
+    <span class="rng">2.6 – 3.9 · requer melhorias</span>
+  </div>
+  <div class="col">
+    <div class="head"><span class="dot" style="background:var(--success-500)"></span>Adequado</div>
+    <div class="scale"><div class="chip" style="background:var(--success-50)"></div><div class="chip" style="background:var(--success-100)"></div><div class="chip" style="background:var(--success-500)"></div><div class="chip" style="background:var(--success-700)"></div></div>
+    <span class="rng">4.0 – 5.0 · situação adequada</span>
+  </div>
+  <div class="col">
+    <div class="head"><span class="dot" style="background:var(--info-500)"></span>Info</div>
+    <div class="scale"><div class="chip" style="background:var(--info-50)"></div><div class="chip" style="background:var(--info-100)"></div><div class="chip" style="background:var(--info-500)"></div><div class="chip" style="background:var(--info-700)"></div></div>
+    <span class="rng">links · estados neutros</span>
+  </div>
+</div>
+</body></html>
