@@ -51,3 +51,8 @@ a { color: var(--brand); text-decoration: none; }
   background-clip: text;
   color: transparent;
 }
+
+/* Theme-aware brand lockup — render both pairs, CSS picks one */
+.morah-logo-dark { display: none; }
+[data-theme="plum"] .morah-logo-light { display: none; }
+[data-theme="plum"] .morah-logo-dark { display: inline-block; }

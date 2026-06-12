@@ -1,45 +1,47 @@
-// Morah técnico — Header bar (deep plum gradient, rounded bottom).
+// Morah técnico — slim top bar (light, hairline divider, soft blur).
 const { Select: DsSelect, Icon: HdrIcon } = window.MorahDesignSystem_32f810;
 
-function Header({ screen, company, onCompany }) {
+function Header({ screen, company, onCompany, theme, onToggleTheme }) {
   const D = window.MORAH;
-  const t = D.titles[screen] || D.titles.overview;
+  const iconBtn = {
+    width: 38, height: 38, borderRadius: 'var(--radius-control)', cursor: 'pointer',
+    background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+    color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: 'var(--shadow-xs)',
+  };
   return (
     <header style={{
-      position: 'relative', background: 'var(--gradient-header)',
-      borderRadius: '0 0 var(--radius-2xl) var(--radius-2xl)',
-      padding: '22px 28px 26px', color: '#fff', overflow: 'hidden',
-      boxShadow: 'var(--shadow-md)',
+      height: 'var(--topbar-height)', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+      padding: '0 28px',
+      background: 'rgba(255,255,255,0.82)',
+      backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+      borderBottom: '1px solid var(--border-subtle)',
+      position: 'relative', zIndex: 10,
     }}>
-      {/* subtle berry glow */}
-      <div style={{ position: 'absolute', top: -120, right: -60, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(189,111,186,0.28), transparent 70%)', pointerEvents: 'none' }}></div>
+      {/* Workspace context */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--leaf-500)', boxShadow: '0 0 0 3px var(--leaf-50)', flexShrink: 0 }}></span>
+        <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{D.tenant.name}</span>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', fontWeight: 500,
+          color: 'var(--text-faint)', border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-xs)', padding: '2px 7px', letterSpacing: '0.06em', flexShrink: 0,
+        }}>TÉCNICO</span>
+      </div>
 
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{t.h}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-on-dark)', fontWeight: 600 }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--leaf-400)', boxShadow: '0 0 8px var(--leaf-400)' }}></span>
-              {D.tenant.name}
-            </span>
-            <span style={{ color: 'var(--text-on-dark-faint)' }}>·</span>
-            <span style={{ color: 'var(--text-on-dark-muted)' }}>{t.sub}</span>
-          </div>
+      {/* Global actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 230 }}>
+          <DsSelect value={company} onChange={(e) => onCompany(e.target.value)}
+            options={['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-          <div style={{ width: 230 }}>
-            <DsSelect dark value={company} onChange={(e) => onCompany(e.target.value)}
-              options={['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
-          </div>
-          <button style={{
-            width: 42, height: 42, borderRadius: 'var(--radius-md)', cursor: 'pointer',
-            background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-on-dark)',
-            color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <HdrIcon name="bell" size={18} />
-          </button>
-        </div>
+        <button aria-label="Alternar tema do painel" title="Alternar tema" onClick={onToggleTheme} style={iconBtn}>
+          <HdrIcon name={theme === 'plum' ? 'sun' : 'moon'} size={17} />
+        </button>
+        <button aria-label="Notificações" style={iconBtn}>
+          <HdrIcon name="bell" size={17} />
+        </button>
       </div>
     </header>
   );

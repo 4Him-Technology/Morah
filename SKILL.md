@@ -20,6 +20,7 @@ If the user invokes this skill without any other guidance, ask them what they wa
 
 ## Working notes
 - Icons are **Lucide** (CDN). 2px stroke, no emoji. In React always use the bundled `<Icon name="…" />` component; never `lucide.createIcons()`.
-- Sidebar and page header are the two **dark plum** surfaces; everything else sits on near-white `--gray-50` with white cards and plum-tinted shadows.
+- The shell is **light and flat**: white sidebar + slim translucent top bar over near-white `--gray-50`, white hairline-bordered cards, near-flat plum-tinted shadows. Berry is an **accent** (active pills, primary buttons, chart fills), never a full surface costume.
+- **Two shell themes** via `data-theme` on `<html>` (tokens `--sidebar-*`/`--nav-*`): default light, and `plum` — sidebar in the logo's deep plum ink with white-glass active states, content stays light. The técnico panel has a moon/sun toggle in the top bar (persisted in `localStorage['morah-theme']`).
 - Copy is Brazilian Portuguese, institutional and calm. KPI/eyebrow labels are UPPERCASE; CNPJ/scores are monospace.
 - Result reporting always uses the Crítico (≤2.5) / Atenção (2.6–3.9) / Adequado (≥4.0) language and colors.

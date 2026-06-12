@@ -22,14 +22,14 @@ export function ResultBand({ level = null, score = null, showRange = false, styl
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '8px',
-      padding: '7px 14px', borderRadius: 'var(--radius-md)',
+      padding: '7px 12px', borderRadius: 'var(--radius-control)',
       background: c.bg, border: `1px solid ${c.bd}`,
       fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-bold)',
       color: c.fg, ...style,
     }}>
-      <span style={{ width: 10, height: 10, borderRadius: 3, background: c.dot, flexShrink: 0 }}></span>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: c.dot, flexShrink: 0 }}></span>
       {c.label}{score != null ? ` · ${Number(score).toFixed(1)}` : ''}
-      {showRange && <span style={{ fontWeight: 'var(--weight-medium)', opacity: 0.7 }}>({c.range})</span>}
+      {showRange && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', opacity: 0.75 }}>{c.range}</span>}
     </span>
   );
 }

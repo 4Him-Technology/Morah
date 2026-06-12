@@ -2,8 +2,8 @@ import React from 'react';
 import { Icon } from './Icon';
 
 /**
- * Morah primary action button. Berry-forward, with quiet secondary,
- * ghost, dark and danger variants to match the admin panel.
+ * Morah action button. Flat, solid fills — the berry is an accent,
+ * not a costume. Quiet secondary, ghost, dark and danger variants.
  */
 export function Button({
   children,
@@ -17,19 +17,19 @@ export function Button({
   ...rest
 }) {
   const sizes = {
-    sm: { padding: '7px 14px', fontSize: 'var(--text-sm)', radius: 'var(--radius-sm)', gap: '6px', icon: 15 },
-    md: { padding: '10px 18px', fontSize: 'var(--text-base)', radius: 'var(--radius-md)', gap: '8px', icon: 17 },
-    lg: { padding: '13px 24px', fontSize: 'var(--text-md)', radius: 'var(--radius-md)', gap: '9px', icon: 19 },
+    sm: { padding: '7px 13px', fontSize: 'var(--text-sm)', radius: 'var(--radius-sm)', gap: '6px', icon: 15 },
+    md: { padding: '9px 16px', fontSize: 'var(--text-base)', radius: 'var(--radius-control)', gap: '8px', icon: 16 },
+    lg: { padding: '12px 22px', fontSize: 'var(--text-md)', radius: 'var(--radius-control)', gap: '9px', icon: 18 },
   };
   const s = sizes[size] || sizes.md;
 
   const variants = {
-    primary: { background: 'var(--gradient-brand)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-sm)' },
-    secondary: { background: 'var(--surface-card)', color: 'var(--berry-700)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-xs)' },
-    ghost: { background: 'transparent', color: 'var(--text-body)', border: '1px solid transparent', boxShadow: 'none' },
-    dark: { background: 'var(--berry-950)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-sm)' },
+    primary: { background: 'var(--berry-600)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-xs)' },
+    secondary: { background: 'var(--surface-card)', color: 'var(--text-body)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-xs)' },
+    ghost: { background: 'transparent', color: 'var(--text-muted)', border: '1px solid transparent', boxShadow: 'none' },
+    dark: { background: 'var(--gray-900)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-xs)' },
     danger: { background: 'var(--critical-500)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-xs)' },
-    leaf: { background: 'var(--gradient-leaf)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-sm)' },
+    leaf: { background: 'var(--leaf-600)', color: '#fff', border: '1px solid transparent', boxShadow: 'var(--shadow-xs)' },
   };
   const v = variants[variant] || variants.primary;
 
@@ -50,7 +50,7 @@ export function Button({
       onMouseDown={(e) => { if (!disabled) e.currentTarget.style.transform = 'scale(0.97)'; }}
       onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'none'; }}
-      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.filter = 'brightness(1.06)'; }}
+      onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.filter = 'brightness(0.96)'; }}
       {...rest}
     >
       {iconLeft && <Icon name={iconLeft} size={s.icon} />}

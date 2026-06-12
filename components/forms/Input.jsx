@@ -10,12 +10,12 @@ export function Input({ icon = null, label = null, hint = null, style = {}, wrap
       <span style={{
         display: 'flex', alignItems: 'center', gap: '8px',
         background: 'var(--surface-card)',
-        border: `1px solid ${focus ? 'var(--berry-500)' : 'var(--border-default)'}`,
-        borderRadius: 'var(--radius-md)', padding: '0 12px',
-        boxShadow: focus ? 'var(--shadow-focus)' : 'none',
+        border: `1px solid ${focus ? 'var(--berry-500)' : 'var(--border-subtle)'}`,
+        borderRadius: 'var(--radius-control)', padding: '0 12px',
+        boxShadow: focus ? 'var(--shadow-focus)' : 'var(--shadow-xs)',
         transition: 'border-color var(--dur-fast), box-shadow var(--dur-fast)',
       }}>
-        {icon && <Icon name={icon} size={17} color="var(--text-muted)" />}
+        {icon && <Icon name={icon} size={16} color="var(--text-faint)" />}
         <input
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
           style={{

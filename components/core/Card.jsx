@@ -1,6 +1,6 @@
 import React from 'react';
 
-/** Base surface card — white, soft plum shadow, rounded. */
+/** Base surface card — white, hairline border, near-flat shadow. */
 export function Card({ children, padding = 'var(--space-6)', interactive = false, style = {}, ...rest }) {
   return (
     <div
@@ -10,11 +10,11 @@ export function Card({ children, padding = 'var(--space-6)', interactive = false
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'var(--shadow-card)',
         padding,
-        transition: 'box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out)',
+        transition: 'box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out)',
         ...style,
       }}
-      onMouseEnter={interactive ? (e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.transform = 'translateY(-2px)'; } : undefined}
-      onMouseLeave={interactive ? (e) => { e.currentTarget.style.boxShadow = 'var(--shadow-card)'; e.currentTarget.style.transform = 'none'; } : undefined}
+      onMouseEnter={interactive ? (e) => { e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.borderColor = 'var(--border-default)'; } : undefined}
+      onMouseLeave={interactive ? (e) => { e.currentTarget.style.boxShadow = 'var(--shadow-card)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'var(--border-subtle)'; } : undefined}
       {...rest}
     >
       {children}

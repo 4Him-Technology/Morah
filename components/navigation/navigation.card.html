@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x280" name="Navigation — Tabs & NavItem" subtitle="Segmented tabs + dark sidebar rows" -->
+<!-- @dsCard group="Components" viewport="700x280" name="Navigation — Tabs & NavItem" subtitle="Underline tabs + light sidebar rows" -->
 <!doctype html>
 <html>
 <head>
@@ -20,7 +20,7 @@
     return (
       <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 24, alignItems: 'start' }}>
         <Tabs tabs={['Relatórios Salvos', 'Filtros', 'Individuais']} active={t} onChange={setT} />
-        <div style={{ background: 'var(--gradient-sidebar)', borderRadius: 'var(--radius-lg)', padding: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ background: 'var(--surface-sidebar)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
           <NavItem icon="layout-grid" label="Visão Geral" active dot />
           <NavItem icon="building-2" label="Empresas" />
           <NavItem icon="bar-chart-3" label="Relatórios" />

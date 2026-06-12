@@ -5,9 +5,9 @@ window.MORAH = {
   nav: {
     navegacao: [
       { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
-      { id: 'termos',     icon: 'file-text',   label: 'Termos Aceito' },
+      { id: 'termos',     icon: 'file-text',   label: 'Termos de Aceite' },
       { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
-      { id: 'setor',      icon: 'layers',      label: 'Setor' },
+      { id: 'setor',      icon: 'layers',      label: 'Setores' },
       { id: 'cargos',     icon: 'briefcase',   label: 'Cargos' },
       { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
       { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
@@ -20,16 +20,16 @@ window.MORAH = {
   },
 
   titles: {
-    overview:   { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    termos:     { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    empresas:   { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    setor:      { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    cargos:     { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    campanhas:  { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    relatorios: { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    link:       { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    comparar:   { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
-    modelos:    { h: 'Painel Administrativo', sub: 'Visão geral dos dados' },
+    overview:   { h: 'Visão Geral',            sub: 'Acompanhe os indicadores das suas avaliações' },
+    termos:     { h: 'Termos de Aceite',       sub: 'Status do aceite dos termos de uso da plataforma' },
+    empresas:   { h: 'Empresas',               sub: 'Gerencie as empresas vinculadas à sua conta' },
+    setor:      { h: 'Setores',                sub: 'Estruture as empresas por setor' },
+    cargos:     { h: 'Cargos',                 sub: 'Gerencie os cargos de cada setor' },
+    campanhas:  { h: 'Campanhas',              sub: 'Organize os períodos de avaliação' },
+    relatorios: { h: 'Relatórios',             sub: 'Resultados e interpretações das avaliações' },
+    link:       { h: 'Link de Avaliação',      sub: 'Compartilhe o link anônimo com os colaboradores' },
+    comparar:   { h: 'Comparar Relatórios',    sub: 'Evolução dos resultados entre períodos' },
+    modelos:    { h: 'Modelos de Apresentação',sub: 'Materiais de apoio para download' },
   },
 
   companies: [
@@ -43,19 +43,19 @@ window.MORAH = {
 
   models: [
     { t: 'Vídeo Aula: Implementação da Plataforma (Como colocar no PGR)', d: '03/06/2026', kind: 'Vídeo' },
-    { t: 'Interpretação das Perguntas (Copsoq II Versão Curta)', d: 'Guia', kind: 'PDF' },
-    { t: 'Formulário de avaliação manual para impressão', d: 'Modelo', kind: 'PDF' },
-    { t: 'Manual de interpretação e aplicação do capítulo 1.5 da NR-1', d: 'Guia', kind: 'PDF' },
-    { t: 'Modelo de Contrato de Canal de Denúncias', d: 'Documento', kind: 'DOC' },
-    { t: 'Apresentação para os clientes', d: 'Slides', kind: 'Slides' },
+    { t: 'Interpretação das Perguntas (Copsoq II Versão Curta)', d: '28/05/2026', kind: 'PDF' },
+    { t: 'Formulário de avaliação manual para impressão', d: '21/05/2026', kind: 'PDF' },
+    { t: 'Manual de interpretação e aplicação do capítulo 1.5 da NR-1', d: '14/05/2026', kind: 'PDF' },
+    { t: 'Modelo de Contrato de Canal de Denúncias', d: '09/05/2026', kind: 'DOC' },
+    { t: 'Apresentação para os clientes', d: '02/05/2026', kind: 'Slides' },
   ],
 
   chart: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'], values: [0, 0, 0, 2, 13, 1], max: 16 },
 
   kpis: [
-    { id: 'emp',  label: 'Total de Empresas',       value: 13,    icon: 'building-2',     tone: 'blue',  data: [4,6,5,8,7,10,13] },
-    { id: 'rest', label: 'Avaliações Restantes',    value: '11.864', icon: 'clipboard-list', tone: 'green', data: [3,4,5,6,7,9,11] },
-    { id: 'rel',  label: 'Relatórios Salvos',       value: 0,     icon: 'file-text',      tone: 'amber', data: [1,2,2,3,4,5,7] },
-    { id: 'enc',  label: 'Avaliações Encontradas',  value: 15,    icon: 'message-circle', tone: 'berry', data: [2,4,5,7,9,12,15] },
+    { id: 'emp',  label: 'Total de Empresas',       value: 6,     icon: 'building-2',     tone: 'blue',  data: [1,2,2,3,4,5,6] },
+    { id: 'rest', label: 'Avaliações Restantes',    value: '11.864', icon: 'clipboard-list', tone: 'green', data: [14,13,13,12,12,12,11] },
+    { id: 'rel',  label: 'Relatórios Salvos',       value: 0,     icon: 'file-text',      tone: 'amber', data: [0,0,0,0,0,0,0] },
+    { id: 'enc',  label: 'Avaliações Realizadas',   value: 16,    icon: 'message-circle', tone: 'berry', data: [2,4,6,8,10,13,16] },
   ],
 };

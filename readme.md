@@ -33,28 +33,30 @@ The product UI is written in **Brazilian Portuguese**, in a **clear, institution
 
 ## Visual foundations
 
-**Palette.** Primary is **blackberry purple** (`--berry-500 #A4459C`), deepening to near-black plum (`--berry-950 #1F0B20`) for the sidebar and header. The accent is **leaf green** (`--leaf-500 #3E9B63`) — the berry's calyx — reserved for confirmations, "online" dots, and positive emphasis. Neutrals are **plum-tinted grays** (a hint of purple in every gray) so the whole UI feels of-a-piece. Status uses three NR1 bands: **Crítico** (red `#E23D3D`), **Atenção** (amber `#F5B12E`), **Adequado** (green `#2EA86A`), plus an **info** blue for links/neutral states.
+**Palette.** Primary is **blackberry purple** (`--berry-500 #A4459C`). In-app, berry is an **accent on a light neutral shell** — active nav pills, primary buttons, chart fills — never a full dark surface (the near-black plums survive as tokens for decks/marketing only). The accent is **leaf green** (`--leaf-500 #3E9B63`) — the berry's calyx — reserved for confirmations, "online" dots, and positive emphasis. Neutrals are **plum-tinted grays** (a hint of purple in every gray) so the whole UI feels of-a-piece. Status uses three NR1 bands: **Crítico** (red `#E23D3D`), **Atenção** (amber `#F5B12E`), **Adequado** (green `#2EA86A`), plus an **info** blue for links/neutral states.
 
 **Type.** Display = **Plus Jakarta Sans** (700–800) for headings, KPIs, and the wordmark — geometric and confident. Body/UI = **Manrope** (400–700). Data/codes = **JetBrains Mono**. Headings use tight tracking (`-0.02 to -0.04em`); uppercase eyebrows use wide tracking (`0.08em`).
 
-**Backgrounds.** App canvas is a near-white plum-gray (`--gray-50`). The two signature surfaces are **dark**: the sidebar (vertical plum gradient `--gradient-sidebar`) and the page header (diagonal plum gradient `--gradient-header`) which has **rounded bottom corners** and a soft radial berry glow in the top-right. No photography in-app; the brand imagery is the berry mark itself.
+**Backgrounds.** App canvas is a near-white plum-gray (`--gray-50`). The shell is **light**: a white sidebar (`--surface-sidebar`) with a hairline right border, and a slim **64px translucent top bar** (`rgba(255,255,255,0.82)` + backdrop blur, hairline divider). The page title lives **in the content column**, not in a banner. The legacy dark gradients (`--gradient-header`, `--gradient-sidebar`) remain as tokens for decks/marketing surfaces only. No photography in-app; the brand imagery is the berry mark itself.
 
-**Cards.** White, `--radius-lg` (16px) corners, hairline `--border-subtle` border, and a soft **plum-tinted shadow** (`--shadow-card` — shadows carry `rgba(31,11,32,…)`, never neutral black). Interactive list/grid cards **lift 2px** and deepen their shadow on hover. KPI tiles drop the border for a **soft tint fill** (berry/blue/green/amber) with a faded watermark icon and a sparkline.
+**Shell themes.** The shell is themeable via `data-theme` on `<html>`, driven by the `--sidebar-*` / `--nav-*` semantic tokens. Default is the **light shell** (white sidebar); `data-theme="plum"` dresses the sidebar in the logo's deep plum ink (`#4B244D` gradient) with white-glass active states — the content column stays light in both. The técnico panel exposes a moon/sun toggle in the top bar and persists the choice in `localStorage` (`morah-theme`). The brand lockup swaps automatically via `.morah-logo-light` / `.morah-logo-dark` (base.css).
 
-**Borders & radii.** Radii scale 6 → 28px; controls use 8–12px, cards 16px, the header 28px, chips/pills fully round. Borders are 1px and low-contrast; emphasis comes from fill and shadow, not heavy outlines.
+**Cards.** White, `--radius-lg` (16px) corners, hairline `--border-subtle` border, and a **near-flat plum-tinted shadow** (`--shadow-card` is a whisper — borders carry the separation; shadows carry `rgba(31,11,32,…)`, never neutral black). Interactive cards **lift 1px** and deepen the border on hover. KPI tiles are flat white with a tinted 32px **icon chip** (berry/blue/green/amber), an uppercase label and a quiet sparkline — **the number is the hero**.
 
-**Buttons & states.** Primary = berry **gradient** fill. `dark` = deep plum (used for download/resource rows, matching the base app). `secondary` = white + border. `danger` = red. Hover **brightens** (`brightness(1.06)`); press **scales to 0.97**. Focus rings are a 3px berry-tinted halo (`--ring-focus`).
+**Borders & radii.** Radii scale 6 → 28px; controls use `--radius-control` (10px), cards 16px, badges 6px (squarish chips read more technical than pills). Borders are 1px and low-contrast; emphasis comes from weight and spacing, not heavy outlines.
 
-**Motion.** Quiet and quick. `--dur-fast 120ms` for hover/press, `--dur-base 200ms` for surfaces, easing `--ease-out cubic-bezier(.22,1,.36,1)`. No bounces, no infinite loops. Active sidebar items glow with a berry glass highlight + a 3px leading accent bar.
+**Buttons & states.** Primary = solid `--berry-600` (flat, no gradient). `secondary` = white + border, neutral text. `dark` = graphite (`--gray-900`), rare emphasis only. `danger` = red. Hover **darkens slightly** (`brightness(0.96)`); press **scales to 0.97**. Focus rings are a 3px berry-tinted halo (`--ring-focus`).
 
-**Transparency & blur.** Used sparingly on dark surfaces — the company switcher and bell on the header are `rgba(255,255,255,0.06)` glass with a hairline white border. Sidebar active state layers translucent berry over the plum gradient.
+**Motion.** Quiet and quick. `--dur-fast 120ms` for hover/press, `--dur-base 200ms` for surfaces, easing `--ease-out cubic-bezier(.22,1,.36,1)`. No bounces, no infinite loops. Active sidebar items use a quiet `--berry-50` pill with berry text — no glow, no accent bar.
+
+**Transparency & blur.** Used sparingly — the top bar is translucent white with backdrop blur over the scrolling canvas. The `dark` Select variant keeps a white-glass treatment for the rare dark surface (decks, marketing).
 
 ---
 
 ## Iconography
 
 - **Icon set: [Lucide](https://lucide.dev)** — loaded from CDN (`unpkg.com/lucide`). In React, ALWAYS render icons with the bundled `<Icon name="…" />` component — never call `lucide.createIcons()` inside a React tree (it mutates React-owned DOM and crashes re-renders). The base app's line icons (building, layers, briefcase, bar-chart, link, clipboard, bell) match Lucide's 2px-stroke geometric style almost exactly, so Lucide is the canonical set. *(Substitution flagged: the original app's exact icon font wasn't available; Lucide is the closest faithful match.)*
-- **Usage:** 18px in nav and inline, ~17px inside buttons, 24px in empty-state rings, 76px as faded KPI watermarks. Stroke weight 2 (2.4 when a nav item is active). Render with `lucide.createIcons()` after React mounts and on every re-render.
+- **Usage:** 17px in nav, 15–18px inside buttons, ~21px in empty-state chips, 16px in KPI icon chips. Stroke weight 2 (2.3 when a nav item is active).
 - **No emoji, no custom hand-drawn SVG icons.** The single bespoke vector is the **brand mark** (`assets/morah-mark.png`) — the circuit amora.
 - **Color:** icons inherit text color or use `--berry-500` for brand emphasis; status icons use the band colors.
 

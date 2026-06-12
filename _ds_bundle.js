@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":3,"namespace":"MorahDesignSystem_32f810","components":[{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"ResultBand","sourcePath":"components/data/ResultBand.jsx"},{"name":"StatCard","sourcePath":"components/data/StatCard.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"NavItem","sourcePath":"components/navigation/NavItem.jsx"},{"name":"Tabs","sourcePath":"components/navigation/Tabs.jsx"}],"sourceHashes":{"components/core/Avatar.jsx":"10e18777f4ac","components/core/Badge.jsx":"1cbf9ea8339e","components/core/Button.jsx":"15905c98ac5c","components/core/Card.jsx":"d79c75c3719f","components/core/Icon.jsx":"955a1ef427a4","components/data/ResultBand.jsx":"5601a3345edc","components/data/StatCard.jsx":"06fb98683179","components/forms/Input.jsx":"a824af8db946","components/forms/Select.jsx":"2d9419a4eade","components/navigation/NavItem.jsx":"f9c548265dc5","components/navigation/Tabs.jsx":"25ad2fd55055","ui_kits/tecnico/App.jsx":"468d7a482c18","ui_kits/tecnico/Header.jsx":"820df4b296ce","ui_kits/tecnico/Screens.jsx":"c19846b56804","ui_kits/tecnico/Sidebar.jsx":"c58dcfbd15af","ui_kits/tecnico/data.js":"ed1f08f10f32"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":3,"namespace":"MorahDesignSystem_32f810","components":[{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"ResultBand","sourcePath":"components/data/ResultBand.jsx"},{"name":"StatCard","sourcePath":"components/data/StatCard.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"NavItem","sourcePath":"components/navigation/NavItem.jsx"},{"name":"Tabs","sourcePath":"components/navigation/Tabs.jsx"}],"sourceHashes":{"components/core/Avatar.jsx":"10e18777f4ac","components/core/Badge.jsx":"220fa606929a","components/core/Card.jsx":"a2ce1c003064","components/core/Icon.jsx":"955a1ef427a4","components/core/Button.jsx":"f904c8948543","components/data/ResultBand.jsx":"88235f590028","components/data/StatCard.jsx":"9e5fadd8ca20","components/forms/Input.jsx":"653a2bccb753","components/forms/Select.jsx":"bfbc28280b47","components/navigation/NavItem.jsx":"97ce4771b586","components/navigation/Tabs.jsx":"0f32f5ad8b8e","ui_kits/tecnico/App.jsx":"c1ace4d7699b","ui_kits/tecnico/Header.jsx":"926c4dbf5030","ui_kits/tecnico/Screens.jsx":"66fbc722cd5d","ui_kits/tecnico/Sidebar.jsx":"dedd194e6675","ui_kits/tecnico/data.js":"e17f5bcd5d69"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -78,13 +78,13 @@ function Badge({
         fg: 'var(--gray-600)'
       },
       solid: {
-        bg: 'var(--berry-950)',
+        bg: 'var(--gray-900)',
         fg: '#fff'
       }
     },
     berry: {
       soft: {
-        bg: 'var(--berry-100)',
+        bg: 'var(--berry-50)',
         fg: 'var(--berry-700)'
       },
       solid: {
@@ -94,7 +94,7 @@ function Badge({
     },
     leaf: {
       soft: {
-        bg: 'var(--leaf-100)',
+        bg: 'var(--leaf-50)',
         fg: 'var(--leaf-700)'
       },
       solid: {
@@ -149,8 +149,8 @@ function Badge({
       display: 'inline-flex',
       alignItems: 'center',
       gap: '5px',
-      padding: '3px 9px',
-      borderRadius: 'var(--radius-pill)',
+      padding: '3px 8px',
+      borderRadius: 'var(--radius-xs)',
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-2xs)',
       fontWeight: 'var(--weight-bold)',
@@ -169,7 +169,7 @@ Object.assign(__ds_scope, { Badge });
 // components/core/Card.jsx
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
-/** Base surface card — white, soft plum shadow, rounded. */
+/** Base surface card — white, hairline border, near-flat shadow. */
 function Card({
   children,
   padding = 'var(--space-6)',
@@ -184,16 +184,18 @@ function Card({
       borderRadius: 'var(--radius-lg)',
       boxShadow: 'var(--shadow-card)',
       padding,
-      transition: 'box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out)',
+      transition: 'box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out)',
       ...style
     },
     onMouseEnter: interactive ? e => {
       e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.transform = 'translateY(-1px)';
+      e.currentTarget.style.borderColor = 'var(--border-default)';
     } : undefined,
     onMouseLeave: interactive ? e => {
       e.currentTarget.style.boxShadow = 'var(--shadow-card)';
       e.currentTarget.style.transform = 'none';
+      e.currentTarget.style.borderColor = 'var(--border-subtle)';
     } : undefined
   }, rest), children);
 }
@@ -304,9 +306,13 @@ Object.assign(__ds_scope, { Icon });
 // components/core/Button.jsx
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+const {
+  Icon
+} = __ds_scope;
+
 /**
- * Morah primary action button. Berry-forward, with quiet secondary,
- * ghost, dark and danger variants to match the admin panel.
+ * Morah action button. Flat, solid fills — the berry is an accent,
+ * not a costume. Quiet secondary, ghost, dark and danger variants.
  */
 function Button({
   children,
@@ -321,52 +327,52 @@ function Button({
 }) {
   const sizes = {
     sm: {
-      padding: '7px 14px',
+      padding: '7px 13px',
       fontSize: 'var(--text-sm)',
       radius: 'var(--radius-sm)',
       gap: '6px',
       icon: 15
     },
     md: {
-      padding: '10px 18px',
+      padding: '9px 16px',
       fontSize: 'var(--text-base)',
-      radius: 'var(--radius-md)',
+      radius: 'var(--radius-control)',
       gap: '8px',
-      icon: 17
+      icon: 16
     },
     lg: {
-      padding: '13px 24px',
+      padding: '12px 22px',
       fontSize: 'var(--text-md)',
-      radius: 'var(--radius-md)',
+      radius: 'var(--radius-control)',
       gap: '9px',
-      icon: 19
+      icon: 18
     }
   };
   const s = sizes[size] || sizes.md;
   const variants = {
     primary: {
-      background: 'var(--gradient-brand)',
+      background: 'var(--berry-600)',
       color: '#fff',
       border: '1px solid transparent',
-      boxShadow: 'var(--shadow-sm)'
+      boxShadow: 'var(--shadow-xs)'
     },
     secondary: {
       background: 'var(--surface-card)',
-      color: 'var(--berry-700)',
+      color: 'var(--text-body)',
       border: '1px solid var(--border-default)',
       boxShadow: 'var(--shadow-xs)'
     },
     ghost: {
       background: 'transparent',
-      color: 'var(--text-body)',
+      color: 'var(--text-muted)',
       border: '1px solid transparent',
       boxShadow: 'none'
     },
     dark: {
-      background: 'var(--berry-950)',
+      background: 'var(--gray-900)',
       color: '#fff',
       border: '1px solid transparent',
-      boxShadow: 'var(--shadow-sm)'
+      boxShadow: 'var(--shadow-xs)'
     },
     danger: {
       background: 'var(--critical-500)',
@@ -375,10 +381,10 @@ function Button({
       boxShadow: 'var(--shadow-xs)'
     },
     leaf: {
-      background: 'var(--gradient-leaf)',
+      background: 'var(--leaf-600)',
       color: '#fff',
       border: '1px solid transparent',
-      boxShadow: 'var(--shadow-sm)'
+      boxShadow: 'var(--shadow-xs)'
     }
   };
   const v = variants[variant] || variants.primary;
@@ -414,12 +420,12 @@ function Button({
       e.currentTarget.style.filter = 'none';
     },
     onMouseEnter: e => {
-      if (!disabled) e.currentTarget.style.filter = 'brightness(1.06)';
+      if (!disabled) e.currentTarget.style.filter = 'brightness(0.96)';
     }
-  }, rest), iconLeft && /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  }, rest), iconLeft && /*#__PURE__*/React.createElement(Icon, {
     name: iconLeft,
     size: s.icon
-  }), children, iconRight && /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  }), children, iconRight && /*#__PURE__*/React.createElement(Icon, {
     name: iconRight,
     size: s.icon
   }));
@@ -479,8 +485,8 @@ function ResultBand({
       display: 'inline-flex',
       alignItems: 'center',
       gap: '8px',
-      padding: '7px 14px',
-      borderRadius: 'var(--radius-md)',
+      padding: '7px 12px',
+      borderRadius: 'var(--radius-control)',
       background: c.bg,
       border: `1px solid ${c.bd}`,
       fontFamily: 'var(--font-body)',
@@ -491,27 +497,33 @@ function ResultBand({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 10,
-      height: 10,
-      borderRadius: 3,
+      width: 8,
+      height: 8,
+      borderRadius: '50%',
       background: c.dot,
       flexShrink: 0
     }
   }), c.label, score != null ? ` · ${Number(score).toFixed(1)}` : '', showRange && /*#__PURE__*/React.createElement("span", {
     style: {
+      fontFamily: 'var(--font-mono)',
+      fontSize: 'var(--text-xs)',
       fontWeight: 'var(--weight-medium)',
-      opacity: 0.7
+      opacity: 0.75
     }
-  }, "(", c.range, ")"));
+  }, c.range));
 }
 Object.assign(__ds_scope, { ResultBand });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/data/ResultBand.jsx", error: String((e && e.message) || e) }); }
 
 // components/data/StatCard.jsx
 try { (() => {
+const {
+  Icon
+} = __ds_scope;
+
 /**
- * Dashboard metric tile — soft tint background, faded watermark icon,
- * and a sparkline. Mirrors the Morah "Visão Geral" cards.
+ * Dashboard metric tile — flat white card, hairline border, a tinted
+ * icon chip and a quiet sparkline. The number is the hero.
  */
 function StatCard({
   label,
@@ -523,88 +535,101 @@ function StatCard({
 }) {
   const tones = {
     berry: {
-      bg: 'var(--tint-berry)',
-      line: 'var(--berry-500)',
-      ink: 'var(--berry-800)'
+      chip: 'var(--berry-50)',
+      ink: 'var(--berry-600)',
+      line: 'var(--berry-500)'
     },
     blue: {
-      bg: 'var(--tint-blue)',
-      line: 'var(--info-500)',
-      ink: 'var(--info-700)'
+      chip: 'var(--info-50)',
+      ink: 'var(--info-500)',
+      line: 'var(--info-500)'
     },
     green: {
-      bg: 'var(--tint-green)',
-      line: 'var(--success-500)',
-      ink: 'var(--success-700)'
+      chip: 'var(--success-50)',
+      ink: 'var(--success-500)',
+      line: 'var(--success-500)'
     },
     amber: {
-      bg: 'var(--tint-amber)',
-      line: 'var(--warning-500)',
-      ink: 'var(--warning-700)'
+      chip: 'var(--warning-50)',
+      ink: 'var(--warning-700)',
+      line: 'var(--warning-500)'
     }
   };
   const t = tones[tone] || tones.berry;
   const pts = data.length ? data : [4, 6, 5, 8, 7, 11, 13];
   const max = Math.max(...pts),
     min = Math.min(...pts);
-  const W = 260,
-    H = 64,
+  const W = 220,
+    H = 44,
     n = pts.length;
-  const norm = v => H - 8 - (v - min) / (max - min || 1) * (H - 20);
+  const norm = v => H - 5 - (v - min) / (max - min || 1) * (H - 12);
   const coords = pts.map((v, i) => [i / (n - 1) * W, norm(v)]);
   const linePath = coords.map((c, i) => `${i ? 'L' : 'M'}${c[0].toFixed(1)},${c[1].toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${W},${H} L0,${H} Z`;
   const gid = `spark-${tone}`;
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'relative',
-      overflow: 'hidden',
-      background: t.bg,
+      background: 'var(--surface-card)',
+      border: '1px solid var(--border-subtle)',
       borderRadius: 'var(--radius-lg)',
-      padding: 'var(--space-5) var(--space-5) 0',
-      boxShadow: 'var(--shadow-card)',
-      minHeight: 150,
+      boxShadow: 'var(--shadow-xs)',
+      padding: 'var(--space-5)',
+      minHeight: 148,
       display: 'flex',
       flexDirection: 'column',
+      gap: 10,
       ...style
     }
-  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-    name: icon,
-    size: 76,
-    strokeWidth: 1.4,
-    color: t.ink,
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'absolute',
-      right: 14,
-      top: 14,
-      opacity: 0.12
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 10
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-2xs)',
       fontWeight: 'var(--weight-bold)',
       letterSpacing: 'var(--tracking-caps)',
       textTransform: 'uppercase',
-      color: t.ink,
-      opacity: 0.85
+      color: 'var(--text-muted)',
+      paddingTop: 8,
+      lineHeight: 1.45
     }
-  }, label), /*#__PURE__*/React.createElement("div", {
+  }, label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 32,
+      height: 32,
+      borderRadius: 'var(--radius-sm)',
+      background: t.chip,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: t.ink,
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: icon,
+    size: 16
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
-      fontSize: 'var(--text-4xl)',
+      fontSize: 'var(--text-3xl)',
       fontWeight: 'var(--weight-extra)',
       color: 'var(--text-strong)',
-      lineHeight: 1.05,
-      marginTop: 6
+      lineHeight: 1,
+      letterSpacing: 'var(--tracking-tight)'
     }
   }, value), /*#__PURE__*/React.createElement("svg", {
     viewBox: `0 0 ${W} ${H}`,
     preserveAspectRatio: "none",
     style: {
       width: '100%',
-      height: 56,
-      marginTop: 'auto'
+      height: 36,
+      marginTop: 'auto',
+      display: 'block'
     }
   }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
     id: gid,
@@ -615,7 +640,7 @@ function StatCard({
   }, /*#__PURE__*/React.createElement("stop", {
     offset: "0",
     stopColor: t.line,
-    stopOpacity: "0.28"
+    stopOpacity: "0.13"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "1",
     stopColor: t.line,
@@ -627,18 +652,10 @@ function StatCard({
     d: linePath,
     fill: "none",
     stroke: t.line,
-    strokeWidth: "2.5",
+    strokeWidth: "1.8",
     strokeLinecap: "round",
     strokeLinejoin: "round"
-  }), coords.map((c, i) => /*#__PURE__*/React.createElement("circle", {
-    key: i,
-    cx: c[0],
-    cy: c[1],
-    r: "2.6",
-    fill: "#fff",
-    stroke: t.line,
-    strokeWidth: "2"
-  }))));
+  })));
 }
 Object.assign(__ds_scope, { StatCard });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/data/StatCard.jsx", error: String((e && e.message) || e) }); }
@@ -646,6 +663,10 @@ Object.assign(__ds_scope, { StatCard });
 // components/forms/Input.jsx
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+const {
+  Icon
+} = __ds_scope;
+
 /** Text input with optional leading Lucide icon. */
 function Input({
   icon = null,
@@ -676,16 +697,16 @@ function Input({
       alignItems: 'center',
       gap: '8px',
       background: 'var(--surface-card)',
-      border: `1px solid ${focus ? 'var(--berry-500)' : 'var(--border-default)'}`,
-      borderRadius: 'var(--radius-md)',
+      border: `1px solid ${focus ? 'var(--berry-500)' : 'var(--border-subtle)'}`,
+      borderRadius: 'var(--radius-control)',
       padding: '0 12px',
-      boxShadow: focus ? 'var(--shadow-focus)' : 'none',
+      boxShadow: focus ? 'var(--shadow-focus)' : 'var(--shadow-xs)',
       transition: 'border-color var(--dur-fast), box-shadow var(--dur-fast)'
     }
-  }, icon && /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  }, icon && /*#__PURE__*/React.createElement(Icon, {
     name: icon,
-    size: 17,
-    color: "var(--text-muted)"
+    size: 16,
+    color: "var(--text-faint)"
   }), /*#__PURE__*/React.createElement("input", _extends({
     onFocus: () => setFocus(true),
     onBlur: () => setFocus(false),
@@ -713,7 +734,11 @@ Object.assign(__ds_scope, { Input });
 // components/forms/Select.jsx
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
-/** Styled native select matching Morah inputs. */
+const {
+  Icon
+} = __ds_scope;
+
+/** Styled native select matching Morah inputs. `dark` renders glass on dark surfaces. */
 function Select({
   options = [],
   label = null,
@@ -746,16 +771,17 @@ function Select({
       appearance: 'none',
       WebkitAppearance: 'none',
       width: '100%',
-      padding: '10px 36px 10px 14px',
+      padding: '9px 34px 9px 12px',
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-base)',
       fontWeight: 'var(--weight-medium)',
       color: dark ? '#fff' : 'var(--text-strong)',
       background: dark ? 'rgba(255,255,255,0.06)' : 'var(--surface-card)',
-      border: `1px solid ${dark ? 'var(--border-on-dark)' : 'var(--border-default)'}`,
-      borderRadius: 'var(--radius-md)',
+      border: `1px solid ${dark ? 'var(--border-on-dark)' : 'var(--border-subtle)'}`,
+      borderRadius: 'var(--radius-control)',
       cursor: 'pointer',
       outline: 'none',
+      boxShadow: dark ? 'none' : 'var(--shadow-xs)',
       ...style
     }
   }, rest), options.map((o, i) => {
@@ -765,13 +791,13 @@ function Select({
       key: i,
       value: val
     }, lbl);
-  })), /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  })), /*#__PURE__*/React.createElement(Icon, {
     name: "chevrons-up-down",
-    size: 15,
-    color: dark ? 'var(--text-on-dark-muted)' : 'var(--text-muted)',
+    size: 14,
+    color: dark ? 'var(--text-on-dark-muted)' : 'var(--text-faint)',
     style: {
       position: 'absolute',
-      right: 12,
+      right: 11,
       top: '50%',
       transform: 'translateY(-50%)',
       pointerEvents: 'none'
@@ -783,9 +809,14 @@ Object.assign(__ds_scope, { Select });
 
 // components/navigation/NavItem.jsx
 try { (() => {
+const {
+  Icon
+} = __ds_scope;
+
 /**
  * Sidebar navigation row for the Morah admin panel.
- * Active state uses a berry-tinted glass highlight + leading accent.
+ * Colors come from the --nav-* shell tokens, so the same component
+ * works on the light shell and on the plum sidebar (data-theme="plum").
  */
 function NavItem({
   icon,
@@ -804,47 +835,40 @@ function NavItem({
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
+      gap: '11px',
       width: '100%',
-      padding: '11px 14px',
+      padding: '9px 12px',
       border: 'none',
       cursor: 'pointer',
-      borderRadius: 'var(--radius-md)',
+      borderRadius: 'var(--radius-control)',
       textAlign: 'left',
-      background: active ? 'linear-gradient(100deg, rgba(164,69,156,0.30), rgba(164,69,156,0.08))' : hover ? 'rgba(255,255,255,0.05)' : 'transparent',
-      boxShadow: active ? 'inset 0 0 0 1px rgba(189,111,186,0.35)' : 'none',
-      color: active ? '#fff' : 'var(--text-on-dark-muted)',
+      background: active ? 'var(--nav-active-bg)' : hover ? 'var(--nav-hover-bg)' : 'transparent',
+      color: active ? 'var(--nav-active-fg)' : hover ? 'var(--nav-hover-fg)' : 'var(--nav-fg)',
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-base)',
       fontWeight: active ? 'var(--weight-bold)' : 'var(--weight-medium)',
-      transition: 'background var(--dur-fast), color var(--dur-fast)'
+      transition: 'background var(--dur-fast), color var(--dur-fast)',
+      ...style
     }
-  }, active && /*#__PURE__*/React.createElement("span", {
-    style: {
-      position: 'absolute',
-      left: 0,
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: 3,
-      height: 20,
-      borderRadius: 3,
-      background: 'var(--berry-400)'
-    }
-  }), /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  }, /*#__PURE__*/React.createElement(Icon, {
     name: icon,
-    size: 18,
-    strokeWidth: active ? 2.4 : 2
+    size: 17,
+    strokeWidth: active ? 2.3 : 2,
+    color: active ? 'var(--nav-active-icon)' : 'currentColor'
   }), /*#__PURE__*/React.createElement("span", {
     style: {
-      flex: 1
+      flex: 1,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     }
   }, label), dot && /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 7,
-      height: 7,
+      width: 6,
+      height: 6,
       borderRadius: '50%',
-      background: 'var(--berry-400)',
-      boxShadow: '0 0 8px var(--berry-400)'
+      background: 'var(--nav-dot)',
+      flexShrink: 0
     }
   }));
 }
@@ -853,7 +877,7 @@ Object.assign(__ds_scope, { NavItem });
 
 // components/navigation/Tabs.jsx
 try { (() => {
-/** Segmented tab bar — the underline/pill style from Morah's Relatórios view. */
+/** Underline tab bar — quiet hairline rail, berry underline on the active tab. */
 function Tabs({
   tabs = [],
   active = 0,
@@ -863,11 +887,8 @@ function Tabs({
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      gap: '4px',
-      padding: '5px',
-      background: 'var(--surface-sunken)',
-      borderRadius: 'var(--radius-md)',
-      border: '1px solid var(--border-subtle)',
+      gap: '24px',
+      borderBottom: '1px solid var(--border-subtle)',
       ...style
     }
   }, tabs.map((t, i) => {
@@ -876,18 +897,16 @@ function Tabs({
       key: i,
       onClick: () => onChange(i),
       style: {
-        flex: 1,
-        padding: '9px 16px',
+        padding: '10px 2px 12px',
         border: 'none',
         cursor: 'pointer',
-        borderRadius: 'var(--radius-sm)',
-        background: on ? 'var(--surface-card)' : 'transparent',
+        background: 'transparent',
         color: on ? 'var(--berry-700)' : 'var(--text-muted)',
         fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-base)',
         fontWeight: on ? 'var(--weight-bold)' : 'var(--weight-medium)',
-        boxShadow: on ? 'var(--shadow-xs)' : 'none',
-        transition: 'all var(--dur-fast) var(--ease-out)'
+        boxShadow: on ? 'inset 0 -2px 0 var(--berry-600)' : 'none',
+        transition: 'color var(--dur-fast), box-shadow var(--dur-fast)'
       }
     }, t);
   }));
@@ -901,7 +920,22 @@ try { (() => {
 function App() {
   const [screen, setScreen] = React.useState('overview');
   const [company, setCompany] = React.useState('Todas as empresas');
+  const [theme, setTheme] = React.useState(() => {
+    try {
+      return localStorage.getItem('morah-theme') || 'light';
+    } catch (e) {
+      return 'light';
+    }
+  });
+  const D = window.MORAH;
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('morah-theme', theme);
+    } catch (e) {}
+  }, [theme]);
   const Screen = window.Screens[screen] || window.Screens.overview;
+  const t = D.titles[screen] || D.titles.overview;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -919,33 +953,49 @@ function App() {
       flexDirection: 'column',
       minWidth: 0
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '0 0 0 0'
-    }
   }, /*#__PURE__*/React.createElement(Header, {
     screen: screen,
     company: company,
-    onCompany: setCompany
-  })), /*#__PURE__*/React.createElement("main", {
+    onCompany: setCompany,
+    theme: theme,
+    onToggleTheme: () => setTheme(tm => tm === 'plum' ? 'light' : 'plum')
+  }), /*#__PURE__*/React.createElement("main", {
     style: {
       flex: 1,
-      overflowY: 'auto',
-      padding: 'var(--space-6) var(--space-8) var(--space-10)'
+      overflowY: 'auto'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       maxWidth: 'var(--content-max)',
-      margin: '0 auto'
+      margin: '0 auto',
+      padding: '28px 32px 56px'
     }
-  }, /*#__PURE__*/React.createElement(Screen, null)))));
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 'var(--space-6)'
+    }
+  }, /*#__PURE__*/React.createElement("h1", {
+    style: {
+      fontSize: 'var(--text-2xl)',
+      fontWeight: 800,
+      color: 'var(--text-strong)',
+      letterSpacing: 'var(--tracking-tight)'
+    }
+  }, t.h), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 'var(--text-base)',
+      color: 'var(--text-muted)',
+      margin: '6px 0 0'
+    }
+  }, t.sub)), /*#__PURE__*/React.createElement(Screen, null)))));
 }
 window.App = App;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/tecnico/App.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/tecnico/Header.jsx
 try { (() => {
-// Morah técnico — Header bar (deep plum gradient, rounded bottom).
+// Morah técnico — slim top bar (light, hairline divider, soft blur).
 const {
   Select: DsSelect,
   Icon: HdrIcon
@@ -953,84 +1003,83 @@ const {
 function Header({
   screen,
   company,
-  onCompany
+  onCompany,
+  theme,
+  onToggleTheme
 }) {
   const D = window.MORAH;
-  const t = D.titles[screen] || D.titles.overview;
+  const iconBtn = {
+    width: 38,
+    height: 38,
+    borderRadius: 'var(--radius-control)',
+    cursor: 'pointer',
+    background: 'var(--surface-card)',
+    border: '1px solid var(--border-subtle)',
+    color: 'var(--text-muted)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: 'var(--shadow-xs)'
+  };
   return /*#__PURE__*/React.createElement("header", {
     style: {
+      height: 'var(--topbar-height)',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 16,
+      padding: '0 28px',
+      background: 'rgba(255,255,255,0.82)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      borderBottom: '1px solid var(--border-subtle)',
       position: 'relative',
-      background: 'var(--gradient-header)',
-      borderRadius: '0 0 var(--radius-2xl) var(--radius-2xl)',
-      padding: '22px 28px 26px',
-      color: '#fff',
-      overflow: 'hidden',
-      boxShadow: 'var(--shadow-md)'
+      zIndex: 10
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'absolute',
-      top: -120,
-      right: -60,
-      width: 320,
-      height: 320,
-      borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(189,111,186,0.28), transparent 70%)',
-      pointerEvents: 'none'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      gap: 24
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    style: {
-      fontSize: 'var(--text-3xl)',
-      fontWeight: 800,
-      color: '#fff',
-      letterSpacing: '-0.03em'
-    }
-  }, t.h), /*#__PURE__*/React.createElement("div", {
-    style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 8,
-      marginTop: 8,
+      gap: 10,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 8,
+      height: 8,
+      borderRadius: '50%',
+      background: 'var(--leaf-500)',
+      boxShadow: '0 0 0 3px var(--leaf-50)',
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 'var(--text-sm)'
+      fontWeight: 700,
+      fontSize: 'var(--text-sm)',
+      color: 'var(--text-strong)',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, D.tenant.name), /*#__PURE__*/React.createElement("span", {
     style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 6,
-      color: 'var(--text-on-dark)',
-      fontWeight: 600
+      fontFamily: 'var(--font-mono)',
+      fontSize: 'var(--text-2xs)',
+      fontWeight: 500,
+      color: 'var(--text-faint)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: 'var(--radius-xs)',
+      padding: '2px 7px',
+      letterSpacing: '0.06em',
+      flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 7,
-      height: 7,
-      borderRadius: '50%',
-      background: 'var(--leaf-400)',
-      boxShadow: '0 0 8px var(--leaf-400)'
-    }
-  }), D.tenant.name), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-on-dark-faint)'
-    }
-  }, "\xB7"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-on-dark-muted)'
-    }
-  }, t.sub))), /*#__PURE__*/React.createElement("div", {
+  }, "T\xC9CNICO")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
+      gap: 10,
       flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -1038,27 +1087,24 @@ function Header({
       width: 230
     }
   }, /*#__PURE__*/React.createElement(DsSelect, {
-    dark: true,
     value: company,
     onChange: e => onCompany(e.target.value),
     options: ['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]
   })), /*#__PURE__*/React.createElement("button", {
-    style: {
-      width: 42,
-      height: 42,
-      borderRadius: 'var(--radius-md)',
-      cursor: 'pointer',
-      background: 'rgba(255,255,255,0.06)',
-      border: '1px solid var(--border-on-dark)',
-      color: '#fff',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }
+    "aria-label": "Alternar tema do painel",
+    title: "Alternar tema",
+    onClick: onToggleTheme,
+    style: iconBtn
+  }, /*#__PURE__*/React.createElement(HdrIcon, {
+    name: theme === 'plum' ? 'sun' : 'moon',
+    size: 17
+  })), /*#__PURE__*/React.createElement("button", {
+    "aria-label": "Notifica\xE7\xF5es",
+    style: iconBtn
   }, /*#__PURE__*/React.createElement(HdrIcon, {
     name: "bell",
-    size: 18
-  })))));
+    size: 17
+  }))));
 }
 window.Header = Header;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/tecnico/Header.jsx", error: String((e && e.message) || e) }); }
@@ -1099,12 +1145,23 @@ function EmptyState({
   icon = 'info',
   title,
   sub,
-  tone = 'info'
+  tone = 'neutral'
 }) {
-  const ring = {
-    info: 'var(--info-500)',
-    berry: 'var(--berry-500)'
-  }[tone] || 'var(--info-500)';
+  const tones = {
+    neutral: {
+      bg: 'var(--gray-100)',
+      fg: 'var(--text-muted)'
+    },
+    info: {
+      bg: 'var(--info-50)',
+      fg: 'var(--info-500)'
+    },
+    berry: {
+      bg: 'var(--berry-50)',
+      fg: 'var(--berry-600)'
+    }
+  };
+  const t = tones[tone] || tones.neutral;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -1112,63 +1169,68 @@ function EmptyState({
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
-      padding: '64px 24px',
-      gap: 10
+      padding: '56px 24px',
+      gap: 8
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 52,
-      height: 52,
-      borderRadius: '50%',
-      border: `2px solid ${ring}`,
+      width: 46,
+      height: 46,
+      borderRadius: 'var(--radius-md)',
+      background: t.bg,
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: ring
+      color: t.fg,
+      marginBottom: 6
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: icon,
-    size: 24
+    size: 21
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
-      fontSize: 'var(--text-xl)',
-      color: 'var(--text-strong)',
-      marginTop: 6
+      fontSize: 'var(--text-lg)',
+      color: 'var(--text-strong)'
     }
   }, title), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 'var(--text-base)',
+      fontSize: 'var(--text-sm)',
       color: 'var(--text-muted)',
-      maxWidth: 360
+      maxWidth: 380,
+      lineHeight: 1.6
     }
   }, sub));
 }
-function SectionTitle({
+function PanelTitle({
   title,
-  sub
+  sub,
+  right
 }) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 16,
       marginBottom: 'var(--space-5)'
     }
-  }, /*#__PURE__*/React.createElement("h2", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
-      fontSize: 'var(--text-2xl)',
-      fontWeight: 800,
-      color: 'var(--text-strong)',
-      letterSpacing: '-0.02em'
+      fontSize: 'var(--text-md)',
+      fontWeight: 700,
+      color: 'var(--text-strong)'
     }
   }, title), sub && /*#__PURE__*/React.createElement("p", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 'var(--text-base)',
+      fontSize: 'var(--text-sm)',
       color: 'var(--text-muted)',
-      marginTop: 4
+      margin: '4px 0 0'
     }
-  }, sub));
+  }, sub)), right);
 }
 
 /* ---------- Bar chart (Histórico de Avaliações) ---------- */
@@ -1176,20 +1238,20 @@ function BarChart({
   chart
 }) {
   const W = 1040,
-    H = 300,
-    padL = 44,
-    padB = 34,
-    padT = 14;
+    H = 280,
+    padL = 40,
+    padB = 30,
+    padT = 18;
   const innerH = H - padB - padT,
-    innerW = W - padL - 16;
+    innerW = W - padL - 12;
   const n = chart.values.length;
-  const bw = 26;
+  const bw = 22;
   const yticks = [0, 4, 8, 12, 16];
   return /*#__PURE__*/React.createElement("svg", {
     viewBox: `0 0 ${W} ${H}`,
     style: {
       width: '100%',
-      height: 320
+      height: 300
     }
   }, yticks.map(v => {
     const y = padT + innerH - v / chart.max * innerH;
@@ -1198,16 +1260,16 @@ function BarChart({
     }, /*#__PURE__*/React.createElement("line", {
       x1: padL,
       y1: y,
-      x2: W - 16,
+      x2: W - 12,
       y2: y,
-      stroke: "var(--border-subtle)",
+      stroke: "var(--gray-100)",
       strokeWidth: "1"
     }), /*#__PURE__*/React.createElement("text", {
       x: padL - 12,
       y: y + 4,
       textAnchor: "end",
       fontFamily: "var(--font-mono)",
-      fontSize: "12",
+      fontSize: "11",
       fill: "var(--text-faint)"
     }, v));
   }), chart.values.map((v, i) => {
@@ -1221,29 +1283,32 @@ function BarChart({
       y: y,
       width: bw,
       height: bh,
-      rx: "6",
-      fill: "url(#barg)"
+      rx: "5",
+      fill: "var(--berry-500)"
+    }), v > 0 && /*#__PURE__*/React.createElement("text", {
+      x: cx,
+      y: y - 8,
+      textAnchor: "middle",
+      fontFamily: "var(--font-mono)",
+      fontSize: "11",
+      fill: "var(--text-muted)"
+    }, v), v === 0 && /*#__PURE__*/React.createElement("line", {
+      x1: cx - bw / 2,
+      y1: padT + innerH,
+      x2: cx + bw / 2,
+      y2: padT + innerH,
+      stroke: "var(--gray-300)",
+      strokeWidth: "2",
+      strokeLinecap: "round"
     }), /*#__PURE__*/React.createElement("text", {
       x: cx,
-      y: H - 12,
+      y: H - 8,
       textAnchor: "middle",
       fontFamily: "var(--font-body)",
-      fontSize: "12",
+      fontSize: "11.5",
       fill: "var(--text-muted)"
     }, chart.labels[i], "/2026"));
-  }), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
-    id: "barg",
-    x1: "0",
-    y1: "0",
-    x2: "0",
-    y2: "1"
-  }, /*#__PURE__*/React.createElement("stop", {
-    offset: "0",
-    stopColor: "#BD6FBA"
-  }), /*#__PURE__*/React.createElement("stop", {
-    offset: "1",
-    stopColor: "#8A2F82"
-  }))));
+  }));
 }
 
 /* ---------- Overview ---------- */
@@ -1254,13 +1319,13 @@ function OverviewScreen() {
     style: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 'var(--space-6)'
+      gap: 'var(--space-5)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: 'var(--space-5)'
+      gap: 'var(--space-4)'
     }
   }, D.kpis.map(k => /*#__PURE__*/React.createElement(StatCard, {
     key: k.id,
@@ -1274,35 +1339,32 @@ function OverviewScreen() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 12
+      gap: 16,
+      marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("h3", {
     style: {
-      fontSize: 'var(--text-xl)',
+      fontSize: 'var(--text-md)',
       fontWeight: 700,
       color: 'var(--text-strong)'
     }
   }, "Hist\xF3rico de Avalia\xE7\xF5es"), /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 168
-    }
-  }, /*#__PURE__*/React.createElement(Select, {
-    value: range,
-    onChange: e => setRange(e.target.value),
-    options: ['Últimos 6 meses', 'Últimos 12 meses', 'Este ano']
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-end',
-      gap: 8,
-      marginBottom: 4
+      gap: 16
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 9,
-      height: 9,
-      borderRadius: '50%',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 7
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 8,
+      height: 8,
+      borderRadius: 2,
       background: 'var(--berry-500)'
     }
   }), /*#__PURE__*/React.createElement("span", {
@@ -1311,7 +1373,15 @@ function OverviewScreen() {
       fontSize: 'var(--text-sm)',
       color: 'var(--text-muted)'
     }
-  }, "Avalia\xE7\xF5es Realizadas")), /*#__PURE__*/React.createElement(BarChart, {
+  }, "Avalia\xE7\xF5es Realizadas")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 168
+    }
+  }, /*#__PURE__*/React.createElement(Select, {
+    value: range,
+    onChange: e => setRange(e.target.value),
+    options: ['Últimos 6 meses', 'Últimos 12 meses', 'Este ano']
+  })))), /*#__PURE__*/React.createElement(BarChart, {
     chart: D.chart
   })));
 }
@@ -1324,50 +1394,39 @@ function EmpresasScreen() {
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      gap: 16,
-      marginBottom: 'var(--space-5)'
-    }
-  }, /*#__PURE__*/React.createElement(SectionTitle, {
-    title: "Empresas Cadastradas",
-    sub: "Gerencie todas as empresas do sistema"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement(Button, {
-    variant: "secondary",
-    iconLeft: "upload"
-  }, "Importar em Lote"), /*#__PURE__*/React.createElement(Button, {
-    variant: "dark",
-    iconLeft: "plus"
-  }, "Nova Empresa"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'flex-end',
-      gap: 14,
-      marginBottom: 'var(--space-5)'
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 'var(--space-5)',
+      flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1,
+      minWidth: 240,
       maxWidth: 360
     }
   }, /*#__PURE__*/React.createElement(Input, {
     icon: "search",
-    placeholder: "Buscar por nome, documento ou descri\xE7\xE3o",
+    placeholder: "Buscar por nome ou CNPJ",
     value: q,
     onChange: e => setQ(e.target.value)
   })), /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 150
+      width: 86
     }
   }, /*#__PURE__*/React.createElement(Select, {
-    label: "Itens por p\xE1gina",
-    options: ['5', '10', '25']
-  }))), /*#__PURE__*/React.createElement("div", {
+    options: ['10', '5', '25']
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), /*#__PURE__*/React.createElement(Button, {
+    variant: "secondary",
+    iconLeft: "upload"
+  }, "Importar em Lote"), /*#__PURE__*/React.createElement(Button, {
+    variant: "primary",
+    iconLeft: "plus"
+  }, "Nova Empresa")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
@@ -1376,39 +1435,52 @@ function EmpresasScreen() {
   }, list.map((c, i) => /*#__PURE__*/React.createElement(Card, {
     key: i,
     interactive: true,
-    padding: "var(--space-5)"
+    padding: "var(--space-5)",
+    style: {
+      display: 'flex',
+      flexDirection: 'column'
+    }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'flex-start',
-      gap: 10,
-      marginBottom: 14
+      gap: 12,
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 36,
+      height: 36,
+      borderRadius: 'var(--radius-sm)',
+      background: 'var(--berry-50)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--berry-600)',
+      flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "building-2",
-    size: 18,
-    color: "var(--berry-500)",
+    size: 17
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: 2
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
+      flex: 1,
+      minWidth: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      flexWrap: 'wrap'
+      alignItems: 'flex-start',
+      gap: 8
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
+      flex: 1,
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
-      fontSize: 'var(--text-md)',
+      fontSize: 'var(--text-base)',
       color: 'var(--text-strong)',
-      lineHeight: 1.3
+      lineHeight: 1.35
     }
   }, c.name), /*#__PURE__*/React.createElement(Badge, {
     tone: c.tone
@@ -1417,17 +1489,23 @@ function EmpresasScreen() {
       fontFamily: 'var(--font-mono)',
       fontSize: 'var(--text-xs)',
       color: 'var(--text-muted)',
-      marginTop: 6
+      marginTop: 7
     }
-  }, "CNPJ: ", c.cnpj))), /*#__PURE__*/React.createElement("div", {
+  }, c.cnpj))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      gap: 8
+      gap: 4,
+      marginTop: 'auto',
+      paddingTop: 10,
+      borderTop: '1px solid var(--gray-100)'
     }
   }, /*#__PURE__*/React.createElement(Button, {
     size: "sm",
-    variant: "secondary",
-    iconLeft: "pencil"
+    variant: "ghost",
+    iconLeft: "pencil",
+    style: {
+      color: 'var(--text-body)'
+    }
   }, "Editar"), /*#__PURE__*/React.createElement(Button, {
     size: "sm",
     variant: "ghost",
@@ -1451,6 +1529,7 @@ function EmpresasScreen() {
   }, "Mostrando 1 a ", list.length, " de ", D.companies.length, " empresas"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
+      alignItems: 'center',
       gap: 6
     }
   }, /*#__PURE__*/React.createElement(Button, {
@@ -1460,17 +1539,16 @@ function EmpresasScreen() {
   }, "Anterior"), [1, 2, 3].map(p => /*#__PURE__*/React.createElement("button", {
     key: p,
     style: {
-      width: 34,
-      height: 34,
+      width: 32,
+      height: 32,
       borderRadius: 'var(--radius-sm)',
-      border: '1px solid var(--border-default)',
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 'var(--text-sm)',
-      background: p === 1 ? 'var(--gradient-brand)' : 'var(--surface-card)',
+      background: p === 1 ? 'var(--berry-600)' : 'var(--surface-card)',
       color: p === 1 ? '#fff' : 'var(--text-body)',
-      borderColor: p === 1 ? 'transparent' : 'var(--border-default)'
+      border: p === 1 ? '1px solid transparent' : '1px solid var(--border-subtle)'
     }
   }, p)), /*#__PURE__*/React.createElement(Button, {
     size: "sm",
@@ -1497,9 +1575,9 @@ function RelatoriosScreen() {
       padding: 0
     }
   }, /*#__PURE__*/React.createElement(EmptyState, {
-    icon: "alert-circle",
+    icon: "info",
     title: "Selecione uma empresa",
-    sub: "Selecione uma empresa espec\xEDfica no dropdown acima para visualizar os relat\xF3rios salvos."
+    sub: "Selecione uma empresa espec\xEDfica no seletor de empresas, no topo da p\xE1gina, para visualizar os relat\xF3rios salvos."
   })));
 }
 
@@ -1511,25 +1589,15 @@ function CompararScreen() {
       flexDirection: 'column',
       gap: 'var(--space-5)'
     }
-  }, /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      fontSize: 'var(--text-xl)',
-      fontWeight: 700,
-      color: 'var(--text-strong)',
-      marginBottom: 8
-    }
-  }, "Selecione os Relat\xF3rios para Compara\xE7\xE3o"), /*#__PURE__*/React.createElement(EmptyState, {
+  }, /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement(PanelTitle, {
+    title: "Selecione os Relat\xF3rios para Compara\xE7\xE3o"
+  }), /*#__PURE__*/React.createElement(EmptyState, {
     icon: "building-2",
     title: "Selecione uma empresa",
-    sub: "Para comparar relat\xF3rios, voc\xEA precisa selecionar uma empresa espec\xEDfica no dashboard."
-  })), /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      fontSize: 'var(--text-xl)',
-      fontWeight: 700,
-      color: 'var(--text-strong)',
-      marginBottom: 14
-    }
-  }, "Legenda de Interpreta\xE7\xE3o dos Resultados"), /*#__PURE__*/React.createElement("div", {
+    sub: "Para comparar relat\xF3rios, selecione uma empresa espec\xEDfica no seletor de empresas, no topo da p\xE1gina."
+  })), /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement(PanelTitle, {
+    title: "Legenda de Interpreta\xE7\xE3o dos Resultados"
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
@@ -1575,104 +1643,92 @@ function CompararScreen() {
 /* ---------- Modelos de Apresentação ---------- */
 function ModelosScreen() {
   const D = window.MORAH;
-  return /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      marginBottom: 'var(--space-5)'
-    }
-  }, /*#__PURE__*/React.createElement(SectionTitle, {
-    title: "Modelos de apresenta\xE7\xE3o",
-    sub: "Gerencie os modelos dispon\xEDveis para download"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    style: {
-      width: 38,
-      height: 38,
-      borderRadius: 'var(--radius-sm)',
-      border: '1px solid var(--border-default)',
-      background: 'var(--surface-card)',
-      cursor: 'pointer',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'var(--text-muted)'
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "list",
-    size: 16
-  })), /*#__PURE__*/React.createElement("button", {
-    style: {
-      width: 38,
-      height: 38,
-      borderRadius: 'var(--radius-sm)',
-      border: '1px solid var(--berry-300)',
-      background: 'var(--berry-50)',
-      cursor: 'pointer',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'var(--berry-600)'
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "layout-grid",
-    size: 16
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--space-4)'
-    }
-  }, D.models.map((m, i) => /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement(PanelCard, null, /*#__PURE__*/React.createElement(PanelTitle, {
+    title: "Biblioteca de Modelos",
+    sub: `${D.models.length} itens`,
+    right: /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      "aria-label": "Ver em lista",
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--border-subtle)',
+        background: 'var(--surface-card)',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--text-faint)'
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "list",
+      size: 15
+    })), /*#__PURE__*/React.createElement("button", {
+      "aria-label": "Ver em grade",
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--berry-200)',
+        background: 'var(--berry-50)',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--berry-600)'
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "layout-grid",
+      size: 15
+    })))
+  }), /*#__PURE__*/React.createElement("div", null, D.models.map((m, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     style: {
-      border: '1px solid var(--border-subtle)',
-      borderRadius: 'var(--radius-md)',
-      padding: 'var(--space-4)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
       display: 'flex',
-      alignItems: 'flex-start',
-      gap: 12,
-      marginBottom: 14
+      alignItems: 'center',
+      gap: 14,
+      padding: '14px 2px',
+      borderBottom: i < D.models.length - 1 ? '1px solid var(--gray-100)' : 'none'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 40,
-      height: 40,
+      width: 38,
+      height: 38,
       borderRadius: 'var(--radius-sm)',
-      background: 'var(--info-50)',
+      background: 'var(--berry-50)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: 'var(--info-500)',
+      color: 'var(--berry-600)',
       flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement(Icon, {
-    name: "clipboard-list",
-    size: 19
+    name: m.kind === 'Vídeo' ? 'play' : m.kind === 'Slides' ? 'presentation' : 'file-text',
+    size: 17
   })), /*#__PURE__*/React.createElement("div", {
     style: {
-      flex: 1
+      flex: 1,
+      minWidth: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 8
+      gap: 8,
+      flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
-      fontSize: 'var(--text-md)',
-      color: 'var(--text-strong)'
+      fontSize: 'var(--text-base)',
+      color: 'var(--text-strong)',
+      lineHeight: 1.35
     }
   }, m.t), /*#__PURE__*/React.createElement(Badge, {
     tone: "info"
@@ -1681,69 +1737,88 @@ function ModelosScreen() {
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-xs)',
       color: 'var(--text-faint)',
-      marginTop: 4
+      marginTop: 3
     }
-  }, m.d))), /*#__PURE__*/React.createElement(Button, {
-    variant: "dark",
-    iconLeft: "download",
-    fullWidth: true
-  }, "Acessar Modelo")))));
+  }, "Adicionado em ", m.d)), /*#__PURE__*/React.createElement(Button, {
+    size: "sm",
+    variant: "secondary",
+    iconLeft: m.kind === 'Vídeo' ? 'play' : 'download',
+    style: {
+      flexShrink: 0
+    }
+  }, m.kind === 'Vídeo' ? 'Assistir' : 'Baixar')))));
 }
 
 /* ---------- Termos ---------- */
 function TermosScreen() {
   const D = window.MORAH;
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement(PanelCard, {
     style: {
       display: 'flex',
-      justifyContent: 'center'
+      flexDirection: 'column'
     }
-  }, /*#__PURE__*/React.createElement(PanelCard, {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
-      maxWidth: 560,
-      width: '100%'
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 16,
+      marginBottom: 6
     }
-  }, /*#__PURE__*/React.createElement("h3", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
-      fontSize: 'var(--text-xl)',
+      fontSize: 'var(--text-md)',
       fontWeight: 700,
-      color: 'var(--text-strong)',
-      marginBottom: 12
+      color: 'var(--text-strong)'
     }
-  }, "Termos de Aceite"), /*#__PURE__*/React.createElement("div", {
+  }, "Termos de Uso da Plataforma"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-sm)',
       color: 'var(--text-muted)',
-      lineHeight: 1.7,
-      marginBottom: 14
+      lineHeight: 1.8,
+      marginTop: 6
     }
-  }, "Usu\xE1rio: ", D.tenant.tech, " (", D.tenant.email, ")", /*#__PURE__*/React.createElement("br", null), "Status: ", /*#__PURE__*/React.createElement("span", {
+  }, "Usu\xE1rio: ", D.tenant.tech, " (", D.tenant.email, ") \xB7 Aceito em: ", /*#__PURE__*/React.createElement("span", {
     style: {
-      color: 'var(--success-700)',
-      fontWeight: 700
+      fontFamily: 'var(--font-mono)',
+      fontSize: 'var(--text-xs)',
+      color: 'var(--text-body)'
     }
-  }, "Aceito"), /*#__PURE__*/React.createElement("br", null), "Aceito em: 06/05/2026, 18:14:13"), /*#__PURE__*/React.createElement("div", {
+  }, "06/05/2026, 18:14:13"))), /*#__PURE__*/React.createElement(Badge, {
+    tone: "success",
+    style: {
+      marginTop: 3
+    }
+  }, "Aceito")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--gray-50)',
       border: '1px solid var(--border-subtle)',
       borderRadius: 'var(--radius-md)',
-      padding: 'var(--space-4)',
+      padding: 'var(--space-6) var(--space-8)',
+      marginTop: 14,
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-sm)',
       color: 'var(--text-body)',
-      lineHeight: 1.7,
-      height: 220,
+      lineHeight: 1.75,
+      height: 'calc(100vh - 440px)',
+      minHeight: 320,
       overflow: 'auto'
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "TERMOS DE USO DA PLATAFORMA MORAH \u2014 LICENCIAMENTO PARA REVENDA E APLICA\xC7\xC3O"), /*#__PURE__*/React.createElement("p", null, "1. ACEITA\xC7\xC3O DOS TERMOS"), /*#__PURE__*/React.createElement("p", null, "Ao utilizar a plataforma \"Morah\" o USU\xC1RIO concorda integralmente com as condi\xE7\xF5es de uso, captura e tratamento de dados psicossociais conforme a NR-1, garantindo a anonimiza\xE7\xE3o e agrega\xE7\xE3o dos resultados."), /*#__PURE__*/React.createElement("p", null, "2. LICEN\xC7A DE USO. A licen\xE7a concede ao t\xE9cnico de seguran\xE7a do trabalho o direito de aplicar avalia\xE7\xF5es, gerar relat\xF3rios e gerenciar empresas vinculadas \xE0 sua conta.")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, "TERMOS DE USO DA PLATAFORMA MORAH \u2014 LICENCIAMENTO PARA REVENDA E APLICA\xC7\xC3O"), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "1. ACEITA\xC7\xC3O DOS TERMOS."), " Ao utilizar a plataforma \"Morah\" o USU\xC1RIO concorda integralmente com as condi\xE7\xF5es de uso, captura e tratamento de dados psicossociais conforme a NR-1, garantindo a anonimiza\xE7\xE3o e agrega\xE7\xE3o dos resultados."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "2. LICEN\xC7A DE USO."), " A licen\xE7a concede ao t\xE9cnico de seguran\xE7a do trabalho o direito de aplicar avalia\xE7\xF5es, gerar relat\xF3rios e gerenciar empresas vinculadas \xE0 sua conta, dentro do limite de avalia\xE7\xF5es contratado."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "3. PROTE\xC7\xC3O DE DADOS (LGPD)."), " O tratamento de dados pessoais observa a Lei n\xBA 13.709/2018. As respostas individuais s\xE3o anonimizadas na coleta e apresentadas exclusivamente de forma agregada; a plataforma n\xE3o permite a identifica\xE7\xE3o de respondentes nos relat\xF3rios, pain\xE9is ou exporta\xE7\xF5es."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "4. RESPONSABILIDADES DO USU\xC1RIO."), " O USU\xC1RIO compromete-se a aplicar os instrumentos de avalia\xE7\xE3o conforme as orienta\xE7\xF5es t\xE9cnicas da plataforma, a manter sigilo sobre suas credenciais de acesso e a utilizar os resultados unicamente para fins de gest\xE3o de riscos psicossociais no \xE2mbito do PGR."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "5. PROPRIEDADE INTELECTUAL."), " Os instrumentos, metodologias de interpreta\xE7\xE3o, marca e materiais de apoio disponibilizados s\xE3o de titularidade da Morah, sendo vedada a reprodu\xE7\xE3o ou redistribui\xE7\xE3o fora do escopo da licen\xE7a contratada."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "6. VIG\xCANCIA E RESCIS\xC3O."), " Estes termos vigoram enquanto durar a rela\xE7\xE3o contratual. O descumprimento das cl\xE1usulas acima autoriza a suspens\xE3o imediata do acesso, sem preju\xEDzo das demais medidas cab\xEDveis."), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("strong", null, "7. DISPOSI\xC7\xD5ES GERAIS."), " D\xFAvidas sobre estes termos ou sobre o tratamento de dados podem ser encaminhadas ao encarregado de dados indicado no contrato de licenciamento.")), /*#__PURE__*/React.createElement("div", {
     style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
       marginTop: 16
     }
   }, /*#__PURE__*/React.createElement(Button, {
     variant: "primary",
     iconLeft: "file-text"
-  }, "Visualizar PDF"))));
+  }, "Visualizar PDF"), /*#__PURE__*/React.createElement(Button, {
+    variant: "secondary",
+    iconLeft: "download"
+  }, "Baixar PDF")));
 }
 function SelectCompanyScreen({
   what
@@ -1755,7 +1830,7 @@ function SelectCompanyScreen({
   }, /*#__PURE__*/React.createElement(EmptyState, {
     icon: "info",
     title: "Selecione uma empresa",
-    sub: `Para gerenciar ${what}, selecione uma empresa no dropdown acima.`
+    sub: `Para gerenciar ${what}, selecione uma empresa no seletor de empresas, no topo da página.`
   }));
 }
 window.Screens = {
@@ -1782,7 +1857,8 @@ window.Screens = {
 
 // ui_kits/tecnico/Sidebar.jsx
 try { (() => {
-// Morah técnico — Sidebar (dark plum). Composes NavItem from the bundle.
+// Morah técnico — Sidebar. Theme-aware via the --sidebar-*/--nav-* tokens:
+// light shell by default, deep plum when <html data-theme="plum">.
 const {
   NavItem: DsNavItem,
   Avatar: DsAvatar,
@@ -1797,14 +1873,14 @@ function Sidebar({
     label
   }) => /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '0 14px',
+      padding: '0 12px',
       marginBottom: 8,
       fontFamily: 'var(--font-body)',
-      fontSize: 'var(--text-2xs)',
+      fontSize: 10.5,
       fontWeight: 800,
       letterSpacing: 'var(--tracking-caps)',
       textTransform: 'uppercase',
-      color: 'var(--text-on-dark-faint)'
+      color: 'var(--sidebar-section-fg)'
     }
   }, label);
   return /*#__PURE__*/React.createElement("aside", {
@@ -1812,60 +1888,56 @@ function Sidebar({
       width: 'var(--sidebar-width)',
       flexShrink: 0,
       height: '100%',
-      background: 'var(--gradient-sidebar)',
+      background: 'var(--sidebar-bg)',
       display: 'flex',
       flexDirection: 'column',
-      borderRight: '1px solid rgba(255,255,255,0.05)'
+      borderRight: '1px solid var(--sidebar-border)',
+      transition: 'background var(--dur-slow) var(--ease-out)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
-      padding: '20px 20px 18px'
+      gap: 10,
+      padding: '22px 20px 20px'
     }
   }, /*#__PURE__*/React.createElement("img", {
+    className: "morah-logo-light",
+    src: "../../assets/morah-mark.png",
+    alt: "",
+    style: {
+      width: 30,
+      height: 'auto'
+    }
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "morah-logo-light",
+    src: "../../assets/morah-wordmark.png",
+    alt: "Morah",
+    style: {
+      width: 86,
+      height: 'auto'
+    }
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "morah-logo-dark",
     src: "../../assets/morah-mark-white.png",
     alt: "",
     style: {
-      width: 32,
+      width: 30,
       height: 'auto'
     }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 5,
-      lineHeight: 1
-    }
-  }, /*#__PURE__*/React.createElement("img", {
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "morah-logo-dark",
     src: "../../assets/morah-wordmark-white.png",
     alt: "Morah",
     style: {
-      width: 92,
-      height: 'auto',
-      display: 'block'
+      width: 86,
+      height: 'auto'
     }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 9.5,
-      fontWeight: 700,
-      letterSpacing: '0.16em',
-      textTransform: 'uppercase',
-      color: 'var(--text-on-dark-faint)'
-    }
-  }, "Seguran\xE7a \xB7 NR1"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 1,
-      background: 'rgba(255,255,255,0.07)',
-      margin: '0 20px 18px'
-    }
-  }), /*#__PURE__*/React.createElement("nav", {
+  })), /*#__PURE__*/React.createElement("nav", {
     style: {
       flex: 1,
       overflowY: 'auto',
-      padding: '0 12px'
+      padding: '4px 12px 12px'
     }
   }, /*#__PURE__*/React.createElement(Section, {
     label: "Navega\xE7\xE3o"
@@ -1873,15 +1945,14 @@ function Sidebar({
     style: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 3,
-      marginBottom: 22
+      gap: 2,
+      marginBottom: 24
     }
   }, D.nav.navegacao.map(it => /*#__PURE__*/React.createElement(DsNavItem, {
     key: it.id,
     icon: it.icon,
     label: it.label,
     active: active === it.id,
-    dot: active === it.id,
     onClick: () => onNavigate(it.id)
   }))), /*#__PURE__*/React.createElement(Section, {
     label: "Ferramentas"
@@ -1889,45 +1960,46 @@ function Sidebar({
     style: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 3
+      gap: 2
     }
   }, D.nav.ferramentas.map(it => /*#__PURE__*/React.createElement(DsNavItem, {
     key: it.id,
     icon: it.icon,
     label: it.label,
     active: active === it.id,
-    dot: active === it.id,
     onClick: () => onNavigate(it.id)
   })))), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: 12
+      padding: 12,
+      borderTop: '1px solid var(--sidebar-divider)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
       gap: 10,
-      padding: '10px 12px',
-      background: 'rgba(255,255,255,0.05)',
+      padding: '9px 10px',
+      background: 'var(--sidebar-user-bg)',
       borderRadius: 'var(--radius-md)',
-      border: '1px solid rgba(255,255,255,0.06)'
+      border: '1px solid var(--sidebar-user-border)',
+      cursor: 'pointer'
     }
   }, /*#__PURE__*/React.createElement(DsAvatar, {
     name: D.tenant.tech,
-    size: 34,
+    size: 32,
     tone: "berry"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1,
       minWidth: 0,
-      lineHeight: 1.25
+      lineHeight: 1.3
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 'var(--text-sm)',
-      color: '#fff',
+      color: 'var(--sidebar-user-name)',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis'
@@ -1936,12 +2008,12 @@ function Sidebar({
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 'var(--text-2xs)',
-      color: 'var(--text-on-dark-muted)'
+      color: 'var(--sidebar-user-role)'
     }
   }, D.tenant.role)), /*#__PURE__*/React.createElement(DsIcon, {
-    name: "chevron-up",
-    size: 16,
-    color: "var(--text-on-dark-muted)"
+    name: "chevrons-up-down",
+    size: 15,
+    color: "var(--sidebar-user-role)"
   }))));
 }
 window.Sidebar = Sidebar;
@@ -1951,189 +2023,66 @@ window.Sidebar = Sidebar;
 try { (() => {
 // Morah técnico — demo data (plain JS, loaded before the JSX scripts)
 window.MORAH = {
-  tenant: {
-    name: 'Clínica Pedrosa',
-    tech: 'Lucas C. Pedrosa Marques',
-    email: 'tec.pedrosa@gmail.com',
-    role: 'Administrador'
-  },
+  tenant: { name: 'Clínica Pedrosa', tech: 'Lucas C. Pedrosa Marques', email: 'tec.pedrosa@gmail.com', role: 'Administrador' },
+
   nav: {
-    navegacao: [{
-      id: 'overview',
-      icon: 'layout-grid',
-      label: 'Visão Geral'
-    }, {
-      id: 'termos',
-      icon: 'file-text',
-      label: 'Termos Aceito'
-    }, {
-      id: 'empresas',
-      icon: 'building-2',
-      label: 'Empresas'
-    }, {
-      id: 'setor',
-      icon: 'layers',
-      label: 'Setor'
-    }, {
-      id: 'cargos',
-      icon: 'briefcase',
-      label: 'Cargos'
-    }, {
-      id: 'campanhas',
-      icon: 'calendar-range',
-      label: 'Campanhas'
-    }, {
-      id: 'relatorios',
-      icon: 'bar-chart-3',
-      label: 'Relatórios'
-    }],
-    ferramentas: [{
-      id: 'link',
-      icon: 'link-2',
-      label: 'Link de Avaliação'
-    }, {
-      id: 'comparar',
-      icon: 'arrow-left-right',
-      label: 'Comparar Relatórios'
-    }, {
-      id: 'modelos',
-      icon: 'clipboard-list',
-      label: 'Modelos de Apresentação'
-    }]
+    navegacao: [
+      { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
+      { id: 'termos',     icon: 'file-text',   label: 'Termos de Aceite' },
+      { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
+      { id: 'setor',      icon: 'layers',      label: 'Setores' },
+      { id: 'cargos',     icon: 'briefcase',   label: 'Cargos' },
+      { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
+      { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
+    ],
+    ferramentas: [
+      { id: 'link',     icon: 'link-2',         label: 'Link de Avaliação' },
+      { id: 'comparar', icon: 'arrow-left-right',label: 'Comparar Relatórios' },
+      { id: 'modelos',  icon: 'clipboard-list', label: 'Modelos de Apresentação' },
+    ],
   },
+
   titles: {
-    overview: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    termos: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    empresas: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    setor: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    cargos: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    campanhas: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    relatorios: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    link: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    comparar: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    },
-    modelos: {
-      h: 'Painel Administrativo',
-      sub: 'Visão geral dos dados'
-    }
+    overview:   { h: 'Visão Geral',            sub: 'Acompanhe os indicadores das suas avaliações' },
+    termos:     { h: 'Termos de Aceite',       sub: 'Status do aceite dos termos de uso da plataforma' },
+    empresas:   { h: 'Empresas',               sub: 'Gerencie as empresas vinculadas à sua conta' },
+    setor:      { h: 'Setores',                sub: 'Estruture as empresas por setor' },
+    cargos:     { h: 'Cargos',                 sub: 'Gerencie os cargos de cada setor' },
+    campanhas:  { h: 'Campanhas',              sub: 'Organize os períodos de avaliação' },
+    relatorios: { h: 'Relatórios',             sub: 'Resultados e interpretações das avaliações' },
+    link:       { h: 'Link de Avaliação',      sub: 'Compartilhe o link anônimo com os colaboradores' },
+    comparar:   { h: 'Comparar Relatórios',    sub: 'Evolução dos resultados entre períodos' },
+    modelos:    { h: 'Modelos de Apresentação',sub: 'Materiais de apoio para download' },
   },
-  companies: [{
-    name: 'AUTO POSTO NOVA AÇAILANDIA LTDA',
-    cnpj: '12.811.039/0001-78',
-    tag: 'SETOR',
-    tone: 'neutral'
-  }, {
-    name: 'DG SPORTS',
-    cnpj: '29.956.077/0001-11',
-    tag: 'SETOR',
-    tone: 'neutral'
-  }, {
-    name: 'ESCOLA ARCO ÍRIS',
-    cnpj: '41.534.414/0001-88',
-    tag: 'SETOR',
-    tone: 'neutral'
-  }, {
-    name: 'F&S ASSESSORIA E CONSULTORIA - UNF MA',
-    cnpj: '16.568.488/0001-98',
-    tag: 'GHE',
-    tone: 'berry'
-  }, {
-    name: 'F&S ASSESSORIA E CONSULTORIA - UNF MS',
-    cnpj: '16.568.488/0001-98',
-    tag: 'GES',
-    tone: 'info'
-  }, {
-    name: 'TRANSPORTES VALE VERDE',
-    cnpj: '33.402.118/0001-04',
-    tag: 'SETOR',
-    tone: 'neutral'
-  }],
-  models: [{
-    t: 'Vídeo Aula: Implementação da Plataforma (Como colocar no PGR)',
-    d: '03/06/2026',
-    kind: 'Vídeo'
-  }, {
-    t: 'Interpretação das Perguntas (Copsoq II Versão Curta)',
-    d: 'Guia',
-    kind: 'PDF'
-  }, {
-    t: 'Formulário de avaliação manual para impressão',
-    d: 'Modelo',
-    kind: 'PDF'
-  }, {
-    t: 'Manual de interpretação e aplicação do capítulo 1.5 da NR-1',
-    d: 'Guia',
-    kind: 'PDF'
-  }, {
-    t: 'Modelo de Contrato de Canal de Denúncias',
-    d: 'Documento',
-    kind: 'DOC'
-  }, {
-    t: 'Apresentação para os clientes',
-    d: 'Slides',
-    kind: 'Slides'
-  }],
-  chart: {
-    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-    values: [0, 0, 0, 2, 13, 1],
-    max: 16
-  },
-  kpis: [{
-    id: 'emp',
-    label: 'Total de Empresas',
-    value: 13,
-    icon: 'building-2',
-    tone: 'blue',
-    data: [4, 6, 5, 8, 7, 10, 13]
-  }, {
-    id: 'rest',
-    label: 'Avaliações Restantes',
-    value: '11.864',
-    icon: 'clipboard-list',
-    tone: 'green',
-    data: [3, 4, 5, 6, 7, 9, 11]
-  }, {
-    id: 'rel',
-    label: 'Relatórios Salvos',
-    value: 0,
-    icon: 'file-text',
-    tone: 'amber',
-    data: [1, 2, 2, 3, 4, 5, 7]
-  }, {
-    id: 'enc',
-    label: 'Avaliações Encontradas',
-    value: 15,
-    icon: 'message-circle',
-    tone: 'berry',
-    data: [2, 4, 5, 7, 9, 12, 15]
-  }]
+
+  companies: [
+    { name: 'AUTO POSTO NOVA AÇAILANDIA LTDA', cnpj: '12.811.039/0001-78', tag: 'SETOR', tone: 'neutral' },
+    { name: 'DG SPORTS', cnpj: '29.956.077/0001-11', tag: 'SETOR', tone: 'neutral' },
+    { name: 'ESCOLA ARCO ÍRIS', cnpj: '41.534.414/0001-88', tag: 'SETOR', tone: 'neutral' },
+    { name: 'F&S ASSESSORIA E CONSULTORIA - UNF MA', cnpj: '16.568.488/0001-98', tag: 'GHE', tone: 'berry' },
+    { name: 'F&S ASSESSORIA E CONSULTORIA - UNF MS', cnpj: '16.568.488/0001-98', tag: 'GES', tone: 'info' },
+    { name: 'TRANSPORTES VALE VERDE', cnpj: '33.402.118/0001-04', tag: 'SETOR', tone: 'neutral' },
+  ],
+
+  models: [
+    { t: 'Vídeo Aula: Implementação da Plataforma (Como colocar no PGR)', d: '03/06/2026', kind: 'Vídeo' },
+    { t: 'Interpretação das Perguntas (Copsoq II Versão Curta)', d: '28/05/2026', kind: 'PDF' },
+    { t: 'Formulário de avaliação manual para impressão', d: '21/05/2026', kind: 'PDF' },
+    { t: 'Manual de interpretação e aplicação do capítulo 1.5 da NR-1', d: '14/05/2026', kind: 'PDF' },
+    { t: 'Modelo de Contrato de Canal de Denúncias', d: '09/05/2026', kind: 'DOC' },
+    { t: 'Apresentação para os clientes', d: '02/05/2026', kind: 'Slides' },
+  ],
+
+  chart: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'], values: [0, 0, 0, 2, 13, 1], max: 16 },
+
+  kpis: [
+    { id: 'emp',  label: 'Total de Empresas',       value: 6,     icon: 'building-2',     tone: 'blue',  data: [1,2,2,3,4,5,6] },
+    { id: 'rest', label: 'Avaliações Restantes',    value: '11.864', icon: 'clipboard-list', tone: 'green', data: [14,13,13,12,12,12,11] },
+    { id: 'rel',  label: 'Relatórios Salvos',       value: 0,     icon: 'file-text',      tone: 'amber', data: [0,0,0,0,0,0,0] },
+    { id: 'enc',  label: 'Avaliações Realizadas',   value: 16,    icon: 'message-circle', tone: 'berry', data: [2,4,6,8,10,13,16] },
+  ],
 };
+
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/tecnico/data.js", error: String((e && e.message) || e) }); }
 
 __ds_ns.Avatar = __ds_scope.Avatar;

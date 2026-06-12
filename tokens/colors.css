@@ -82,7 +82,7 @@
   --surface-card:   #FFFFFF;
   --surface-sunken: var(--gray-100);
   --surface-raised: #FFFFFF;
-  --surface-sidebar:var(--berry-950);
+  --surface-sidebar:#FFFFFF;   /* light shell — the dark plum sidebar is retired */
 
   --text-strong:    var(--gray-900);
   --text-body:      var(--gray-700);
@@ -105,4 +105,43 @@
   --gradient-sidebar: linear-gradient(184deg, #2A0F2D 0%, #1A091C 100%); /* @kind color */
   --gradient-brand:   linear-gradient(135deg, #A4459C 0%, #6F2568 100%); /* @kind color */
   --gradient-leaf:    linear-gradient(135deg, #4FAE6F 0%, #2F7D4E 100%); /* @kind color */
+
+  /* --- Shell theming (light default; overridden below) ------ */
+  --sidebar-bg:          #FFFFFF;
+  --sidebar-border:      var(--gray-200);
+  --sidebar-divider:     var(--gray-100);
+  --sidebar-section-fg:  var(--gray-400);
+  --nav-fg:              var(--gray-500);
+  --nav-hover-bg:        var(--gray-100);
+  --nav-hover-fg:        var(--gray-900);
+  --nav-active-bg:       var(--berry-50);
+  --nav-active-fg:       var(--berry-800);
+  --nav-active-icon:     var(--berry-600);
+  --nav-dot:             var(--berry-500);
+  --sidebar-user-bg:     var(--gray-50);
+  --sidebar-user-border: var(--gray-200);
+  --sidebar-user-name:   var(--gray-900);
+  --sidebar-user-role:   var(--gray-500);
+}
+
+/* ============================================================
+   PLUM SHELL — the sidebar wears the logo's deep plum ink;
+   content column stays light. Toggle via data-theme on <html>.
+   ============================================================ */
+[data-theme="plum"] {
+  --sidebar-bg:          linear-gradient(186deg, #4B244D 0%, #341736 58%, #28102A 100%);
+  --sidebar-border:      rgba(255,255,255,0.08);
+  --sidebar-divider:     rgba(255,255,255,0.08);
+  --sidebar-section-fg:  rgba(255,255,255,0.42);
+  --nav-fg:              rgba(255,255,255,0.64);
+  --nav-hover-bg:        rgba(255,255,255,0.07);
+  --nav-hover-fg:        rgba(255,255,255,0.92);
+  --nav-active-bg:       rgba(255,255,255,0.12);
+  --nav-active-fg:       #FFFFFF;
+  --nav-active-icon:     var(--berry-300);
+  --nav-dot:             var(--berry-300);
+  --sidebar-user-bg:     rgba(255,255,255,0.06);
+  --sidebar-user-border: rgba(255,255,255,0.08);
+  --sidebar-user-name:   #FFFFFF;
+  --sidebar-user-role:   rgba(255,255,255,0.55);
 }
