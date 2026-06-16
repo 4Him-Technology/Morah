@@ -7,9 +7,13 @@
 <title>Morah — Central de Produtos</title>
 <link rel="stylesheet" href="../styles.css">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.12/dist/amazon-cognito-identity.min.js"></script>
 <style>
-  /* A tela de autenticação entra antes desta no fluxo final; por ora o hub é a entrada. */
+  /* Central pós-login: protegida por sessão Cognito (ver script ao final). */
   html, body { height: 100%; margin: 0; }
+  /* Esconde o conteúdo até a verificação de sessão concluir (evita "flash" de dados). */
+  .shell { visibility: hidden; }
+  .shell.ready { visibility: visible; }
   body {
     font-family: var(--font-body);
     color: #fff;
@@ -183,20 +187,20 @@
       <img src="../assets/morah-wordmark-white.png" alt="Morah" style="width:88px;height:auto">
     </div>
     <div class="user">
-      <span class="avatar">LP</span>
-      <span class="name">Lucas C. Pedrosa Marques</span>
-      <button type="button"><i data-lucide="log-out" style="width:13px;height:13px"></i> Sair</button>
+      <span class="avatar" id="user-initials">··</span>
+      <span class="name" id="user-name">Carregando…</span>
+      <button type="button" id="logout-btn"><i data-lucide="log-out" style="width:13px;height:13px"></i> Sair</button>
     </div>
   </header>
 
   <main class="content">
     <span class="eyebrow">Central de Produtos</span>
-    <h1>Bem-vindo, Lucas</h1>
+    <h1 id="welcome">Bem-vindo</h1>
     <p class="sub">Selecione um produto para continuar. Os produtos exibidos nesta central seguem o plano contratado pela sua conta.</p>
 
     <div class="grid">
-      <!-- Mentask — avaliação psicossocial NR-1 -->
-      <a class="product active" href="../ui_kits/tecnico/index.html">
+      <!-- Mentask — avaliação psicossocial NR-1 (grupo Cognito: "mentask") -->
+      <a class="product" data-product="mentask" href="../ui_kits/tecnico/index.html">
         <div class="head">
           <span class="chip"><i data-lucide="leaf" style="width:20px;height:20px"></i></span>
           <span class="status on"><span class="dot"></span>Contratado</span>
@@ -244,6 +248,57 @@
   </footer>
 </div>
 
-<script>lucide.createIcons();</script>
+<script src="../auth.js"></script>
+<script>
+  // Mapa de produtos reais → grupo Cognito que libera o acesso.
+  // (Os demais cards são demonstrativos até virarem produtos de verdade.)
+  function gateProduct(card, liberado) {
+    const chip = card.querySelector('.chip i');
+    const status = card.querySelector('.status');
+    const cta = card.querySelector('.cta');
+    if (liberado) {
+      card.classList.add('active'); card.classList.remove('locked');
+      card.removeAttribute('aria-disabled');
+      chip && chip.setAttribute('data-lucide', 'leaf');
+      status.className = 'status on'; status.innerHTML = '<span class="dot"></span>Contratado';
+      if (cta) cta.innerHTML = 'Acessar produto <i data-lucide="arrow-right" style="width:15px;height:15px"></i>';
+    } else {
+      card.classList.add('locked'); card.classList.remove('active');
+      card.setAttribute('aria-disabled', 'true');
+      // Bloqueia a navegação do <a> quando não contratado.
+      card.addEventListener('click', (e) => e.preventDefault());
+      chip && chip.setAttribute('data-lucide', 'lock');
+      status.className = 'status off'; status.textContent = 'Não contratado';
+      if (cta) cta.textContent = 'Saiba mais';
+    }
+  }
+
+  (async () => {
+    const user = await MorahAuth.requireAuth(); // redireciona ao login se não houver sessão
+    if (!user) return;
+
+    // Usuário real
+    const first = (user.name || '').trim().split(/\s+/)[0] || 'de volta';
+    document.getElementById('welcome').textContent = 'Bem-vindo, ' + first;
+    document.getElementById('user-name').textContent = user.name || user.email;
+    const parts = (user.name || user.email || '?').trim().split(/\s+/);
+    const initials = ((parts[0] || '')[0] || '') + ((parts[1] || '')[0] || parts[0]?.[1] || '');
+    document.getElementById('user-initials').textContent = initials.toUpperCase();
+
+    // Libera cards pelos grupos do token
+    document.querySelectorAll('.product[data-product]').forEach(card => {
+      gateProduct(card, user.groups.indexOf(card.dataset.product) !== -1);
+    });
+
+    // Sair
+    document.getElementById('logout-btn').onclick = () => {
+      MorahAuth.signOut();
+      window.location.replace(MorahAuth.config.loginUrl);
+    };
+
+    document.querySelector('.shell').classList.add('ready');
+    lucide.createIcons();
+  })();
+</script>
 </body>
 </html>
