@@ -26,6 +26,22 @@ window.MORAH_AUTH_CONFIG = {
 (function () {
   const CFG = window.MORAH_AUTH_CONFIG;
 
+  /* ---------- Modo demonstração (fase de teste) ----------
+   * Permite entrar no sistema sem Cognito para revisar o visual.
+   * Ativado pelo botão "Entrar no modo demonstração" no login e
+   * persistido em localStorage. NÃO usar em produção: remova quando
+   * a autenticação real estiver liberada. */
+  const DEMO_KEY = 'morah-demo';
+  const DEMO_USER = {
+    email: 'demo@morah.com.br',
+    name: 'Visitante Demo',
+    groups: ['mentask'], // libera o card do produto no hub
+    sub: 'demo',
+  };
+  function isDemo() {
+    try { return localStorage.getItem(DEMO_KEY) === '1'; } catch (e) { return false; }
+  }
+
   function pool() {
     if (!window.AmazonCognitoIdentity) {
       throw new Error('SDK do Cognito não carregado (amazon-cognito-identity-js).');
@@ -133,6 +149,7 @@ window.MORAH_AUTH_CONFIG = {
     // Sessão atual (ou null). Renova tokens automaticamente se possível.
     currentSession() {
       return new Promise((resolve) => {
+        if (isDemo()) return resolve({ isValid: () => true, demo: true });
         const user = pool().getCurrentUser();
         if (!user) return resolve(null);
         user.getSession((err, session) => {
@@ -144,6 +161,7 @@ window.MORAH_AUTH_CONFIG = {
 
     // Dados do usuário logado a partir do ID token (nome, e-mail, grupos).
     async currentUser() {
+      if (isDemo()) return Object.assign({}, DEMO_USER);
       const session = await this.currentSession();
       if (!session) return null;
       const payload = session.getIdToken().decodePayload();
@@ -180,9 +198,15 @@ window.MORAH_AUTH_CONFIG = {
     },
 
     signOut() {
+      try { localStorage.removeItem(DEMO_KEY); } catch (e) {}
       const user = pool().getCurrentUser();
       if (user) user.signOut();
     },
+
+    // Modo demonstração (fase de teste). enterDemo() + ir ao hub = entrar sem login.
+    enterDemo() { try { localStorage.setItem(DEMO_KEY, '1'); } catch (e) {} },
+    exitDemo() { try { localStorage.removeItem(DEMO_KEY); } catch (e) {} },
+    isDemo,
 
     // Guarda de rota: garante sessão; se não houver, manda pro login.
     async requireAuth() {

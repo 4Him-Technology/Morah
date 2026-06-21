@@ -85,6 +85,19 @@
 
   .form-foot { font-size: var(--text-2xs); color: var(--text-faint); text-align: center; }
 
+  /* Entrada de teste — modo demonstração (remover quando a auth real liberar) */
+  .demo-box { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-default); text-align: center; }
+  .demo-box .tag { display: inline-block; font-size: var(--text-2xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+  .demo-enter {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px; cursor: pointer;
+    background: var(--gray-50); border: 1px dashed var(--berry-400, var(--berry-500));
+    border-radius: var(--radius-control); color: var(--berry-700, var(--berry-600));
+    font-family: var(--font-body); font-size: var(--text-base); font-weight: 700;
+    transition: background var(--dur-fast), border-color var(--dur-fast);
+  }
+  .demo-enter:hover { background: var(--berry-50); border-color: var(--berry-500); }
+
   /* ---------------- Coluna hero (imagens animadas + plum) ---------------- */
   .hero { flex: 1; position: relative; overflow: hidden; background: var(--berry-950); }
   @media (max-width: 880px) { .hero { display: none; } }
@@ -190,6 +203,15 @@
           <button class="submit" type="submit">Entrar</button>
         </form>
         <div class="switch">Não tem conta? <button type="button" data-go="signup">Criar conta</button></div>
+
+        <!-- Entrada de teste: pula o login e entra direto no sistema (fase de teste) -->
+        <div class="demo-box">
+          <span class="tag">Fase de teste</span>
+          <button type="button" class="demo-enter" id="demo-enter">
+            <i data-lucide="play-circle" width="18" height="18"></i>
+            Entrar no modo demonstração
+          </button>
+        </div>
       </section>
 
       <!-- SIGNUP -->
@@ -327,6 +349,12 @@
   // Navegação entre telas
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
   $('#go-forgot').onclick = () => show('forgot');
+
+  // Entrada de teste — modo demonstração (sem Cognito)
+  $('#demo-enter').onclick = () => {
+    MorahAuth.enterDemo();
+    window.location.replace(MorahAuth.config.hubUrl);
+  };
 
   // Mostrar/ocultar senha
   document.querySelectorAll('.peek').forEach(btn => btn.onclick = () => {
