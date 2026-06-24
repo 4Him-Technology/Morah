@@ -200,7 +200,7 @@ function CompararScreen() {
         </div>
       </PanelCard>
       <div style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-faint)', lineHeight: 1.7 }}>
-        Relatório gerado pela plataforma Morah · Ferramenta de Indicador de Estresse<br />
+        Relatório gerado pela plataforma Moorah · Ferramenta de Indicador de Estresse<br />
         Dados anônimos e agregados — 11/06/2026 às 13:37:29
       </div>
     </div>
@@ -266,12 +266,12 @@ function TermosScreen() {
         fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-body)', lineHeight: 1.75,
         height: 'calc(100vh - 440px)', minHeight: 320, overflow: 'auto',
       }}>
-        <strong>TERMOS DE USO DA PLATAFORMA MORAH — LICENCIAMENTO PARA REVENDA E APLICAÇÃO</strong>
-        <p><strong>1. ACEITAÇÃO DOS TERMOS.</strong> Ao utilizar a plataforma "Morah" o USUÁRIO concorda integralmente com as condições de uso, captura e tratamento de dados psicossociais conforme a NR-1, garantindo a anonimização e agregação dos resultados.</p>
+        <strong>TERMOS DE USO DA PLATAFORMA MOORAH — LICENCIAMENTO PARA REVENDA E APLICAÇÃO</strong>
+        <p><strong>1. ACEITAÇÃO DOS TERMOS.</strong> Ao utilizar a plataforma "Moorah" o USUÁRIO concorda integralmente com as condições de uso, captura e tratamento de dados psicossociais conforme a NR-1, garantindo a anonimização e agregação dos resultados.</p>
         <p><strong>2. LICENÇA DE USO.</strong> A licença concede ao técnico de segurança do trabalho o direito de aplicar avaliações, gerar relatórios e gerenciar empresas vinculadas à sua conta, dentro do limite de avaliações contratado.</p>
         <p><strong>3. PROTEÇÃO DE DADOS (LGPD).</strong> O tratamento de dados pessoais observa a Lei nº 13.709/2018. As respostas individuais são anonimizadas na coleta e apresentadas exclusivamente de forma agregada; a plataforma não permite a identificação de respondentes nos relatórios, painéis ou exportações.</p>
         <p><strong>4. RESPONSABILIDADES DO USUÁRIO.</strong> O USUÁRIO compromete-se a aplicar os instrumentos de avaliação conforme as orientações técnicas da plataforma, a manter sigilo sobre suas credenciais de acesso e a utilizar os resultados unicamente para fins de gestão de riscos psicossociais no âmbito do PGR.</p>
-        <p><strong>5. PROPRIEDADE INTELECTUAL.</strong> Os instrumentos, metodologias de interpretação, marca e materiais de apoio disponibilizados são de titularidade da Morah, sendo vedada a reprodução ou redistribuição fora do escopo da licença contratada.</p>
+        <p><strong>5. PROPRIEDADE INTELECTUAL.</strong> Os instrumentos, metodologias de interpretação, marca e materiais de apoio disponibilizados são de titularidade da Moorah, sendo vedada a reprodução ou redistribuição fora do escopo da licença contratada.</p>
         <p><strong>6. VIGÊNCIA E RESCISÃO.</strong> Estes termos vigoram enquanto durar a relação contratual. O descumprimento das cláusulas acima autoriza a suspensão imediata do acesso, sem prejuízo das demais medidas cabíveis.</p>
         <p><strong>7. DISPOSIÇÕES GERAIS.</strong> Dúvidas sobre estes termos ou sobre o tratamento de dados podem ser encaminhadas ao encarregado de dados indicado no contrato de licenciamento.</p>
       </div>

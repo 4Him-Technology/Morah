@@ -23,9 +23,9 @@ function Sidebar({ active, onNavigate }) {
       {/* Brand — both lockups rendered; base.css shows one per theme */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '22px 20px 20px' }}>
         <img className="morah-logo-light" src="../../assets/morah-mark.png" alt="" style={{ width: 30, height: 'auto' }} />
-        <img className="morah-logo-light" src="../../assets/morah-wordmark.png" alt="Morah" style={{ width: 86, height: 'auto' }} />
+        <img className="morah-logo-light" src="../../assets/morah-wordmark.png" alt="Moorah" style={{ width: 86, height: 'auto' }} />
         <img className="morah-logo-dark" src="../../assets/morah-mark-white.png" alt="" style={{ width: 30, height: 'auto' }} />
-        <img className="morah-logo-dark" src="../../assets/morah-wordmark-white.png" alt="Morah" style={{ width: 86, height: 'auto' }} />
+        <img className="morah-logo-dark" src="../../assets/morah-wordmark-white.png" alt="Moorah" style={{ width: 86, height: 'auto' }} />
       </div>
 
       {/* Nav */}
