@@ -291,37 +291,114 @@ function SelectCompanyScreen({ what }) {
   );
 }
 
-/* ---------- Link de Avaliação ---------- */
-function LinkScreen() {
-  const url = new URL('../../avaliacao/', window.location.href).href;
-  const [copiado, setCopiado] = React.useState(false);
-  const copiar = () => {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2000);
-    });
+/* ---------- Enviar Questionário ---------- */
+function EnvioScreen() {
+  const KEY = 'morah-colaboradores';
+  const ler = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  const [lista, setLista] = React.useState(ler);
+  const [form, setForm] = React.useState({ nome: '', email: '', fone: '', setor: '' });
+  const [erro, setErro] = React.useState('');
+  const baseUrl = new URL('../../avaliacao/', window.location.href).href;
+
+  const salvar = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+  const novoToken = () => Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 8);
+  const linkDe = (c) => baseUrl + '?t=' + c.token;
+
+  // Sincroniza status "respondido" a partir das respostas locais (demo; na AWS vem da API)
+  React.useEffect(() => {
+    try {
+      const envios = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]');
+      const toks = new Set(envios.map((e) => e.convite).filter(Boolean));
+      if (toks.size && lista.some((c) => toks.has(c.token) && c.status !== 'resp')) {
+        salvar(lista.map((c) => (toks.has(c.token) ? { ...c, status: 'resp' } : c)));
+      }
+    } catch (e) {}
+  }, []);
+
+  const adicionar = () => {
+    if (!form.nome.trim()) { setErro('Informe o nome do colaborador.'); return; }
+    if (!form.email.trim() && !form.fone.trim()) { setErro('Informe e-mail ou WhatsApp para o envio.'); return; }
+    setErro('');
+    salvar([...lista, {
+      id: Date.now(), token: novoToken(), status: 'nao',
+      nome: form.nome.trim(), email: form.email.trim(), fone: form.fone.trim(), setor: form.setor.trim(),
+    }]);
+    setForm({ nome: '', email: '', fone: '', setor: '' });
   };
+  const marcar = (c, status) => salvar(lista.map((x) => (x.id === c.id ? { ...x, status } : x)));
+  const remover = (c) => salvar(lista.filter((x) => x.id !== c.id));
+
+  const mensagem = (c) => 'Olá, ' + c.nome.split(' ')[0] + '! Você foi convidado(a) a responder a Avaliação do Ambiente de Trabalho da sua empresa. É anônima e leva cerca de 15 minutos. Acesse: ' + linkDe(c);
+  const viaWhats = (c) => {
+    const d = c.fone.replace(/\D/g, '');
+    const n = d.length <= 11 ? '55' + d : d;
+    window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(mensagem(c)), '_blank');
+    if (c.status === 'nao') marcar(c, 'env');
+  };
+  const viaEmail = (c) => {
+    window.open('mailto:' + c.email + '?subject=' + encodeURIComponent('Avaliação do Ambiente de Trabalho — sua participação é importante') + '&body=' + encodeURIComponent(mensagem(c)));
+    if (c.status === 'nao') marcar(c, 'env');
+  };
+  const copiarLink = (c) => {
+    navigator.clipboard.writeText(linkDe(c));
+    if (c.status === 'nao') marcar(c, 'env');
+  };
+
+  const StatusBadge = ({ s }) => (
+    s === 'resp' ? <Badge tone="success" solid>Respondido</Badge>
+    : s === 'env' ? <Badge tone="info">Enviado</Badge>
+    : <Badge tone="neutral">Não enviado</Badge>
+  );
+
+  const respondidos = lista.filter((c) => c.status === 'resp').length;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       <PanelCard>
-        <PanelTitle title="Link anônimo de avaliação" sub="Compartilhe com os colaboradores por e-mail, WhatsApp ou QR code impresso. Nenhum login é necessário e nenhuma resposta é identificada." />
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input readOnly value={url} onFocus={(e) => e.target.select()} style={{
-            flex: 1, minWidth: 260, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)',
-            color: 'var(--text-strong)', background: 'var(--gray-50)', border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-control)', padding: '11px 13px', outline: 'none',
-          }} />
-          <Button variant="primary" iconLeft={copiado ? 'check' : 'copy'} onClick={copiar}>{copiado ? 'Copiado!' : 'Copiar link'}</Button>
-          <Button variant="secondary" iconLeft="external-link" onClick={() => window.open(url, '_blank')}>Abrir</Button>
+        <PanelTitle title="Cadastrar colaborador" sub="O convite individual é gerado com um link único. O envio marca o status; as respostas continuam anônimas e desvinculadas da identidade." />
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.2fr 1fr 1fr auto', gap: 10, alignItems: 'center' }}>
+          <Input placeholder="Nome completo" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+          <Input placeholder="E-mail" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Input placeholder="WhatsApp (DDD + número)" value={form.fone} onChange={(e) => setForm({ ...form, fone: e.target.value })} />
+          <Input placeholder="Setor" value={form.setor} onChange={(e) => setForm({ ...form, setor: e.target.value })} />
+          <Button variant="primary" iconLeft="plus" onClick={adicionar}>Adicionar</Button>
         </div>
+        {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
       </PanelCard>
+
       <PanelCard>
-        <PanelTitle title="Sobre o questionário" />
+        <PanelTitle title="Colaboradores" sub={lista.length + ' cadastrado(s) · ' + respondidos + ' respondido(s)'} />
+        {lista.length === 0 ? (
+          <EmptyState icon="users" title="Nenhum colaborador cadastrado" sub="Cadastre acima para enviar o questionário por e-mail ou WhatsApp." />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {lista.map((c) => (
+              <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 4px', borderTop: '1px solid var(--gray-100)' }}>
+                <div style={{ flex: 1.4, minWidth: 0 }}>
+                  <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.nome}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {[c.email, c.fone, c.setor].filter(Boolean).join(' · ')}
+                  </div>
+                </div>
+                <StatusBadge s={c.status} />
+                {c.fone ? <Button size="sm" variant="leaf" iconLeft="message-circle" onClick={() => viaWhats(c)}>WhatsApp</Button> : null}
+                {c.email ? <Button size="sm" variant="secondary" iconLeft="mail" onClick={() => viaEmail(c)}>E-mail</Button> : null}
+                <Button size="sm" variant="ghost" iconLeft="copy" onClick={() => copiarLink(c)}>Link</Button>
+                <Button size="sm" variant="ghost" iconLeft="trash-2" style={{ color: 'var(--critical-500)' }} onClick={() => remover(c)} />
+              </div>
+            ))}
+          </div>
+        )}
+      </PanelCard>
+
+      <PanelCard>
+        <PanelTitle title="Como funciona o envio" />
         <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-          Questionário Moorah v1.0 — 75 itens em 6 módulos: núcleo científico COPSOQ II-Br (40 itens validados),
-          aprofundamento Moorah (apoio, reconhecimento, metas, jornada e desconexão), violência e assédio
-          (Lei 14.457/22), sinais de alerta de saúde, contexto de trabalho e perguntas abertas.
-          Tempo médio de resposta: 15 a 20 minutos. Resultados sempre agregados (mínimo 5 respondentes por recorte).
+          Cada colaborador recebe um <b>link único</b> (token de convite) que permite acompanhar quem já respondeu —
+          sem nunca vincular a resposta à pessoa: os relatórios são sempre agregados (mínimo 5 respondentes por recorte).
+          Nesta fase de teste, os botões abrem o WhatsApp/e-mail com a mensagem pronta; com a integração AWS,
+          o disparo passa a ser automático (Amazon SES) e o status "Respondido" é atualizado em tempo real.
+          Questionário Moorah v1.0 — 75 itens · núcleo COPSOQ II-Br + módulos Moorah · 15 a 20 minutos.
         </div>
       </PanelCard>
     </div>
@@ -338,5 +415,5 @@ window.Screens = {
   setor: () => <SelectCompanyScreen what="setores" />,
   cargos: () => <SelectCompanyScreen what="cargos" />,
   campanhas: () => <SelectCompanyScreen what="campanhas" />,
-  link: LinkScreen,
+  link: EnvioScreen,
 };

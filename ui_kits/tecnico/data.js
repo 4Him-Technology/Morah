@@ -13,7 +13,7 @@ window.MORAH = {
       { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
     ],
     ferramentas: [
-      { id: 'link',     icon: 'link-2',         label: 'Link de Avaliação' },
+      { id: 'link',     icon: 'send',           label: 'Enviar Questionário' },
       { id: 'comparar', icon: 'arrow-left-right',label: 'Comparar Relatórios' },
       { id: 'modelos',  icon: 'clipboard-list', label: 'Modelos de Apresentação' },
     ],
@@ -27,7 +27,7 @@ window.MORAH = {
     cargos:     { h: 'Cargos',                 sub: 'Gerencie os cargos de cada setor' },
     campanhas:  { h: 'Campanhas',              sub: 'Organize os períodos de avaliação' },
     relatorios: { h: 'Relatórios',             sub: 'Resultados e interpretações das avaliações' },
-    link:       { h: 'Link de Avaliação',      sub: 'Compartilhe o link anônimo com os colaboradores' },
+    link:       { h: 'Enviar Questionário',    sub: 'Cadastre colaboradores e envie o convite por e-mail ou WhatsApp' },
     comparar:   { h: 'Comparar Relatórios',    sub: 'Evolução dos resultados entre períodos' },
     modelos:    { h: 'Modelos de Apresentação',sub: 'Materiais de apoio para download' },
   },

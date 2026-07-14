@@ -108,6 +108,9 @@
   const textos = {};              // itemId -> string (módulo F)
   let setor = '';
   const inicioMs = Date.now();
+  // Token do convite individual (?t=...) — controla o status do convite;
+  // a resposta permanece desvinculada da identidade nos relatórios.
+  const convite = new URLSearchParams(window.location.search).get('t') || null;
 
   const total = Q.secoes.length;
 
@@ -252,6 +255,7 @@
       versao: Q.versao,
       enviadoEm: new Date().toISOString(),
       duracaoSeg: Math.round((Date.now() - inicioMs) / 1000),
+      convite: convite,
       setor: setor,
       respostas: respostas,
       fontesExposicao: followups,
@@ -276,6 +280,14 @@
       arr.push(payload);
       localStorage.setItem('morah-avaliacoes', JSON.stringify(arr));
       localStorage.setItem('morah-avaliacao-ok', '1');
+      // Demo (mesmo navegador): marca o convite como respondido no painel do técnico.
+      // Com a API AWS, esse status é atualizado no servidor.
+      if (payload.convite) {
+        const cols = JSON.parse(localStorage.getItem('morah-colaboradores') || '[]');
+        let mudou = false;
+        cols.forEach(function (c) { if (c.token === payload.convite) { c.status = 'resp'; mudou = true; } });
+        if (mudou) localStorage.setItem('morah-colaboradores', JSON.stringify(cols));
+      }
     } catch (e) { /* modo anônimo/sem storage: segue para a confirmação */ }
   }
 
