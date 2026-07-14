@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avaliação Psicossocial — Moorah</title>
+<link rel="icon" href="../assets/morah-mark.png">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg-app, #F5F2F5); font-family: var(--font-body, 'Manrope', sans-serif); color: var(--text-body, #4A3B4B); }
+
+  .topbar { background: linear-gradient(120deg, #4B244D, #6E2F6B); padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  .topbar img { height: 20px; width: auto; }
+  .topbar .tag { margin-left: auto; font-family: var(--font-mono, monospace); font-size: 10px; letter-spacing: .14em; color: #E9CDE7; text-transform: uppercase; }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .progress { display: none; margin: 4px 2px 14px; }
+  .progress.on { display: block; }
+  .progress .meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted, #8A7A8B); margin-bottom: 6px; font-weight: 600; }
+  .progress .bar { height: 6px; background: #E9E0E9; border-radius: 999px; overflow: hidden; }
+  .progress .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #A4459C, #7A3374); border-radius: 999px; transition: width .3s ease; }
+
+  .card { background: #fff; border: 1px solid var(--border-subtle, #E6DDE6); border-radius: 14px; padding: 22px 20px; box-shadow: 0 1px 2px rgba(36,23,38,.04); }
+
+  .chip { display: inline-block; font-family: var(--font-mono, monospace); font-size: 10px; font-weight: 600; letter-spacing: .12em; color: #7A3374; background: #F6EAF5; border-radius: 5px; padding: 3px 9px; text-transform: uppercase; }
+  h1 { font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif); font-size: 22px; line-height: 1.25; color: var(--text-strong, #241726); margin: 10px 0 8px; letter-spacing: -.01em; }
+  h2 { font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif); font-size: 17px; color: var(--text-strong, #241726); margin: 8px 0 4px; letter-spacing: -.01em; }
+  p.lead { font-size: 14px; line-height: 1.6; margin: 0 0 6px; }
+  .nota { font-size: 13px; font-style: italic; color: var(--text-muted, #8A7A8B); background: #F9F5F9; border-radius: 8px; padding: 9px 12px; margin: 10px 0; line-height: 1.5; }
+
+  .ethics { margin: 14px 0; padding: 12px 14px; background: #F9F5F9; border-left: 3px solid #A4459C; border-radius: 0 10px 10px 0; }
+  .ethics li { font-size: 13px; margin: 6px 0 6px 14px; line-height: 1.5; }
+  .ethics b { color: var(--text-strong, #241726); }
+
+  label.field { display: block; font-size: 13px; font-weight: 700; color: var(--text-strong, #241726); margin: 14px 0 6px; }
+  input[type=text], textarea { width: 100%; border: 1.5px solid var(--border-subtle, #DACFDA); border-radius: 10px; padding: 11px 13px; font-family: inherit; font-size: 14px; color: inherit; background: #fff; outline: none; }
+  input[type=text]:focus, textarea:focus { border-color: #A4459C; }
+  textarea { min-height: 84px; resize: vertical; }
+
+  .q { padding: 14px 0 4px; border-top: 1px solid #F0E9F0; margin-top: 10px; }
+  .q:first-of-type { border-top: none; margin-top: 0; }
+  .q .qhead { display: flex; gap: 9px; align-items: baseline; }
+  .q .qid { font-family: var(--font-mono, monospace); font-size: 11px; color: #A4459C; font-weight: 600; min-width: 24px; }
+  .q .qtext { font-size: 14.5px; font-weight: 700; color: var(--text-strong, #241726); line-height: 1.45; }
+  .q.missing .qtext { color: #C43535; }
+  .q.missing::after { content: 'Escolha uma resposta para continuar'; display: block; font-size: 12px; color: #C43535; margin: 6px 0 0 33px; font-weight: 600; }
+
+  .opts { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 8px 0; }
+  .opt { display: flex; align-items: center; gap: 10px; border: 1.5px solid #E6DDE6; border-radius: 10px; padding: 10px 13px; cursor: pointer; font-size: 14px; background: #fff; transition: border-color .12s, background .12s; }
+  .opt:hover { border-color: #C88EC3; }
+  .opt.sel { border-color: #A4459C; background: #FAF2F9; font-weight: 700; color: #241726; }
+  .opt .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #C9BAC9; flex-shrink: 0; position: relative; }
+  .opt.sel .dot { border-color: #A4459C; }
+  .opt.sel .dot::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #A4459C; }
+
+  .followup { margin: 4px 0 10px 8px; padding: 10px 12px; background: #FDF7F3; border: 1px dashed #E8C9A8; border-radius: 10px; }
+  .followup .ft { font-size: 12.5px; font-weight: 700; color: #8A5A2B; margin-bottom: 8px; }
+  .fopt { display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid #E8D9C8; border-radius: 8px; padding: 6px 11px; margin: 0 6px 6px 0; cursor: pointer; font-size: 13px; background: #fff; }
+  .fopt.sel { border-color: #C98A3B; background: #FBF0E3; font-weight: 700; }
+
+  .navrow { display: flex; gap: 10px; margin-top: 18px; }
+  .btn { flex: 1; border: none; border-radius: 11px; padding: 14px 18px; font-family: var(--font-body, inherit); font-size: 15px; font-weight: 800; cursor: pointer; transition: filter .12s; }
+  .btn:hover { filter: brightness(1.06); }
+  .btn.primary { background: #A4459C; color: #fff; }
+  .btn.ghost { background: transparent; color: var(--text-muted, #8A7A8B); border: 1.5px solid #E6DDE6; flex: 0 0 auto; }
+  .btn.leaf { background: #3E9B63; color: #fff; }
+  .btn:disabled { opacity: .55; cursor: default; }
+
+  .consent { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 4px; font-size: 13px; line-height: 1.5; cursor: pointer; }
+  .consent input { margin-top: 2px; accent-color: #A4459C; width: 17px; height: 17px; }
+
+  .done-icon { width: 64px; height: 64px; border-radius: 50%; background: #E7F4EC; color: #2EA86A; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 4px auto 14px; }
+  .center { text-align: center; }
+
+  .foot { margin-top: 26px; text-align: center; font-size: 11px; color: var(--text-faint, #B3A6B3); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="../assets/morah-wordmark-white.png" alt="Moorah">
+  <span class="tag">Avaliação Psicossocial · NR-1</span>
+</div>
+
+<div class="wrap">
+  <div class="progress" id="progress">
+    <div class="meta"><span id="p-label"></span><span id="p-pct"></span></div>
+    <div class="bar"><div class="fill" id="p-fill"></div></div>
+  </div>
+  <div id="app"></div>
+  <div class="foot">Dados anônimos e agregados · Questionário Moorah v1.0<br>Núcleo COPSOQ II-Br (NRCWE · Gonçalves et al., 2021) + Indicadores Moorah</div>
+</div>
+
+<script src="questionario.js"></script>
+<script>
+(function () {
+  'use strict';
+  const Q = window.MORAH_QUESTIONARIO;
+  const app = document.getElementById('app');
+
+  // Estado
+  let etapa = -1;                 // -1 = intro, 0..N-1 = seções, N = fim
+  const respostas = {};           // itemId -> { v, t }
+  const followups = {};           // itemId -> [fontes]
+  const textos = {};              // itemId -> string (módulo F)
+  let setor = '';
+  const inicioMs = Date.now();
+
+  const total = Q.secoes.length;
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function setProgress() {
+    const el = document.getElementById('progress');
+    if (etapa < 0 || etapa >= total) { el.classList.remove('on'); return; }
+    el.classList.add('on');
+    const pct = Math.round((etapa / total) * 100);
+    document.getElementById('p-label').textContent = 'Etapa ' + (etapa + 1) + ' de ' + total;
+    document.getElementById('p-pct').textContent = pct + '%';
+    document.getElementById('p-fill').style.width = Math.max(pct, 4) + '%';
+  }
+
+  // ---------- Telas ----------
+  function renderIntro() {
+    const ja = localStorage.getItem('morah-avaliacao-ok');
+    app.innerHTML =
+      '<div class="card">' +
+      '<span class="chip">Fase de teste</span>' +
+      '<h1>Avaliação do ambiente psicossocial de trabalho</h1>' +
+      '<p class="lead">Este questionário avalia as condições do <b>ambiente de trabalho</b> — não avalia você. Leva de 15 a 20 minutos. Responda com sinceridade, pensando no seu dia a dia das últimas semanas.</p>' +
+      (ja ? '<div class="nota">Você já enviou uma resposta neste dispositivo. Durante a fase de teste, é possível responder novamente.</div>' : '') +
+      '<div class="ethics">' +
+      '<li>A participação é <b>voluntária</b>. Ninguém deve se sentir pressionado a participar.</li>' +
+      '<li>Suas respostas são <b>anônimas</b>. Os resultados são calculados por grupos e respostas individuais não podem ser identificadas.</li>' +
+      '<li>Todos os que contribuírem poderão ver os <b>resultados globais</b>.</li>' +
+      '<li>Avalia-se o <b>local de trabalho e seus setores</b> — nunca o indivíduo. Recortes só aparecem com 5 ou mais respondentes.</li>' +
+      '</div>' +
+      '<label class="field" for="setor">Em qual setor / departamento você trabalha?</label>' +
+      '<input type="text" id="setor" placeholder="Ex.: Produção, Administrativo, Comercial…" value="' + esc(setor) + '">' +
+      '<label class="consent"><input type="checkbox" id="consente"> <span>Entendi que a participação é voluntária e anônima, e concordo em responder o questionário. (LGPD — nenhum dado pessoal identificável é coletado)</span></label>' +
+      '<div class="navrow"><button class="btn primary" id="comecar">Começar avaliação</button></div>' +
+      '</div>';
+
+    document.getElementById('comecar').onclick = function () {
+      const s = document.getElementById('setor').value.trim();
+      const ok = document.getElementById('consente').checked;
+      if (!s) { document.getElementById('setor').style.borderColor = '#C43535'; document.getElementById('setor').focus(); return; }
+      if (!ok) { alert('Para participar, confirme que entendeu as condições de participação.'); return; }
+      setor = s; etapa = 0; render();
+    };
+  }
+
+  function renderSecao() {
+    const sec = Q.secoes[etapa];
+    let html = '<div class="card">';
+    html += '<span class="chip">Módulo ' + sec.modulo + '</span>';
+    html += '<h2>' + esc(sec.dimensao) + '</h2>';
+    if (sec.nota) html += '<div class="nota">' + esc(sec.nota) + '</div>';
+
+    sec.itens.forEach(function (item) {
+      if (item.notaAntes) html += '<div class="nota">' + esc(item.notaAntes) + '</div>';
+      html += '<div class="q" data-item="' + item.id + '"><div class="qhead"><span class="qid">' + item.id + '</span><span class="qtext">' + esc(item.texto) + '</span></div>';
+
+      if (item.tipo === 'texto') {
+        html += '<textarea data-texto="' + item.id + '" placeholder="Escreva aqui (opcional)…">' + esc(textos[item.id] || '') + '</textarea>';
+      } else {
+        const opts = Q.escalas[item.escala];
+        html += '<div class="opts">';
+        opts.forEach(function (o, oi) {
+          const sel = respostas[item.id] && respostas[item.id].t === o.t ? ' sel' : '';
+          html += '<div class="opt' + sel + '" data-item="' + item.id + '" data-oi="' + oi + '"><span class="dot"></span>' + esc(o.t) + '</div>';
+        });
+        html += '</div>';
+        if (item.followup) {
+          const show = respostas[item.id] && respostas[item.id].v > 0;
+          html += '<div class="followup" data-fu="' + item.id + '" style="display:' + (show ? 'block' : 'none') + '">' +
+            '<div class="ft">Se sim, de quem? (pode marcar mais de uma opção)</div>' +
+            Q.fontesExposicao.map(function (f) {
+              const fsel = (followups[item.id] || []).indexOf(f) >= 0 ? ' sel' : '';
+              return '<span class="fopt' + fsel + '" data-fitem="' + item.id + '" data-f="' + esc(f) + '">' + esc(f) + '</span>';
+            }).join('') + '</div>';
+        }
+      }
+      html += '</div>';
+    });
+
+    html += '<div class="navrow">' +
+      '<button class="btn ghost" id="voltar">Voltar</button>' +
+      '<button class="btn ' + (etapa === total - 1 ? 'leaf" id="avancar">Enviar respostas' : 'primary" id="avancar">Continuar') + '</button>' +
+      '</div></div>';
+
+    app.innerHTML = html;
+    window.scrollTo({ top: 0 });
+
+    // Opções
+    app.querySelectorAll('.opt').forEach(function (el) {
+      el.onclick = function () {
+        const id = el.getAttribute('data-item');
+        const oi = parseInt(el.getAttribute('data-oi'), 10);
+        const item = sec.itens.find(function (i) { return i.id === id; });
+        const o = Q.escalas[item.escala][oi];
+        respostas[id] = { v: o.v, t: o.t };
+        el.parentElement.querySelectorAll('.opt').forEach(function (s) { s.classList.remove('sel'); });
+        el.classList.add('sel');
+        el.closest('.q').classList.remove('missing');
+        if (item.followup) {
+          const fu = app.querySelector('[data-fu="' + id + '"]');
+          if (fu) fu.style.display = o.v > 0 ? 'block' : 'none';
+          if (o.v === 0) followups[id] = [];
+        }
+      };
+    });
+    // Follow-ups
+    app.querySelectorAll('.fopt').forEach(function (el) {
+      el.onclick = function () {
+        const id = el.getAttribute('data-fitem'); const f = el.getAttribute('data-f');
+        followups[id] = followups[id] || [];
+        const ix = followups[id].indexOf(f);
+        if (ix >= 0) { followups[id].splice(ix, 1); el.classList.remove('sel'); }
+        else { followups[id].push(f); el.classList.add('sel'); }
+      };
+    });
+    // Textos (módulo F)
+    app.querySelectorAll('textarea[data-texto]').forEach(function (el) {
+      el.oninput = function () { textos[el.getAttribute('data-texto')] = el.value; };
+    });
+
+    document.getElementById('voltar').onclick = function () { etapa -= 1; render(); };
+    document.getElementById('avancar').onclick = function () {
+      if (!sec.opcional) {
+        let falta = null;
+        sec.itens.forEach(function (item) {
+          if (item.tipo === 'texto') return;
+          if (!respostas[item.id]) {
+            const qEl = app.querySelector('.q[data-item="' + item.id + '"]');
+            qEl.classList.add('missing');
+            if (!falta) falta = qEl;
+          }
+        });
+        if (falta) { falta.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+      }
+      if (etapa === total - 1) enviar();
+      else { etapa += 1; render(); }
+    };
+  }
+
+  function enviar() {
+    const payload = {
+      versao: Q.versao,
+      enviadoEm: new Date().toISOString(),
+      duracaoSeg: Math.round((Date.now() - inicioMs) / 1000),
+      setor: setor,
+      respostas: respostas,
+      fontesExposicao: followups,
+      camposAbertos: textos,
+    };
+    // Sem backend ainda: persiste localmente. Na integração AWS, definir window.MORAH_API_AVALIACAO
+    // (ex.: em config.js) e este bloco passa a enviar via POST.
+    const api = window.MORAH_API_AVALIACAO;
+    if (api) {
+      fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function () { concluir(); })
+        .catch(function () { salvarLocal(payload); concluir(); });
+    } else {
+      salvarLocal(payload);
+      concluir();
+    }
+  }
+
+  function salvarLocal(payload) {
+    try {
+      const arr = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]');
+      arr.push(payload);
+      localStorage.setItem('morah-avaliacoes', JSON.stringify(arr));
+      localStorage.setItem('morah-avaliacao-ok', '1');
+    } catch (e) { /* modo anônimo/sem storage: segue para a confirmação */ }
+  }
+
+  function concluir() { etapa = total; render(); }
+
+  function renderFim() {
+    app.innerHTML =
+      '<div class="card center">' +
+      '<div class="done-icon">✓</div>' +
+      '<h1>Respostas enviadas. Obrigado!</h1>' +
+      '<p class="lead">Sua participação, sempre anônima, ajuda a construir um ambiente de trabalho mais saudável. Os resultados serão divulgados de forma agregada.</p>' +
+      '</div>';
+  }
+
+  function render() {
+    setProgress();
+    if (etapa < 0) renderIntro();
+    else if (etapa >= total) renderFim();
+    else renderSecao();
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

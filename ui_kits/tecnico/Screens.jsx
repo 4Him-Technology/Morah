@@ -291,6 +291,43 @@ function SelectCompanyScreen({ what }) {
   );
 }
 
+/* ---------- Link de Avaliação ---------- */
+function LinkScreen() {
+  const url = new URL('../../avaliacao/', window.location.href).href;
+  const [copiado, setCopiado] = React.useState(false);
+  const copiar = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    });
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <PanelTitle title="Link anônimo de avaliação" sub="Compartilhe com os colaboradores por e-mail, WhatsApp ou QR code impresso. Nenhum login é necessário e nenhuma resposta é identificada." />
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input readOnly value={url} onFocus={(e) => e.target.select()} style={{
+            flex: 1, minWidth: 260, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)',
+            color: 'var(--text-strong)', background: 'var(--gray-50)', border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-control)', padding: '11px 13px', outline: 'none',
+          }} />
+          <Button variant="primary" iconLeft={copiado ? 'check' : 'copy'} onClick={copiar}>{copiado ? 'Copiado!' : 'Copiar link'}</Button>
+          <Button variant="secondary" iconLeft="external-link" onClick={() => window.open(url, '_blank')}>Abrir</Button>
+        </div>
+      </PanelCard>
+      <PanelCard>
+        <PanelTitle title="Sobre o questionário" />
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.7 }}>
+          Questionário Moorah v1.0 — 75 itens em 6 módulos: núcleo científico COPSOQ II-Br (40 itens validados),
+          aprofundamento Moorah (apoio, reconhecimento, metas, jornada e desconexão), violência e assédio
+          (Lei 14.457/22), sinais de alerta de saúde, contexto de trabalho e perguntas abertas.
+          Tempo médio de resposta: 15 a 20 minutos. Resultados sempre agregados (mínimo 5 respondentes por recorte).
+        </div>
+      </PanelCard>
+    </div>
+  );
+}
+
 window.Screens = {
   overview: OverviewScreen,
   empresas: EmpresasScreen,
@@ -301,5 +338,5 @@ window.Screens = {
   setor: () => <SelectCompanyScreen what="setores" />,
   cargos: () => <SelectCompanyScreen what="cargos" />,
   campanhas: () => <SelectCompanyScreen what="campanhas" />,
-  link: () => <SelectCompanyScreen what="o link de avaliação" />,
+  link: LinkScreen,
 };
