@@ -165,13 +165,152 @@ function EmpresasScreen() {
 
 /* ---------- Relatórios ---------- */
 function RelatoriosScreen() {
-  const [tab, setTab] = React.useState(0);
+  const lerAvaliacoes = () => { try { return JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]'); } catch (e) { return []; } };
+  const [avaliacoes, setAvaliacoes] = React.useState(lerAvaliacoes);
+  const [recorte, setRecorte] = React.useState('Todos os setores');
+
+  const M = window.MorahMotor;
+  const agg = React.useMemo(() => M.calcular(avaliacoes), [avaliacoes]);
+
+  const gerarDemo = () => {
+    const demo = M.gerarDemo();
+    const tudo = [...avaliacoes, ...demo];
+    try { localStorage.setItem('morah-avaliacoes', JSON.stringify(tudo)); } catch (e) {}
+    setAvaliacoes(tudo);
+  };
+  const limparDemo = () => {
+    const reais = avaliacoes.filter((a) => !a.demo);
+    try { localStorage.setItem('morah-avaliacoes', JSON.stringify(reais)); } catch (e) {}
+    setAvaliacoes(reais);
+    setRecorte('Todos os setores');
+  };
+
+  if (!agg.n) {
+    return (
+      <PanelCard style={{ padding: 0 }}>
+        <EmptyState icon="bar-chart-3" title="Ainda não há respostas" sub="Envie o questionário aos colaboradores para gerar o diagnóstico — ou gere dados de demonstração para conhecer o relatório." />
+        <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 'var(--space-6)' }}>
+          <Button variant="secondary" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>
+        </div>
+      </PanelCard>
+    );
+  }
+
+  // Recorte selecionado (k-anonimato aplicado pelo motor)
+  const opcoes = ['Todos os setores', ...agg.recortes.map((r) => r.setor + (r.suficiente ? '' : ' (n<' + agg.kAnonimato + ' — oculto)'))];
+  const recSel = agg.recortes.find((r) => recorte.indexOf(r.setor) === 0);
+  const bloqueado = recSel && !recSel.suficiente;
+  const res = recSel && recSel.suficiente ? recSel.resultado : agg.global;
+  const nExibido = recSel && recSel.suficiente ? recSel.n : agg.n;
+
+  const temDemo = avaliacoes.some((a) => a.demo);
+  const totalBandeiras = res ? res.bandeiras.length : 0;
+
+  const NivelRow = ({ nome, detalhe, nivel }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px', borderTop: '1px solid var(--gray-100)' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{nome}</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>{detalhe}</div>
+      </div>
+      {nivel ? <ResultBand level={nivel} /> : <Badge tone="neutral">Sem dados</Badge>}
+    </div>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-      <Tabs tabs={['Relatórios Salvos', 'Filtros de Relatório', 'Individuais']} active={tab} onChange={setTab} />
-      <PanelCard style={{ padding: 0 }}>
-        <EmptyState icon="info" title="Selecione uma empresa" sub="Selecione uma empresa específica no seletor de empresas, no topo da página, para visualizar os relatórios salvos." />
-      </PanelCard>
+      {/* Toolbar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ width: 260 }}>
+          <Select value={recorte} onChange={(e) => setRecorte(e.target.value)} options={opcoes} />
+        </div>
+        <Badge tone="berry">{nExibido} resposta(s)</Badge>
+        {!agg.amostraSuficiente && <Badge tone="warning" solid>Amostra &lt; {agg.kAnonimato} — modo de teste</Badge>}
+        <div style={{ flex: 1 }}></div>
+        <Button variant="primary" iconLeft="file-text" onClick={() => window.open('../../avaliacao/laudo.html', '_blank')}>Abrir laudo (PDF)</Button>
+        {temDemo
+          ? <Button variant="ghost" iconLeft="trash-2" onClick={limparDemo}>Limpar dados de teste</Button>
+          : <Button variant="ghost" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>}
+      </div>
+
+      {bloqueado ? (
+        <PanelCard style={{ padding: 0 }}>
+          <EmptyState icon="lock" title="Recorte protegido por anonimato" sub={'Este setor tem menos de ' + agg.kAnonimato + ' respondentes. Para proteger o anonimato (k-anonimato), os resultados só são exibidos com ' + agg.kAnonimato + ' ou mais respostas.'} />
+        </PanelCard>
+      ) : (
+        <React.Fragment>
+          {/* KPIs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+            <StatCard label="Respostas" value={String(nExibido)} icon="clipboard-list" tone="berry" />
+            <StatCard label="Dimensões críticas" value={String(res.dimensoesCriticas)} icon="alert-triangle" tone={res.dimensoesCriticas ? 'amber' : 'green'} />
+            <StatCard label="Bandeiras de alerta" value={String(totalBandeiras)} icon="flag" tone={totalBandeiras ? 'amber' : 'green'} />
+          </div>
+
+          {/* Bandeiras */}
+          {totalBandeiras > 0 && (
+            <PanelCard>
+              <PanelTitle title="Bandeiras de alerta imediato" sub="Gatilhos que independem do score — tratar prioritariamente no plano de ação" />
+              {res.bandeiras.map((b, i) => (
+                <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 4px', borderTop: '1px solid var(--gray-100)', alignItems: 'flex-start' }}>
+                  <span style={{ marginTop: 2, color: b.nivel === 'critico' ? 'var(--critical-500)' : 'var(--warning-500)' }}><Icon name="flag" size={16} /></span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{b.titulo}</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', margin: '2px 0' }}>{b.detalhe}</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--berry-700)', fontWeight: 600 }}>Ação sugerida: {b.acao}</div>
+                  </div>
+                  <ResultBand level={b.nivel} />
+                </div>
+              ))}
+            </PanelCard>
+          )}
+
+          {/* Núcleo COPSOQ */}
+          <PanelCard>
+            <PanelTitle title="Dimensões COPSOQ II-Br" sub="Núcleo validado — classificação por tercis da faixa teórica, respeitando a direção do risco" />
+            {res.nucleo.map((d) => (
+              <NivelRow key={d.id} nome={d.nome} nivel={d.nivel}
+                detalhe={(d.media === null ? '—' : d.media + ' / ' + d.max) + ' · ' + (d.dir === 'risco' ? 'maior = pior' : 'maior = melhor')} />
+            ))}
+          </PanelCard>
+
+          {/* Indicadores Moorah */}
+          <PanelCard>
+            <PanelTitle title="Indicadores Moorah" sub="Índice de risco 0–4 (itens de proteção invertidos) · cortes 1,33 / 2,67" />
+            {res.moorah.map((m) => (
+              <NivelRow key={m.id} nome={m.nome} nivel={m.nivel}
+                detalhe={m.indice === null ? 'sem respostas aplicáveis' : 'índice ' + m.indice.toFixed(2) + ' / 4'} />
+            ))}
+          </PanelCard>
+
+          {/* Exposições */}
+          <PanelCard>
+            <PanelTitle title="Comportamentos ofensivos e violência" sub="Últimos 12 meses — qualquer exposição gera acompanhamento" />
+            {res.ofensivos.map((o) => (
+              <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 4px', borderTop: '1px solid var(--gray-100)' }}>
+                <div style={{ flex: 1, fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--text-strong)' }}>{o.nome}</div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{o.expostos} relato(s) · {o.pct}%</span>
+                {o.expostos === 0 ? <Badge tone="success" solid>Sem relatos</Badge> : o.recorrentes > 0 ? <Badge tone="critical" solid>Recorrente</Badge> : <Badge tone="warning" solid>Pontual</Badge>}
+              </div>
+            ))}
+          </PanelCard>
+
+          {/* Voz do trabalhador */}
+          {res.vozes.length > 0 && (
+            <PanelCard>
+              <PanelTitle title="Voz do trabalhador" sub="Relatos abertos, exibidos sem identificação" />
+              {res.vozes.map((v, i) => (
+                <div key={i} style={{ padding: '9px 4px', borderTop: '1px solid var(--gray-100)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-body)', fontStyle: 'italic' }}>
+                  “{v.texto}”
+                </div>
+              ))}
+            </PanelCard>
+          )}
+
+          <div style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-faint)', lineHeight: 1.7 }}>
+            Relatório gerado pela plataforma Moorah · Questionário Moorah v1.0 (núcleo COPSOQ II-Br)<br />
+            Dados anônimos e agregados — recortes exibidos apenas com n ≥ {agg.kAnonimato}
+          </div>
+        </React.Fragment>
+      )}
     </div>
   );
 }

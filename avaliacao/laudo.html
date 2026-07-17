@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laudo FRPRT — Moorah</title>
+<link rel="icon" href="../assets/morah-mark.png">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #EDE7ED; font-family: var(--font-body, 'Manrope', sans-serif); color: #4A3B4B; font-size: 13px; line-height: 1.5; }
+
+  .toolbar { position: sticky; top: 0; z-index: 10; background: #4B244D; color: #fff; padding: 10px 18px; display: flex; align-items: center; gap: 14px; }
+  .toolbar .t { font-family: var(--font-display, sans-serif); font-weight: 800; font-size: 14px; }
+  .toolbar .hint { font-size: 11.5px; color: #E9CDE7; }
+  .toolbar button { margin-left: auto; background: #A4459C; color: #fff; border: none; border-radius: 9px; padding: 9px 16px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+  .folha { max-width: 800px; margin: 18px auto; background: #fff; padding: 34px 38px; border-radius: 6px; box-shadow: 0 2px 14px rgba(36,23,38,.10); }
+
+  .brand { font-family: var(--font-display, sans-serif); font-weight: 800; letter-spacing: .4em; color: #4B244D; font-size: 17px; }
+  .doctag { font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; color: #8A7A8B; font-weight: 700; margin-top: 3px; }
+  h1 { font-family: var(--font-display, sans-serif); font-size: 19px; color: #241726; margin: 14px 0 2px; letter-spacing: -.01em; }
+  h2 { font-family: var(--font-display, sans-serif); font-size: 13.5px; color: #4B244D; margin: 20px 0 7px; padding-bottom: 4px; border-bottom: 2px solid #4B244D; }
+  .sub { font-size: 12px; color: #8A7A8B; }
+
+  .idgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 20px; margin: 12px 0; }
+  .idgrid .campo { font-size: 12.5px; }
+  .idgrid .campo b { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: #8A7A8B; margin-bottom: 1px; }
+  [contenteditable] { border-bottom: 1px dashed #C9BAC9; min-width: 60px; display: inline-block; outline: none; padding: 0 2px; }
+  [contenteditable]:focus { background: #FAF2F9; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+  th { text-align: left; font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; color: #8A7A8B; padding: 5px 8px; border-bottom: 1.5px solid #4B244D; }
+  td { padding: 5.5px 8px; border-bottom: 1px solid #EFE8EF; vertical-align: top; }
+  td.mono { font-family: var(--font-mono, monospace); font-size: 11px; color: #6A5A6B; white-space: nowrap; }
+
+  .sem { display: inline-block; border-radius: 5px; padding: 2px 9px; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+  .sem.critico { background: #E23D3D; } .sem.atencao { background: #E9A115; } .sem.adequado { background: #2EA86A; } .sem.nd { background: #B3A6B3; }
+
+  .bandeira { display: flex; gap: 10px; padding: 8px 10px; border: 1px solid #F3E0E0; border-left: 4px solid #E23D3D; border-radius: 6px; margin: 6px 0; }
+  .bandeira.atencao { border-left-color: #E9A115; border-color: #F5EBD5; }
+  .bandeira .bt { font-weight: 800; color: #241726; font-size: 12.5px; }
+  .bandeira .bd { font-size: 11.5px; color: #6A5A6B; }
+  .bandeira .ba { font-size: 11.5px; color: #7A3374; font-weight: 700; }
+
+  .nota { font-size: 11px; color: #6A5A6B; background: #F9F5F9; border-radius: 8px; padding: 10px 13px; line-height: 1.6; margin: 10px 0; }
+  .aviso-amostra { background: #FDF3E3; border: 1px solid #F0D9AC; color: #8A5A2B; font-weight: 600; }
+
+  .assinatura { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .assinatura .linha { border-top: 1px solid #4A3B4B; padding-top: 5px; font-size: 11px; text-align: center; color: #6A5A6B; }
+
+  .rodape { margin-top: 22px; padding-top: 10px; border-top: 1px solid #EFE8EF; font-size: 10px; color: #B3A6B3; display: flex; justify-content: space-between; }
+
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .folha { box-shadow: none; margin: 0; max-width: none; border-radius: 0; padding: 10mm 12mm; }
+    h2 { page-break-after: avoid; }
+    table, .bandeira { page-break-inside: avoid; }
+    @page { size: A4 portrait; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="t">Laudo FRPRT — pré-visualização</span>
+  <span class="hint">Os campos tracejados são editáveis — preencha antes de imprimir</span>
+  <button onclick="window.print()">Imprimir / Salvar PDF</button>
+</div>
+
+<div class="folha" id="folha">Carregando…</div>
+
+<script src="questionario.js"></script>
+<script src="motor.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MorahMotor;
+  let avaliacoes = [];
+  try { avaliacoes = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]'); } catch (e) {}
+  const agg = M.calcular(avaliacoes);
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const el = document.getElementById('folha');
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function sem(nivel) {
+    const rot = { critico: 'CRÍTICO', atencao: 'ATENÇÃO', adequado: 'ADEQUADO' };
+    return nivel ? '<span class="sem ' + nivel + '">' + rot[nivel] + '</span>' : '<span class="sem nd">SEM DADOS</span>';
+  }
+
+  if (!agg.n) {
+    el.innerHTML = '<div class="brand">MOORAH</div><h1>Laudo Técnico — FRPRT</h1>' +
+      '<div class="nota">Ainda não há respostas registradas neste navegador. Envie o questionário aos colaboradores ou gere dados de demonstração na tela Relatórios do painel.</div>';
+    return;
+  }
+
+  const res = agg.global;
+  let html = '';
+
+  // Cabeçalho e identificação
+  html += '<div class="brand">MOORAH</div><div class="doctag">Segurança do Trabalho · NR-1 · GRO/PGR</div>';
+  html += '<h1>Laudo Técnico de Avaliação dos Fatores de Riscos Psicossociais Relacionados ao Trabalho (FRPRT)</h1>';
+  html += '<div class="sub">Documento de apoio ao inventário de riscos do PGR — NR-1, item 1.5 (Portaria MTE nº 1.419/2024)</div>';
+  html += '<div class="idgrid">' +
+    '<div class="campo"><b>Empresa</b><span contenteditable="true">[Razão social da empresa]</span></div>' +
+    '<div class="campo"><b>CNPJ</b><span contenteditable="true">[00.000.000/0000-00]</span></div>' +
+    '<div class="campo"><b>Período de aplicação</b><span contenteditable="true">' + hoje + '</span></div>' +
+    '<div class="campo"><b>Respondentes</b>' + agg.n + ' trabalhador(es)</div>' +
+    '<div class="campo"><b>Instrumento</b>Questionário Moorah v1.0 (núcleo COPSOQ II-Br, 40 itens + 35 indicadores complementares)</div>' +
+    '<div class="campo"><b>Emissão</b>' + hoje + '</div>' +
+    '</div>';
+
+  if (!agg.amostraSuficiente) {
+    html += '<div class="nota aviso-amostra">⚠ Amostra inferior a ' + agg.kAnonimato + ' respondentes — este laudo está em modo de teste/demonstração. Para emissão oficial, é exigido o mínimo de ' + agg.kAnonimato + ' respostas (k-anonimato).</div>';
+  }
+
+  // Metodologia
+  html += '<h2>1. Metodologia</h2>' +
+    '<div class="nota">A avaliação utilizou o <b>COPSOQ II-Br versão curta</b> — instrumento com validação científica no Brasil ' +
+    '(Gonçalves JS, Moriguchi CS, Chaves TC, Sato TO. Rev Saúde Pública. 2021;55:69 — alfa de Cronbach 0,70–0,87; ICC 0,71–0,81; ' +
+    'instrumento original do NRCWE/Dinamarca, de uso livre) — como núcleo classificatório, complementado pelos <b>indicadores Moorah</b> ' +
+    '(módulos B–D), construídos a partir das dimensões do COPSOQ II médio/longo e III, do Guia de FRPRT do MTE e da Lei 14.457/22. ' +
+    'A aplicação foi anônima e voluntária, com resultados calculados de forma agregada. Classificação do núcleo por tercis da faixa ' +
+    'teórica de cada dimensão, respeitando a direção do risco; indicadores complementares em índice de risco 0–4 com cortes 1,33/2,67. ' +
+    'Recortes por setor exibidos apenas com n ≥ ' + agg.kAnonimato + '.</div>';
+
+  // Núcleo
+  html += '<h2>2. Resultados — Dimensões COPSOQ II-Br (núcleo classificatório)</h2><table>' +
+    '<tr><th>Dimensão</th><th>Média / Máx</th><th>Direção</th><th>Classificação</th></tr>';
+  res.nucleo.forEach(function (d) {
+    html += '<tr><td>' + esc(d.nome) + '</td><td class="mono">' + (d.media === null ? '—' : d.media + ' / ' + d.max) + '</td>' +
+      '<td class="mono">' + (d.dir === 'risco' ? 'maior = pior' : 'maior = melhor') + '</td><td>' + sem(d.nivel) + '</td></tr>';
+  });
+  html += '</table>';
+
+  // Moorah
+  html += '<h2>3. Indicadores complementares Moorah</h2><table>' +
+    '<tr><th>Indicador</th><th>Índice de risco (0–4)</th><th>Classificação</th></tr>';
+  res.moorah.forEach(function (m) {
+    html += '<tr><td>' + esc(m.nome) + '</td><td class="mono">' + (m.indice === null ? '—' : m.indice.toFixed(2)) + '</td><td>' + sem(m.nivel) + '</td></tr>';
+  });
+  html += '</table>';
+
+  // Exposições
+  html += '<h2>4. Comportamentos ofensivos e violência (últimos 12 meses)</h2><table>' +
+    '<tr><th>Exposição</th><th>Relatos</th><th>% dos respondentes</th><th>Situação</th></tr>';
+  res.ofensivos.forEach(function (o) {
+    const st = o.expostos === 0 ? '<span class="sem adequado">SEM RELATOS</span>' : o.recorrentes > 0 ? '<span class="sem critico">RECORRENTE</span>' : '<span class="sem atencao">PONTUAL</span>';
+    html += '<tr><td>' + esc(o.nome) + '</td><td class="mono">' + o.expostos + '</td><td class="mono">' + o.pct + '%</td><td>' + st + '</td></tr>';
+  });
+  html += '</table>';
+
+  // Bandeiras
+  html += '<h2>5. Bandeiras de alerta imediato</h2>';
+  if (res.bandeiras.length === 0) {
+    html += '<div class="nota">Nenhuma bandeira de alerta imediato identificada nesta aplicação.</div>';
+  } else {
+    res.bandeiras.forEach(function (b) {
+      html += '<div class="bandeira ' + b.nivel + '"><div>' +
+        '<div class="bt">' + esc(b.titulo) + '</div>' +
+        '<div class="bd">' + esc(b.detalhe) + '</div>' +
+        '<div class="ba">Ação recomendada: ' + esc(b.acao) + '</div>' +
+        '</div></div>';
+    });
+  }
+
+  // Recortes por setor
+  const suficientes = agg.recortes.filter(function (r) { return r.suficiente; });
+  html += '<h2>6. Recortes por setor (k-anonimato: n ≥ ' + agg.kAnonimato + ')</h2>';
+  if (!suficientes.length) {
+    html += '<div class="nota">Nenhum setor atingiu o mínimo de ' + agg.kAnonimato + ' respondentes; os resultados são apresentados apenas de forma global.</div>';
+  } else {
+    html += '<table><tr><th>Setor</th><th>n</th><th>Dimensões críticas</th><th>Bandeiras</th><th>Dimensão mais crítica</th></tr>';
+    suficientes.forEach(function (r) {
+      const rr = r.resultado;
+      const criticas = rr.nucleo.filter(function (d) { return d.nivel === 'critico'; });
+      const pior = criticas.length ? criticas[0].nome : (rr.nucleo.filter(function (d) { return d.nivel === 'atencao'; })[0] || {}).nome || '—';
+      html += '<tr><td>' + esc(r.setor) + '</td><td class="mono">' + r.n + '</td><td class="mono">' + rr.dimensoesCriticas + '</td>' +
+        '<td class="mono">' + rr.bandeiras.length + '</td><td>' + esc(pior) + '</td></tr>';
+    });
+    html += '</table>';
+    const ocultos = agg.recortes.filter(function (r) { return !r.suficiente; });
+    if (ocultos.length) {
+      html += '<div class="nota">Setores com menos de ' + agg.kAnonimato + ' respondentes (' + ocultos.map(function (r) { return esc(r.setor); }).join(', ') + ') foram omitidos para proteção do anonimato.</div>';
+    }
+  }
+
+  // Conclusão
+  html += '<h2>7. Conclusão e encaminhamentos</h2>' +
+    '<div class="nota" contenteditable="true">[Espaço para análise e conclusão do responsável técnico — recomenda-se registrar os fatores classificados como Crítico/Atenção no inventário de riscos do PGR, com plano de ação contendo medidas, prazos, responsáveis e indicadores de eficácia, e reavaliação conforme NR-1.]</div>';
+
+  html += '<div class="assinatura">' +
+    '<div class="linha"><span contenteditable="true">[Nome do responsável técnico]</span><br><span contenteditable="true">[Função · registro profissional]</span></div>' +
+    '<div class="linha"><span contenteditable="true">[Local]</span>, ' + hoje + '</div>' +
+    '</div>';
+
+  html += '<div class="rodape"><span>Plataforma Moorah · Questionário Moorah v1.0 · dados anônimos e agregados</span><span>Emitido em ' + hoje + '</span></div>';
+
+  el.innerHTML = html;
+})();
+</script>
+</body>
+</html>
