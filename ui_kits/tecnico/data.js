@@ -2,21 +2,67 @@
 window.MORAH = {
   tenant: { name: 'Clínica Pedrosa', tech: 'Lucas C. Pedrosa Marques', email: 'tec.pedrosa@gmail.com', role: 'Administrador' },
 
-  nav: {
-    navegacao: [
-      { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
-      { id: 'termos',     icon: 'file-text',   label: 'Termos de Aceite' },
-      { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
-      { id: 'setor',      icon: 'layers',      label: 'Setores' },
-      { id: 'cargos',     icon: 'briefcase',   label: 'Cargos' },
-      { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
-      { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
-    ],
-    ferramentas: [
-      { id: 'link',     icon: 'send',           label: 'Enviar Questionário' },
-      { id: 'comparar', icon: 'arrow-left-right',label: 'Comparar Relatórios' },
-      { id: 'modelos',  icon: 'clipboard-list', label: 'Modelos de Apresentação' },
-    ],
+  // Navegação e identidade por perfil de acesso:
+  //  admin       → Moorah: gerencia todas as empresas contratantes
+  //  rh          → empresa contratante: estrutura própria + colaboradores + relatórios
+  //  colaborador → telas do trabalhador (questionários pendentes, canal de denúncias)
+  perfis: {
+    admin: {
+      rotulo: 'ADMIN MOORAH',
+      tenant: { name: 'Moorah — Administração', tech: 'Admin Moorah', role: 'Administrador Moorah' },
+      inicio: 'overview',
+      seletorEmpresas: true,
+      nav: {
+        navegacao: [
+          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
+          { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
+          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
+          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
+          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
+        ],
+        ferramentas: [
+          { id: 'link',    icon: 'send',           label: 'Enviar Questionário' },
+          { id: 'modelos', icon: 'clipboard-list', label: 'Modelos de Apresentação' },
+          { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
+        ],
+      },
+    },
+    rh: {
+      rotulo: 'RH',
+      tenant: { name: 'DG Sports', tech: 'Gestor(a) de RH Demo', role: 'RH — Gestão de Pessoas' },
+      inicio: 'overview',
+      seletorEmpresas: false,
+      nav: {
+        navegacao: [
+          { id: 'overview',      icon: 'layout-grid', label: 'Visão Geral' },
+          { id: 'link',          icon: 'users',       label: 'Colaboradores' },
+          { id: 'unidades',      icon: 'map-pin',     label: 'Unidades' },
+          { id: 'setor',         icon: 'layers',      label: 'Setores' },
+          { id: 'departamentos', icon: 'network',     label: 'Departamentos' },
+          { id: 'cargos',        icon: 'briefcase',   label: 'Cargos' },
+          { id: 'campanhas',     icon: 'calendar-range', label: 'Campanhas' },
+          { id: 'relatorios',    icon: 'bar-chart-3', label: 'Relatórios' },
+          { id: 'comparar',      icon: 'arrow-left-right', label: 'Comparar Relatórios' },
+        ],
+        ferramentas: [
+          { id: 'modelos', icon: 'clipboard-list', label: 'Modelos de Apresentação' },
+          { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
+        ],
+      },
+    },
+    colaborador: {
+      rotulo: 'COLABORADOR',
+      tenant: { name: 'DG Sports', tech: 'Colaborador(a) Demo', role: 'Colaborador' },
+      inicio: 'pendentes',
+      seletorEmpresas: false,
+      nav: {
+        navegacao: [
+          { id: 'pendentes', icon: 'clipboard-list', label: 'Questionários Pendentes' },
+          { id: 'denuncia',  icon: 'shield',         label: 'Canal de Denúncias' },
+        ],
+        ferramentas: [],
+      },
+    },
   },
 
   titles: {
@@ -27,9 +73,13 @@ window.MORAH = {
     cargos:     { h: 'Cargos',                 sub: 'Gerencie os cargos de cada setor' },
     campanhas:  { h: 'Campanhas',              sub: 'Organize os períodos de avaliação' },
     relatorios: { h: 'Relatórios',             sub: 'Resultados e interpretações das avaliações' },
-    link:       { h: 'Enviar Questionário',    sub: 'Cadastre colaboradores e envie o convite por e-mail ou WhatsApp' },
+    link:       { h: 'Colaboradores',          sub: 'Cadastre colaboradores e envie o questionário por e-mail ou WhatsApp' },
     comparar:   { h: 'Comparar Relatórios',    sub: 'Evolução dos resultados entre períodos' },
     modelos:    { h: 'Modelos de Apresentação',sub: 'Materiais de apoio para download' },
+    unidades:   { h: 'Unidades',               sub: 'Estruture as unidades e filiais da empresa' },
+    departamentos: { h: 'Departamentos',       sub: 'Organize os departamentos de cada unidade' },
+    pendentes:  { h: 'Questionários Pendentes',sub: 'Avaliações enviadas para você responder' },
+    denuncia:   { h: 'Canal de Denúncias',     sub: 'Relate situações de assédio ou violência com segurança e sigilo' },
   },
 
   companies: [

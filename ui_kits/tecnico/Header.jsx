@@ -1,7 +1,7 @@
 // Morah técnico — slim top bar (light, hairline divider, soft blur).
 const { Select: DsSelect, Icon: HdrIcon } = window.MorahDesignSystem_32f810;
 
-function Header({ screen, company, onCompany, theme, onToggleTheme }) {
+function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tenantName, seletorEmpresas }) {
   const D = window.MORAH;
   const iconBtn = {
     width: 38, height: 38, borderRadius: 'var(--radius-control)', cursor: 'pointer',
@@ -22,20 +22,22 @@ function Header({ screen, company, onCompany, theme, onToggleTheme }) {
       {/* Workspace context */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--leaf-500)', boxShadow: '0 0 0 3px var(--leaf-50)', flexShrink: 0 }}></span>
-        <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{D.tenant.name}</span>
+        <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-strong)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tenantName || D.tenant.name}</span>
         <span style={{
           fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', fontWeight: 500,
           color: 'var(--text-faint)', border: '1px solid var(--border-subtle)',
           borderRadius: 'var(--radius-xs)', padding: '2px 7px', letterSpacing: '0.06em', flexShrink: 0,
-        }}>TÉCNICO</span>
+        }}>{rotulo || 'TÉCNICO'}</span>
       </div>
 
       {/* Global actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 230 }}>
-          <DsSelect value={company} onChange={(e) => onCompany(e.target.value)}
-            options={['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
-        </div>
+        {seletorEmpresas && (
+          <div style={{ width: 230 }}>
+            <DsSelect value={company} onChange={(e) => onCompany(e.target.value)}
+              options={['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
+          </div>
+        )}
         <button aria-label="Alternar tema do painel" title="Alternar tema" onClick={onToggleTheme} style={iconBtn}>
           <HdrIcon name={theme === 'plum' ? 'sun' : 'moon'} size={17} />
         </button>

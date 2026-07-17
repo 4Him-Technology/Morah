@@ -15,11 +15,13 @@
 <script src="../../auth.js"></script>
 <script>
   // Guarda de rota: o painel é a área logada — sem sessão (Cognito ou demo), volta ao login.
-  (async function () {
+  // A promise fica disponível para o App montar a navegação do perfil (admin | rh | colaborador).
+  window.MORAH_USER_PROMISE = (async function () {
     try {
       const u = await window.MorahAuth.requireAuth();
       if (u) window.MORAH_USER = u;
-    } catch (e) { /* SDK indisponível: mantém a página (fase de teste) */ }
+      return u;
+    } catch (e) { return null; /* SDK indisponível: mantém a página (fase de teste) */ }
   })();
 </script>
 <script src="../../_ds_bundle.js"></script>

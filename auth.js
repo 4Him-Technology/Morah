@@ -42,14 +42,24 @@ window.MORAH_AUTH_CONFIG = {
    * persistido em localStorage. NÃO usar em produção: remova quando
    * a autenticação real estiver liberada. */
   const DEMO_KEY = 'morah-demo';
-  const DEMO_USER = {
-    email: 'demo@morah.com.br',
-    name: 'Visitante Demo',
-    groups: ['mentask'], // etiqueta de produto da conta demo (usada por hasProduct)
-    sub: 'demo',
+  const DEMO_PERFIL_KEY = 'morah-demo-perfil';
+  // Três perfis de acesso: admin (Moorah), rh (empresa contratante) e colaborador.
+  const DEMO_USERS = {
+    admin: { email: 'admin@moorah.com.br', name: 'Admin Moorah', groups: ['moorah-admin'], sub: 'demo-admin' },
+    rh: { email: 'rh@empresa.com.br', name: 'Gestor(a) de RH Demo', groups: ['rh', 'mentask'], sub: 'demo-rh' },
+    colaborador: { email: 'colaborador@empresa.com.br', name: 'Colaborador(a) Demo', groups: ['colaborador'], sub: 'demo-colab' },
   };
   function isDemo() {
     try { return localStorage.getItem(DEMO_KEY) === '1'; } catch (e) { return false; }
+  }
+  function demoPerfil() {
+    try { return localStorage.getItem(DEMO_PERFIL_KEY) || 'rh'; } catch (e) { return 'rh'; }
+  }
+  // Papel do usuário a partir dos grupos do Cognito (fonte da verdade na produção).
+  function perfilFromGroups(groups) {
+    if (groups.indexOf('moorah-admin') !== -1) return 'admin';
+    if (groups.indexOf('colaborador') !== -1) return 'colaborador';
+    return 'rh'; // 'rh', 'mentask' (legado) e demais grupos de produto
   }
 
   function pool() {
@@ -169,16 +179,21 @@ window.MORAH_AUTH_CONFIG = {
       });
     },
 
-    // Dados do usuário logado a partir do ID token (nome, e-mail, grupos).
+    // Dados do usuário logado a partir do ID token (nome, e-mail, grupos, perfil).
     async currentUser() {
-      if (isDemo()) return Object.assign({}, DEMO_USER);
+      if (isDemo()) {
+        const p = demoPerfil();
+        return Object.assign({ perfil: p }, DEMO_USERS[p] || DEMO_USERS.rh);
+      }
       const session = await this.currentSession();
       if (!session) return null;
       const payload = session.getIdToken().decodePayload();
+      const groups = payload['cognito:groups'] || [];
       return {
         email: payload.email || '',
         name: payload.name || (payload.email ? payload.email.split('@')[0] : ''),
-        groups: payload['cognito:groups'] || [],
+        groups: groups,
+        perfil: perfilFromGroups(groups),
         sub: payload.sub,
       };
     },
@@ -208,14 +223,20 @@ window.MORAH_AUTH_CONFIG = {
     },
 
     signOut() {
-      try { localStorage.removeItem(DEMO_KEY); } catch (e) {}
+      try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {}
       const user = pool().getCurrentUser();
       if (user) user.signOut();
     },
 
-    // Modo demonstração (fase de teste). enterDemo() + ir ao painel = entrar sem login.
-    enterDemo() { try { localStorage.setItem(DEMO_KEY, '1'); } catch (e) {} },
-    exitDemo() { try { localStorage.removeItem(DEMO_KEY); } catch (e) {} },
+    // Modo demonstração (fase de teste). enterDemo(perfil) + ir ao painel = entrar sem login.
+    // perfil: 'admin' | 'rh' | 'colaborador' (padrão: 'rh').
+    enterDemo(perfil) {
+      try {
+        localStorage.setItem(DEMO_KEY, '1');
+        localStorage.setItem(DEMO_PERFIL_KEY, DEMO_USERS[perfil] ? perfil : 'rh');
+      } catch (e) {}
+    },
+    exitDemo() { try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {} },
     isDemo,
 
     // Guarda de rota: garante sessão; se não houver, manda pro login.

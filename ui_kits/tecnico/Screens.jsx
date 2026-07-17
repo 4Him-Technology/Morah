@@ -422,11 +422,125 @@ function TermosScreen() {
   );
 }
 
-function SelectCompanyScreen({ what }) {
+function EstruturaScreen({ what }) {
   return (
     <PanelCard style={{ padding: 0 }}>
-      <EmptyState icon="info" title="Selecione uma empresa" sub={`Para gerenciar ${what}, selecione uma empresa no seletor de empresas, no topo da página.`} />
+      <EmptyState icon="layers" title={`Gestão de ${what}`} sub={`Cadastre e organize ${what} da empresa. Esta funcionalidade será liberada com a integração ao banco de dados (em breve).`} />
     </PanelCard>
+  );
+}
+
+/* ---------- Colaborador: Questionários Pendentes ---------- */
+function PendentesScreen() {
+  const [respondido, setRespondido] = React.useState(() => {
+    try { return localStorage.getItem('morah-avaliacao-ok') === '1'; } catch (e) { return false; }
+  });
+  const url = new URL('../../avaliacao/', window.location.href).href;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <span style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
+            <Icon name="clipboard-list" size={20} />
+          </span>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-md)', color: 'var(--text-strong)' }}>Avaliação Psicossocial — NR-1</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 2 }}>
+              Questionário Moorah v1.0 · anônimo · 15 a 20 minutos
+            </div>
+          </div>
+          {respondido
+            ? <Badge tone="success" solid>Respondido</Badge>
+            : <Badge tone="warning" solid>Pendente</Badge>}
+          <Button variant={respondido ? 'secondary' : 'primary'} iconLeft="play-circle"
+            onClick={() => window.open(url, '_blank')}>
+            {respondido ? 'Responder novamente' : 'Responder agora'}
+          </Button>
+        </div>
+      </PanelCard>
+      <PanelCard>
+        <PanelTitle title="Sobre a sua participação" />
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.7 }}>
+          Suas respostas são <b>anônimas</b> — os resultados são calculados por grupos e nenhuma resposta
+          individual pode ser identificada. A participação é voluntária e avalia as condições do ambiente
+          de trabalho, não o seu desempenho. Recortes só são exibidos com 5 ou mais respondentes.
+        </div>
+      </PanelCard>
+    </div>
+  );
+}
+
+/* ---------- Colaborador: Canal de Denúncias (Lei 14.457/22) ---------- */
+function DenunciaScreen() {
+  const CATEGORIAS = ['Assédio moral', 'Assédio sexual', 'Discriminação', 'Violência ou ameaça', 'Sobrecarga ou condições de trabalho', 'Outro'];
+  const [categoria, setCategoria] = React.useState(CATEGORIAS[0]);
+  const [relato, setRelato] = React.useState('');
+  const [erro, setErro] = React.useState('');
+  const [protocolo, setProtocolo] = React.useState(null);
+
+  const enviar = () => {
+    if (relato.trim().length < 10) { setErro('Descreva a situação com um pouco mais de detalhe para que ela possa ser apurada.'); return; }
+    const p = 'MD-' + Date.now().toString(36).toUpperCase();
+    try {
+      const arr = JSON.parse(localStorage.getItem('morah-denuncias') || '[]');
+      arr.push({ protocolo: p, categoria, relato: relato.trim(), em: new Date().toISOString() });
+      localStorage.setItem('morah-denuncias', JSON.stringify(arr));
+    } catch (e) {}
+    setProtocolo(p);
+  };
+
+  if (protocolo) {
+    return (
+      <PanelCard>
+        <div style={{ textAlign: 'center', padding: 'var(--space-6) 0' }}>
+          <span style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--success-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--success-500)', marginBottom: 14 }}>
+            <Icon name="check" size={26} />
+          </span>
+          <div style={{ fontFamily: 'var(--font-body)', fontWeight: 800, fontSize: 'var(--text-xl)', color: 'var(--text-strong)' }}>Relato registrado com sigilo</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', margin: '8px auto 0', maxWidth: 480, lineHeight: 1.7 }}>
+            Guarde o seu protocolo para acompanhamento:&nbsp;
+            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--berry-700)' }}>{protocolo}</span><br />
+            O relato será tratado com confidencialidade e sem retaliação, conforme a Lei 14.457/22.
+          </div>
+          <div style={{ marginTop: 18 }}>
+            <Button variant="secondary" onClick={() => { setProtocolo(null); setRelato(''); setErro(''); }}>Registrar outro relato</Button>
+          </div>
+        </div>
+      </PanelCard>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <PanelTitle title="Registrar relato" sub="Canal sigiloso e sem retaliação (Lei 14.457/22). Você não precisa se identificar." />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 640 }}>
+          <div style={{ width: 320, maxWidth: '100%' }}>
+            <Select value={categoria} onChange={(e) => setCategoria(e.target.value)} options={CATEGORIAS} />
+          </div>
+          <textarea value={relato} onChange={(e) => { setRelato(e.target.value); setErro(''); }}
+            placeholder="Descreva a situação: o que aconteceu, onde, quando e com que frequência. Não é necessário se identificar."
+            style={{
+              width: '100%', minHeight: 140, resize: 'vertical', padding: '12px 14px',
+              fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-strong)',
+              background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-control)', outline: 'none',
+            }} />
+          {erro && <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+          <div>
+            <Button variant="primary" iconLeft="send" onClick={enviar}>Enviar relato</Button>
+          </div>
+        </div>
+      </PanelCard>
+      <PanelCard>
+        <PanelTitle title="Como o seu relato é tratado" />
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.7 }}>
+          O relato chega apenas ao comitê responsável pela apuração, com registro de protocolo e prazo de retorno.
+          A empresa é proibida de retaliar quem relata de boa-fé. Em situação de risco imediato, procure
+          também a liderança direta, o RH ou os canais públicos (Disque 100 / 180).
+        </div>
+      </PanelCard>
+    </div>
   );
 }
 
@@ -551,8 +665,12 @@ window.Screens = {
   comparar: CompararScreen,
   modelos: ModelosScreen,
   termos: TermosScreen,
-  setor: () => <SelectCompanyScreen what="setores" />,
-  cargos: () => <SelectCompanyScreen what="cargos" />,
-  campanhas: () => <SelectCompanyScreen what="campanhas" />,
+  setor: () => <EstruturaScreen what="os setores" />,
+  cargos: () => <EstruturaScreen what="os cargos" />,
+  unidades: () => <EstruturaScreen what="as unidades" />,
+  departamentos: () => <EstruturaScreen what="os departamentos" />,
+  campanhas: () => <EstruturaScreen what="as campanhas" />,
   link: EnvioScreen,
+  pendentes: PendentesScreen,
+  denuncia: DenunciaScreen,
 };

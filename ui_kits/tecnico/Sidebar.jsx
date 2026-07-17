@@ -2,8 +2,10 @@
 // light shell by default, deep plum when <html data-theme="plum">.
 const { NavItem: DsNavItem, Avatar: DsAvatar, Icon: DsIcon } = window.MorahDesignSystem_32f810;
 
-function Sidebar({ active, onNavigate }) {
+function Sidebar({ active, onNavigate, nav, tenant }) {
   const D = window.MORAH;
+  const N = nav || D.perfis.rh.nav;
+  const T = tenant || D.perfis.rh.tenant;
   const Section = ({ label }) => (
     <div style={{
       padding: '0 12px', marginBottom: 8,
@@ -32,15 +34,15 @@ function Sidebar({ active, onNavigate }) {
       <nav style={{ flex: 1, overflowY: 'auto', padding: '4px 12px 12px' }}>
         <Section label="Navegação" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 24 }}>
-          {D.nav.navegacao.map((it) => (
+          {N.navegacao.map((it) => (
             <DsNavItem key={it.id} icon={it.icon} label={it.label}
               active={active === it.id}
               onClick={() => onNavigate(it.id)} />
           ))}
         </div>
-        <Section label="Ferramentas" />
+        {N.ferramentas.length > 0 && <Section label="Ferramentas" />}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {D.nav.ferramentas.map((it) => (
+          {N.ferramentas.map((it) => (
             <DsNavItem key={it.id} icon={it.icon} label={it.label}
               active={active === it.id}
               onClick={() => onNavigate(it.id)} />
@@ -55,10 +57,10 @@ function Sidebar({ active, onNavigate }) {
           background: 'var(--sidebar-user-bg)', borderRadius: 'var(--radius-md)',
           border: '1px solid var(--sidebar-user-border)', cursor: 'pointer',
         }}>
-          <DsAvatar name={D.tenant.tech} size={32} tone="berry" />
+          <DsAvatar name={T.tech} size={32} tone="berry" />
           <div style={{ flex: 1, minWidth: 0, lineHeight: 1.3 }}>
-            <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--sidebar-user-name)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{D.tenant.tech}</div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--sidebar-user-role)' }}>{D.tenant.role}</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--sidebar-user-name)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{T.tech}</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--sidebar-user-role)' }}>{T.role}</div>
           </div>
           <DsIcon name="chevrons-up-down" size={15} color="var(--sidebar-user-role)" />
         </div>
