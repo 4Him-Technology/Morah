@@ -8,18 +8,28 @@
  * público são feitos para viver no front-end. As credenciais sensíveis ficam
  * só no Cognito.
  */
+// Base do site = pasta onde este auth.js vive (raiz do sistema).
+// Assim os destinos funcionam a partir de QUALQUER página (login, painel, raiz),
+// tanto em localhost quanto no GitHub Pages (/Morah/).
+const MORAH_BASE = (function () {
+  try { return new URL('.', document.currentScript.src).href; }
+  catch (e) { return './'; }
+})();
+
 window.MORAH_AUTH_CONFIG = {
   region: 'sa-east-1',
   UserPoolId: 'sa-east-1_Btl2myQUB',
   ClientId: '82f7e7sricqrifck9k70f783r',
-  // Para onde ir depois de entrar / sair. Relativo à pasta da página atual.
-  hubUrl: '../hub/index.html',
-  loginUrl: '../login/index.html',
+  // Para onde ir depois de entrar / sair (URLs absolutas, resolvidas da raiz do site).
+  // O hub foi removido do fluxo em 16/07/2026 (código em quarentena fora do repo):
+  // o login agora leva direto ao painel do técnico.
+  appUrl: MORAH_BASE + 'ui_kits/tecnico/index.html',
+  loginUrl: MORAH_BASE + 'login/index.html',
   // Login social (Google/Microsoft) via Hosted UI do Cognito.
   // Preencher quando o domínio do Hosted UI e os provedores estiverem configurados.
   // Ex.: 'morah-auth.auth.sa-east-1.amazoncognito.com'
   hostedUiDomain: '',
-  oauthRedirect: '',          // ex.: 'https://4him-technology.github.io/Morah/hub/'
+  oauthRedirect: '',          // ex.: 'https://4him-technology.github.io/Morah/ui_kits/tecnico/'
   oauthScopes: 'openid email profile',
 };
 
@@ -35,7 +45,7 @@ window.MORAH_AUTH_CONFIG = {
   const DEMO_USER = {
     email: 'demo@morah.com.br',
     name: 'Visitante Demo',
-    groups: ['mentask'], // libera o card do produto no hub
+    groups: ['mentask'], // etiqueta de produto da conta demo (usada por hasProduct)
     sub: 'demo',
   };
   function isDemo() {
@@ -203,7 +213,7 @@ window.MORAH_AUTH_CONFIG = {
       if (user) user.signOut();
     },
 
-    // Modo demonstração (fase de teste). enterDemo() + ir ao hub = entrar sem login.
+    // Modo demonstração (fase de teste). enterDemo() + ir ao painel = entrar sem login.
     enterDemo() { try { localStorage.setItem(DEMO_KEY, '1'); } catch (e) {} },
     exitDemo() { try { localStorage.removeItem(DEMO_KEY); } catch (e) {} },
     isDemo,

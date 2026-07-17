@@ -42,6 +42,12 @@ function Header({ screen, company, onCompany, theme, onToggleTheme }) {
         <button aria-label="Notificações" style={iconBtn}>
           <HdrIcon name="bell" size={17} />
         </button>
+        <button aria-label="Sair" title="Sair" onClick={() => {
+          try { window.MorahAuth.signOut(); } catch (e) {}
+          window.location.replace(window.MORAH_AUTH_CONFIG ? window.MORAH_AUTH_CONFIG.loginUrl : '../../login/index.html');
+        }} style={iconBtn}>
+          <HdrIcon name="log-out" size={17} />
+        </button>
       </div>
     </header>
   );

@@ -353,7 +353,7 @@
   // Entrada de teste — modo demonstração (sem Cognito)
   $('#demo-enter').onclick = () => {
     MorahAuth.enterDemo();
-    window.location.replace(MorahAuth.config.hubUrl);
+    window.location.replace(MorahAuth.config.appUrl);
   };
 
   // Mostrar/ocultar senha
@@ -374,7 +374,7 @@
     e.preventDefault(); clearMsg(); busy(e.target, true);
     try {
       await MorahAuth.signIn({ email: $('#l-email').value.trim().toLowerCase(), password: $('#l-pass').value });
-      ok('Entrando…'); window.location.replace(MorahAuth.config.hubUrl);
+      ok('Entrando…'); window.location.replace(MorahAuth.config.appUrl);
     } catch (ex) {
       if (ex.message && ex.message.indexOf('não foi confirmada') !== -1) {
         pendingEmail = $('#l-email').value.trim().toLowerCase();
@@ -427,11 +427,10 @@
     } catch (ex) { err(ex.message); busy(e.target, false, 'Salvar nova senha'); }
   };
 
-  // Já logado → hub
-  (async () => {
-    lucide.createIcons();
-    try { if (await MorahAuth.currentSession()) window.location.replace(MorahAuth.config.hubUrl); } catch (e) {}
-  })();
+  // A tela de login sempre é exibida — sem auto-redirect por sessão ativa.
+  // (Removido em 16/07/2026: com sessão demo persistida, o redirect impedia
+  // de ver o login. Quem já tem sessão entra pelo botão normalmente.)
+  lucide.createIcons();
 </script>
 </body>
 </html>
