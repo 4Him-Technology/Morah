@@ -16,6 +16,7 @@ window.MORAH = {
         navegacao: [
           { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
           { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
+          { id: 'cobranca',   icon: 'credit-card', label: 'Cobrança' },
           { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
           { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
           { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
@@ -42,6 +43,7 @@ window.MORAH = {
           { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
           { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
           { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
+          { id: 'cobranca',   icon: 'credit-card', label: 'Cobrança' },
         ],
         ferramentas: [
           { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
@@ -67,6 +69,7 @@ window.MORAH = {
           { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
           { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
           { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
+          { id: 'cobranca',   icon: 'credit-card', label: 'Cobrança' },
         ],
         ferramentas: [
           { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
@@ -110,6 +113,7 @@ window.MORAH = {
     denuncia:   { h: 'Canal de Denúncias',     sub: 'Relate situações de assédio ou violência com segurança e sigilo' },
     denuncias:  { h: 'Gestão de Denúncias',    sub: 'Apuração dos relatos do canal com protocolo e prazo (Lei 14.457/22)' },
     plano:      { h: 'Plano de Ação',          sub: 'Medidas com prazo, responsável e indicador — exigência da NR-1' },
+    cobranca:   { h: 'Cobrança',               sub: 'Faturas, boletos e links de pagamento (integração Asaas em breve)' },
   },
 
   companies: [

@@ -3,6 +3,14 @@ const M = window.MorahDesignSystem_32f810;
 const { StatCard, Card, Button, Badge, Tabs, Input, Select, ResultBand, Icon } = M;
 
 /* ---------- shared bits ---------- */
+// Escopo por empresa nos dados locais (demo): cada empresa ativa tem seu conjunto,
+// espelhando o comportamento real do banco (multi-tenant).
+function chaveEmpresa(base) {
+  let id = null;
+  try { id = localStorage.getItem('morah-empresa-id'); } catch (e) {}
+  return base + '-' + (id || 'padrao');
+}
+
 function PanelCard({ children, style }) {
   return (
     <div style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-card)', padding: 'var(--space-6)', ...style }}>{children}</div>
@@ -174,9 +182,12 @@ function EmpresasScreen() {
   };
 
   const gerenciar = (e) => {
-    try { localStorage.setItem('morah-empresa-id', e.id); } catch (x) {}
-    if (modo === 'api') { window.location.reload(); return; }
-    setAviso('Empresa "' + e.razao_social + '" selecionada (demonstração).');
+    // Entra na empresa: define o contexto e abre a Visão Geral dela
+    try {
+      localStorage.setItem('morah-empresa-id', e.id);
+      sessionStorage.setItem('morah-ir-para', 'overview');
+    } catch (x) {}
+    window.location.reload();
   };
 
   const filtro = q.trim().toLowerCase();
@@ -657,7 +668,7 @@ function TermosScreen() {
 
 /* ---------- Estrutura organizacional (CRUD genérico: unidades/setores/departamentos/cargos) ---------- */
 function EstruturaScreen({ recurso, rotuloSing, rotuloPl, exemplo }) {
-  const KEY = 'morah-estr-' + recurso;
+  const KEY = chaveEmpresa('morah-estr-' + recurso);
   const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
   const [modo, setModo] = React.useState('local');
   const [lista, setLista] = React.useState(lerLocal);
@@ -745,7 +756,7 @@ function EstruturaScreen({ recurso, rotuloSing, rotuloPl, exemplo }) {
 
 /* ---------- Campanhas de avaliação ---------- */
 function CampanhasScreen() {
-  const KEY = 'morah-campanhas';
+  const KEY = chaveEmpresa('morah-campanhas');
   const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
   const [modo, setModo] = React.useState('local');
   const [lista, setLista] = React.useState(lerLocal);
@@ -901,7 +912,7 @@ function DenunciasGestaoScreen() {
 
 /* ---------- Plano de Ação (NR-1: medidas com prazo, responsável e indicador) ---------- */
 function PlanoScreen() {
-  const KEY = 'morah-plano';
+  const KEY = chaveEmpresa('morah-plano');
   const M = window.MorahMotor;
   const DIMENSOES = ['—'].concat(M.NUCLEO.map((d) => d.nome)).concat(M.MOORAH.map((m) => m.nome)).concat(['Outra']);
   const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
@@ -1201,7 +1212,7 @@ function DenunciaScreen() {
 
 /* ---------- Enviar Questionário ---------- */
 function EnvioScreen() {
-  const KEY = 'morah-colaboradores';
+  const KEY = chaveEmpresa('morah-colaboradores');
   const ler = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
   const [modo, setModo] = React.useState('local'); // 'api' com sessão real; 'local' no demo
   const [campanha, setCampanha] = React.useState(null);
@@ -1397,6 +1408,135 @@ function EnvioScreen() {
   );
 }
 
+/* ---------- Cobrança (admin: controle total · RH/técnico: pagar faturas) ---------- */
+function CobrancaScreen() {
+  const perfil = (window.MORAH_USER || {}).perfil || 'rh';
+  const admin = perfil === 'admin';
+  const KEY = chaveEmpresa('morah-faturas');
+  const hoje = new Date();
+  const seedLocal = () => [
+    { id: 'f1', descricao: 'Mensalidade Moorah — ' + (hoje.getMonth()) + '/' + hoje.getFullYear(), valor: 990, vencimento: new Date(hoje.getFullYear(), hoje.getMonth() - 1, 10).toISOString().slice(0, 10), status: 'paga', link_pagamento: '' },
+    { id: 'f2', descricao: 'Mensalidade Moorah — ' + (hoje.getMonth() + 1) + '/' + hoje.getFullYear(), valor: 990, vencimento: new Date(hoje.getFullYear(), hoje.getMonth(), 10).toISOString().slice(0, 10), status: 'pendente', link_pagamento: 'https://www.asaas.com/c/exemplo-demo' },
+  ];
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || seedLocal(); } catch (e) { return seedLocal(); } };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
+  const [empresas, setEmpresas] = React.useState([]);
+  const [form, setForm] = React.useState({ empresa: '—', descricao: '', valor: '', vencimento: '', link: '' });
+  const [erro, setErro] = React.useState('');
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/faturas')); };
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi || !window.MorahAuth) return;
+        if (!(await window.MorahAuth.idToken())) return;
+        await carregar(); setModo('api');
+        if (admin) { try { setEmpresas(await window.MorahApi.chamar('GET', '/empresas')); } catch (e) {} }
+      } catch (e) {}
+    })();
+  }, []);
+  const salvarLocal = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+
+  const criar = async () => {
+    if (!form.descricao.trim() || !form.valor) { setErro('Descrição e valor são obrigatórios.'); return; }
+    setErro('');
+    if (modo === 'api') {
+      const emp = empresas.find((e) => e.razao_social === form.empresa);
+      if (!emp) { setErro('Selecione a empresa da fatura.'); return; }
+      try {
+        await window.MorahApi.chamar('POST', '/faturas', {
+          empresa_id: emp.id, descricao: form.descricao.trim(), valor: Number(form.valor),
+          vencimento: form.vencimento || null, link_pagamento: form.link.trim() || null,
+        });
+        await carregar();
+        setForm({ empresa: '—', descricao: '', valor: '', vencimento: '', link: '' });
+      } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal([{ id: 'f' + Date.now(), descricao: form.descricao.trim(), valor: Number(form.valor), vencimento: form.vencimento, status: 'pendente', link_pagamento: form.link.trim() }, ...lista]);
+    setForm({ empresa: '—', descricao: '', valor: '', vencimento: '', link: '' });
+  };
+
+  const mudarStatus = async (f, status) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('PATCH', '/faturas/' + f.id, { status }); await carregar(); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.map((x) => (x.id === f.id ? { ...x, status } : x)));
+  };
+
+  const moeda = (v) => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const fmtData = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('/') : '—');
+  const vencida = (f) => f.status === 'pendente' && f.vencimento && new Date(f.vencimento) < new Date(hoje.toDateString());
+  const pendentes = lista.filter((f) => f.status === 'pendente');
+  const totalPendente = pendentes.reduce((a, f) => a + Number(f.valor || 0), 0);
+
+  const inputStyle = {
+    fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-strong)',
+    background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-control)', padding: '10px 12px', outline: 'none', width: '100%',
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+        <StatCard label="Faturas pendentes" value={String(pendentes.length)} icon="file-clock" tone={pendentes.length ? 'amber' : 'green'} />
+        <StatCard label="Valor em aberto" value={moeda(totalPendente)} icon="credit-card" tone={totalPendente ? 'amber' : 'green'} />
+        <StatCard label="Total de faturas" value={String(lista.length)} icon="receipt" tone="berry" />
+      </div>
+
+      {admin && (
+        <PanelCard>
+          <PanelTitle title="Nova fatura" sub={modo === 'api' ? 'Cobrança manual — com o Asaas conectado, boletos e links serão gerados automaticamente' : 'Modo demonstração — dados locais'} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.6fr 0.8fr 0.9fr 1.4fr auto', gap: 10 }}>
+            <Select value={form.empresa} onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+              options={['—', ...(modo === 'api' ? empresas.map((x) => x.razao_social) : window.MORAH.companies.map((c) => c.name))]} />
+            <Input placeholder="Descrição — ex.: Mensalidade Agosto/2026" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} />
+            <Input placeholder="Valor (R$)" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value.replace(/[^\d.,]/g, '').replace(',', '.') })} />
+            <input type="date" value={form.vencimento} onChange={(e) => setForm({ ...form, vencimento: e.target.value })} style={inputStyle} title="Vencimento" />
+            <Input placeholder="Link de pagamento (opcional)" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
+            <Button variant="primary" iconLeft="plus" onClick={criar}>Emitir</Button>
+          </div>
+          {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+        </PanelCard>
+      )}
+
+      <PanelCard>
+        <PanelTitle title="Faturas" sub={admin ? 'Todas as cobranças emitidas' : 'Suas faturas — pague pelo link quando disponível'} />
+        {!admin && erro && <div style={{ marginBottom: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+        {lista.length === 0 ? (
+          <EmptyState icon="credit-card" title="Nenhuma fatura" sub={admin ? 'Emita a primeira cobrança acima.' : 'Quando houver uma cobrança, ela aparecerá aqui com o link de pagamento.'} />
+        ) : (
+          lista.map((f) => (
+            <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 4px', borderTop: '1px solid var(--gray-100)', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1.6, minWidth: 220 }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{f.descricao}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: vencida(f) ? 'var(--critical-500)' : 'var(--text-muted)', marginTop: 3 }}>
+                  {(f.empresa_nome ? f.empresa_nome + ' · ' : '')}venc. {fmtData(f.vencimento)}{vencida(f) ? ' (VENCIDA)' : ''}
+                </div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-strong)' }}>{moeda(f.valor)}</span>
+              {f.status === 'paga' ? <Badge tone="success" solid>Paga</Badge>
+                : f.status === 'cancelada' ? <Badge tone="neutral">Cancelada</Badge>
+                : vencida(f) ? <Badge tone="critical" solid>Vencida</Badge>
+                : <Badge tone="warning" solid>Pendente</Badge>}
+              {f.status === 'pendente' && f.link_pagamento &&
+                <Button size="sm" variant="leaf" iconLeft="external-link" onClick={() => window.open(f.link_pagamento, '_blank')}>Pagar</Button>}
+              {f.status === 'pendente' && !f.link_pagamento && !admin &&
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-2xs)', color: 'var(--text-faint)' }}>aguardando boleto</span>}
+              {admin && f.status === 'pendente' && <Button size="sm" variant="secondary" iconLeft="check" onClick={() => mudarStatus(f, 'paga')}>Marcar paga</Button>}
+              {admin && f.status === 'pendente' && <Button size="sm" variant="ghost" iconLeft="x" onClick={() => mudarStatus(f, 'cancelada')}>Cancelar</Button>}
+              {admin && f.status !== 'pendente' && <Button size="sm" variant="ghost" iconLeft="rotate-ccw" onClick={() => mudarStatus(f, 'pendente')}>Reabrir</Button>}
+            </div>
+          ))
+        )}
+      </PanelCard>
+    </div>
+  );
+}
+
 window.Screens = {
   overview: OverviewScreen,
   empresas: EmpresasScreen,
@@ -1414,4 +1554,5 @@ window.Screens = {
   denuncia: DenunciaScreen,
   denuncias: DenunciasGestaoScreen,
   plano: PlanoScreen,
+  cobranca: CobrancaScreen,
 };

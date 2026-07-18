@@ -17,12 +17,29 @@ function App() {
     }
   }, []);
 
-  // Sessão real: /me traz a empresa (RH) ou a carteira de empresas (técnico)
+  // Sessão real: /me traz a empresa (RH) ou a carteira de empresas (técnico);
+  // admin busca a lista completa para o seletor global.
   const [me, setMe] = React.useState(null);
+  const [empresasAdmin, setEmpresasAdmin] = React.useState(null);
   React.useEffect(() => {
     (async () => {
-      try { if (window.MorahApi) setMe(await window.MorahApi.chamar('GET', '/me')); } catch (e) {}
+      try {
+        if (!window.MorahApi) return;
+        const m = await window.MorahApi.chamar('GET', '/me');
+        setMe(m);
+        if (m.papel === 'moorah-admin') {
+          try { setEmpresasAdmin(await window.MorahApi.chamar('GET', '/empresas')); } catch (e) {}
+        }
+      } catch (e) {}
     })();
+  }, []);
+
+  // Navegação pós-seleção de empresa (ex.: "Gerenciar" na tela Empresas)
+  React.useEffect(() => {
+    try {
+      const destino = sessionStorage.getItem('morah-ir-para');
+      if (destino) { sessionStorage.removeItem('morah-ir-para'); setScreen(destino); }
+    } catch (e) {}
   }, []);
 
   React.useEffect(() => {
@@ -35,23 +52,50 @@ function App() {
   const tenant = Object.assign({}, P.tenant, user ? { tech: user.name } : {});
   const atual = screen || P.inicio;
 
-  // Empresa real (modo API): RH → a própria; técnico → empresa ativa da carteira
-  const carteira = me && me.empresas ? me.empresas : null;
+  // Empresa real (modo API): RH → a própria; técnico → carteira; admin → todas
+  const selecionaveis = (me && me.empresas) || empresasAdmin || null;
   const empresaAtivaId = (() => { try { return localStorage.getItem('morah-empresa-id'); } catch (e) { return null; } })();
-  const empresaAtiva = carteira ? (carteira.find((e) => e.id === empresaAtivaId) || carteira[0] || null) : null;
-  const tenantName = empresaAtiva ? empresaAtiva.razao_social
-    : (me && me.empresa ? me.empresa.razao_social : P.tenant.name);
-  const opcoesEmpresas = carteira && carteira.length
-    ? carteira.map((e) => e.razao_social)
-    : null; // null → Header usa a lista mock (demo/admin)
+  const empresaAtiva = selecionaveis
+    ? (selecionaveis.find((e) => e.id === empresaAtivaId) || (perfil === 'admin' ? null : selecionaveis[0] || null))
+    : null;
+  const tenantName = me && me.empresa ? me.empresa.razao_social : P.tenant.name;
+  const opcoesEmpresas = selecionaveis
+    ? (perfil === 'admin' ? ['Todas as empresas'] : []).concat(selecionaveis.map((e) => e.razao_social))
+    : null; // null → Header usa a lista mock (demo)
   const trocarEmpresa = (nome) => {
-    if (carteira) {
-      const alvo = carteira.find((e) => e.razao_social === nome);
+    if (selecionaveis) {
+      if (nome === 'Todas as empresas') {
+        try { localStorage.removeItem('morah-empresa-id'); } catch (e) {}
+        window.location.reload(); return;
+      }
+      const alvo = selecionaveis.find((e) => e.razao_social === nome);
       if (alvo) { try { localStorage.setItem('morah-empresa-id', alvo.id); } catch (e) {} window.location.reload(); }
       return;
     }
+    // Demo: tenta achar a empresa local para escopar os dados locais
+    try {
+      const locais = JSON.parse(localStorage.getItem('morah-empresas') || '[]');
+      const alvo = locais.find((e) => e.razao_social === nome);
+      if (alvo) { localStorage.setItem('morah-empresa-id', alvo.id); window.location.reload(); return; }
+      if (nome === 'Todas as empresas') { localStorage.removeItem('morah-empresa-id'); window.location.reload(); return; }
+    } catch (e) {}
     setCompany(nome);
   };
+
+  // Contexto exibido nas telas escopadas por empresa
+  const ESCOPADAS = ['overview', 'link', 'campanhas', 'relatorios', 'comparar', 'plano', 'denuncias', 'cobranca', 'unidades', 'setor', 'departamentos', 'cargos'];
+  const empresaContexto = (() => {
+    if (empresaAtiva) return empresaAtiva.razao_social;
+    if (me && me.empresa) return me.empresa.razao_social;            // RH real
+    if (perfil === 'rh') return P.tenant.name;                       // RH demo
+    // demo técnico/admin: empresa local selecionada
+    try {
+      const locais = JSON.parse(localStorage.getItem('morah-empresas') || '[]');
+      const alvo = locais.find((e) => e.id === empresaAtivaId);
+      if (alvo) return alvo.razao_social;
+    } catch (e) {}
+    return null;
+  })();
 
   const Screen = window.Screens[atual] || window.Screens.overview;
   const t = D.titles[atual] || D.titles.overview;
@@ -70,6 +114,20 @@ function App() {
             <div style={{ marginBottom: 'var(--space-6)' }}>
               <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-strong)', letterSpacing: 'var(--tracking-tight)' }}>{t.h}</h1>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-muted)', margin: '6px 0 0' }}>{t.sub}</p>
+              {ESCOPADAS.indexOf(atual) !== -1 && (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 10,
+                  padding: '5px 12px', borderRadius: 'var(--radius-control)',
+                  background: empresaContexto ? 'var(--berry-50)' : 'var(--warning-50)',
+                  border: '1px solid ' + (empresaContexto ? 'var(--berry-100, var(--border-subtle))' : 'var(--warning-100)'),
+                  fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 700,
+                  color: empresaContexto ? 'var(--berry-700)' : 'var(--warning-700)',
+                }}>
+                  <window.MorahDesignSystem_32f810.Icon name="building-2" size={14} />
+                  {empresaContexto
+                    || (perfil === 'admin' ? 'Todas as empresas — selecione uma no topo para operar' : 'Nenhuma empresa selecionada — escolha na tela Empresas')}
+                </div>
+              )}
             </div>
             <Screen />
           </div>
