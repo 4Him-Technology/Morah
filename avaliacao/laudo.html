@@ -78,9 +78,15 @@
 (function () {
   'use strict';
   const M = window.MorahMotor;
-  let avaliacoes = [];
-  try { avaliacoes = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]'); } catch (e) {}
-  const agg = M.calcular(avaliacoes);
+  // Fonte preferencial: último agregado calculado na tela Relatórios (funciona no
+  // modo demo E no modo API — o servidor já aplicou o k-anonimato). Fallback: local.
+  let agg = null;
+  try { agg = JSON.parse(sessionStorage.getItem('morah-ultimo-resultado') || 'null'); } catch (e) {}
+  if (!agg) {
+    let avaliacoes = [];
+    try { avaliacoes = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]'); } catch (e) {}
+    agg = M.calcular(avaliacoes);
+  }
   const hoje = new Date().toLocaleDateString('pt-BR');
   const el = document.getElementById('folha');
 
@@ -90,9 +96,12 @@
     return nivel ? '<span class="sem ' + nivel + '">' + rot[nivel] + '</span>' : '<span class="sem nd">SEM DADOS</span>';
   }
 
-  if (!agg.n) {
+  if (!agg.n || !agg.global) {
     el.innerHTML = '<div class="brand">MOORAH</div><h1>Laudo Técnico — FRPRT</h1>' +
-      '<div class="nota">Ainda não há respostas registradas neste navegador. Envie o questionário aos colaboradores ou gere dados de demonstração na tela Relatórios do painel.</div>';
+      '<div class="nota">' + (agg.n
+        ? 'Há ' + agg.n + ' resposta(s), mas o laudo só é liberado com ' + (agg.kAnonimato || 5) + ' ou mais (k-anonimato aplicado no servidor).'
+        : 'Ainda não há respostas registradas. Abra a tela Relatórios do painel (ela alimenta este laudo) ou envie o questionário aos colaboradores.') +
+      '</div>';
     return;
   }
 

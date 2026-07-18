@@ -168,9 +168,32 @@ function RelatoriosScreen() {
   const lerAvaliacoes = () => { try { return JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]'); } catch (e) { return []; } };
   const [avaliacoes, setAvaliacoes] = React.useState(lerAvaliacoes);
   const [recorte, setRecorte] = React.useState('Todos os setores');
+  const [aggApi, setAggApi] = React.useState(null);      // agregados vindos do servidor (k-anonimato lá)
+  const [campanhaApi, setCampanhaApi] = React.useState(null);
+  const [modo, setModo] = React.useState('local');
+
+  // Sessão real → resultados agregados da API (o dado bruto nunca chega ao navegador)
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi) return;
+        const cps = await window.MorahApi.chamar('GET', '/campanhas');
+        const cp = cps.find((x) => x.status === 'ativa') || cps[0];
+        if (!cp) { setModo('api'); return; } // logado sem campanha ainda
+        const r = await window.MorahApi.chamar('GET', '/campanhas/' + cp.id + '/resultados');
+        setCampanhaApi(cp); setAggApi(r); setModo('api');
+      } catch (e) { /* demo → cálculo local */ }
+    })();
+  }, []);
 
   const M = window.MorahMotor;
-  const agg = React.useMemo(() => M.calcular(avaliacoes), [avaliacoes]);
+  const aggLocal = React.useMemo(() => M.calcular(avaliacoes), [avaliacoes]);
+  const agg = modo === 'api' && aggApi ? aggApi : aggLocal;
+
+  // Última visão para o laudo (laudo.html lê daqui em ambos os modos)
+  React.useEffect(() => {
+    try { if (agg && agg.n) sessionStorage.setItem('morah-ultimo-resultado', JSON.stringify(agg)); } catch (e) {}
+  }, [agg]);
 
   const gerarDemo = () => {
     const demo = M.gerarDemo();
@@ -188,10 +211,25 @@ function RelatoriosScreen() {
   if (!agg.n) {
     return (
       <PanelCard style={{ padding: 0 }}>
-        <EmptyState icon="bar-chart-3" title="Ainda não há respostas" sub="Envie o questionário aos colaboradores para gerar o diagnóstico — ou gere dados de demonstração para conhecer o relatório." />
-        <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 'var(--space-6)' }}>
-          <Button variant="secondary" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>
-        </div>
+        <EmptyState icon="bar-chart-3" title="Ainda não há respostas"
+          sub={modo === 'api'
+            ? (campanhaApi ? 'A campanha "' + campanhaApi.nome + '" ainda não recebeu respostas.' : 'Crie uma campanha e envie o questionário na tela Colaboradores.')
+            : 'Envie o questionário aos colaboradores para gerar o diagnóstico — ou gere dados de demonstração para conhecer o relatório.'} />
+        {modo === 'local' && (
+          <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 'var(--space-6)' }}>
+            <Button variant="secondary" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>
+          </div>
+        )}
+      </PanelCard>
+    );
+  }
+
+  // k-anonimato aplicado no servidor: há respostas, mas menos que o mínimo — nada é exibido
+  if (!agg.global) {
+    return (
+      <PanelCard style={{ padding: 0 }}>
+        <EmptyState icon="lock" title="Aguardando o mínimo de respostas"
+          sub={'Já há ' + agg.n + ' resposta(s), mas os resultados só são liberados com ' + agg.kAnonimato + ' ou mais — proteção de anonimato aplicada no servidor.'} />
       </PanelCard>
     );
   }
@@ -224,12 +262,13 @@ function RelatoriosScreen() {
           <Select value={recorte} onChange={(e) => setRecorte(e.target.value)} options={opcoes} />
         </div>
         <Badge tone="berry">{nExibido} resposta(s)</Badge>
+        {modo === 'api' && campanhaApi && <Badge tone="info">{campanhaApi.nome}</Badge>}
         {!agg.amostraSuficiente && <Badge tone="warning" solid>Amostra &lt; {agg.kAnonimato} — modo de teste</Badge>}
         <div style={{ flex: 1 }}></div>
         <Button variant="primary" iconLeft="file-text" onClick={() => window.open('../../avaliacao/laudo.html', '_blank')}>Abrir laudo (PDF)</Button>
-        {temDemo
+        {modo === 'local' && (temDemo
           ? <Button variant="ghost" iconLeft="trash-2" onClick={limparDemo}>Limpar dados de teste</Button>
-          : <Button variant="ghost" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>}
+          : <Button variant="ghost" iconLeft="sparkles" onClick={gerarDemo}>Gerar dados de demonstração</Button>)}
       </div>
 
       {bloqueado ? (
@@ -435,29 +474,54 @@ function PendentesScreen() {
   const [respondido, setRespondido] = React.useState(() => {
     try { return localStorage.getItem('morah-avaliacao-ok') === '1'; } catch (e) { return false; }
   });
+  const [convitesApi, setConvitesApi] = React.useState(null); // null = demo/local
   const url = new URL('../../avaliacao/', window.location.href).href;
+
+  // Sessão real: convites verdadeiros deste colaborador vêm da API
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi) return;
+        const r = await window.MorahApi.chamar('GET', '/meus-convites');
+        setConvitesApi(r);
+      } catch (e) { /* demo → card local */ }
+    })();
+  }, []);
+
+  const CardConvite = ({ titulo, sub, resp, onClick, rotulo }) => (
+    <PanelCard>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <span style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
+          <Icon name="clipboard-list" size={20} />
+        </span>
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-md)', color: 'var(--text-strong)' }}>{titulo}</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
+        </div>
+        {resp ? <Badge tone="success" solid>Respondido</Badge> : <Badge tone="warning" solid>Pendente</Badge>}
+        {(!resp || rotulo) && <Button variant={resp ? 'secondary' : 'primary'} iconLeft="play-circle" onClick={onClick}>{rotulo || 'Responder agora'}</Button>}
+      </div>
+    </PanelCard>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-      <PanelCard>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-          <span style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
-            <Icon name="clipboard-list" size={20} />
-          </span>
-          <div style={{ flex: 1, minWidth: 220 }}>
-            <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-md)', color: 'var(--text-strong)' }}>Avaliação Psicossocial — NR-1</div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 2 }}>
-              Questionário Moorah v1.0 · anônimo · 15 a 20 minutos
-            </div>
-          </div>
-          {respondido
-            ? <Badge tone="success" solid>Respondido</Badge>
-            : <Badge tone="warning" solid>Pendente</Badge>}
-          <Button variant={respondido ? 'secondary' : 'primary'} iconLeft="play-circle"
-            onClick={() => window.open(url, '_blank')}>
-            {respondido ? 'Responder novamente' : 'Responder agora'}
-          </Button>
-        </div>
-      </PanelCard>
+      {convitesApi !== null ? (
+        convitesApi.length === 0
+          ? <PanelCard style={{ padding: 0 }}><EmptyState icon="check-circle" title="Nenhum questionário pendente" sub="Quando o RH enviar uma nova avaliação, ela aparecerá aqui." /></PanelCard>
+          : convitesApi.map((cv) => (
+              <CardConvite key={cv.token} titulo={cv.campanha}
+                sub={'Questionário Moorah · anônimo · 15 a 20 minutos'}
+                resp={cv.status === 'respondido'}
+                onClick={() => window.open(url + '?t=' + cv.token, '_blank')} />
+            ))
+      ) : (
+        <CardConvite titulo="Avaliação Psicossocial — NR-1"
+          sub="Questionário Moorah v1.0 · anônimo · 15 a 20 minutos"
+          resp={respondido}
+          onClick={() => window.open(url, '_blank')}
+          rotulo={respondido ? 'Responder novamente' : 'Responder agora'} />
+      )}
       <PanelCard>
         <PanelTitle title="Sobre a sua participação" />
         <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.7 }}>
@@ -478,8 +542,18 @@ function DenunciaScreen() {
   const [erro, setErro] = React.useState('');
   const [protocolo, setProtocolo] = React.useState(null);
 
-  const enviar = () => {
+  const enviar = async () => {
     if (relato.trim().length < 10) { setErro('Descreva a situação com um pouco mais de detalhe para que ela possa ser apurada.'); return; }
+    // Sessão real → registra no servidor (protocolo oficial); demo → localStorage
+    try {
+      if (window.MorahApi) {
+        const r = await window.MorahApi.chamar('POST', '/denuncias', { categoria, relato: relato.trim() });
+        setProtocolo(r.protocolo);
+        return;
+      }
+    } catch (e) {
+      if (e.code !== 'SEM_JWT' && e.code !== 'SEM_API') { setErro(e.message); return; }
+    }
     const p = 'MD-' + Date.now().toString(36).toUpperCase();
     try {
       const arr = JSON.parse(localStorage.getItem('morah-denuncias') || '[]');
@@ -548,30 +622,90 @@ function DenunciaScreen() {
 function EnvioScreen() {
   const KEY = 'morah-colaboradores';
   const ler = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  const [modo, setModo] = React.useState('local'); // 'api' com sessão real; 'local' no demo
+  const [campanha, setCampanha] = React.useState(null);
   const [lista, setLista] = React.useState(ler);
   const [form, setForm] = React.useState({ nome: '', email: '', fone: '', setor: '' });
   const [erro, setErro] = React.useState('');
+  const [aviso, setAviso] = React.useState('');
   const baseUrl = new URL('../../avaliacao/', window.location.href).href;
 
-  const salvar = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+  const salvar = (l) => { setLista(l); if (modo === 'local') { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} } };
   const novoToken = () => Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 8);
   const linkDe = (c) => baseUrl + '?t=' + c.token;
 
-  // Sincroniza status "respondido" a partir das respostas locais (demo; na AWS vem da API)
+  // ===== Modo API: colaboradores + campanha ativa + status dos convites vêm do banco =====
+  const carregarApi = async () => {
+    const cols = await window.MorahApi.chamar('GET', '/colaboradores');
+    const cps = await window.MorahApi.chamar('GET', '/campanhas');
+    const cp = cps.find((x) => x.status === 'ativa') || cps[0] || null;
+    let convites = [];
+    if (cp) convites = await window.MorahApi.chamar('GET', '/campanhas/' + cp.id + '/convites');
+    const porColab = {};
+    convites.forEach((cv) => { porColab[cv.nome + '|' + (cv.email || '')] = cv; });
+    setCampanha(cp);
+    setLista(cols.map((co) => {
+      const cv = porColab[co.nome + '|' + (co.email || '')];
+      return {
+        id: co.id, nome: co.nome, email: co.email || '', fone: co.telefone || '',
+        setor: co.setor_nome || '', token: cv ? cv.token : null,
+        status: cv ? (cv.status === 'respondido' ? 'resp' : 'env') : 'nao',
+      };
+    }));
+  };
+
   React.useEffect(() => {
-    try {
-      const envios = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]');
-      const toks = new Set(envios.map((e) => e.convite).filter(Boolean));
-      if (toks.size && lista.some((c) => toks.has(c.token) && c.status !== 'resp')) {
-        salvar(lista.map((c) => (toks.has(c.token) ? { ...c, status: 'resp' } : c)));
+    (async () => {
+      try {
+        if (!window.MorahApi) return;
+        await carregarApi();
+        setModo('api');
+      } catch (e) {
+        // SEM_JWT (demo) ou API indisponível → localStorage
+        try {
+          const envios = JSON.parse(localStorage.getItem('morah-avaliacoes') || '[]');
+          const toks = new Set(envios.map((x) => x.convite).filter(Boolean));
+          const loc = ler();
+          if (toks.size && loc.some((c) => toks.has(c.token) && c.status !== 'resp')) {
+            const novo = loc.map((c) => (toks.has(c.token) ? { ...c, status: 'resp' } : c));
+            try { localStorage.setItem(KEY, JSON.stringify(novo)); } catch (e2) {}
+            setLista(novo);
+          }
+        } catch (e2) {}
       }
-    } catch (e) {}
+    })();
   }, []);
 
-  const adicionar = () => {
+  // Garante campanha ativa + convite (token) para o colaborador — API cria e dispara o e-mail via SES
+  const garantirConvite = async (c) => {
+    if (c.token) return c.token;
+    let cp = campanha;
+    if (!cp) {
+      cp = await window.MorahApi.chamar('POST', '/campanhas', { nome: 'Avaliação Psicossocial ' + new Date().getFullYear() });
+      setCampanha(cp);
+    }
+    const r = await window.MorahApi.chamar('POST', '/campanhas/' + cp.id + '/convites', { colaboradorIds: [c.id] });
+    await carregarApi();
+    if (r.emails_enviados > 0) setAviso('Convite enviado por e-mail pela plataforma para ' + c.nome.split(' ')[0] + '.');
+    const convites = await window.MorahApi.chamar('GET', '/campanhas/' + cp.id + '/convites');
+    const cv = convites.find((x) => x.nome === c.nome && (x.email || '') === (c.email || ''));
+    return cv ? cv.token : null;
+  };
+
+  const adicionar = async () => {
     if (!form.nome.trim()) { setErro('Informe o nome do colaborador.'); return; }
     if (!form.email.trim() && !form.fone.trim()) { setErro('Informe e-mail ou WhatsApp para o envio.'); return; }
     setErro('');
+    if (modo === 'api') {
+      try {
+        await window.MorahApi.chamar('POST', '/colaboradores', {
+          nome: form.nome.trim(), email: form.email.trim() || null, telefone: form.fone.trim() || null,
+        });
+        await carregarApi();
+        setForm({ nome: '', email: '', fone: '', setor: '' });
+      } catch (e) { setErro(e.message); }
+      return;
+    }
     salvar([...lista, {
       id: Date.now(), token: novoToken(), status: 'nao',
       nome: form.nome.trim(), email: form.email.trim(), fone: form.fone.trim(), setor: form.setor.trim(),
@@ -579,22 +713,41 @@ function EnvioScreen() {
     setForm({ nome: '', email: '', fone: '', setor: '' });
   };
   const marcar = (c, status) => salvar(lista.map((x) => (x.id === c.id ? { ...x, status } : x)));
-  const remover = (c) => salvar(lista.filter((x) => x.id !== c.id));
+  const remover = async (c) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('DELETE', '/colaboradores/' + c.id); await carregarApi(); } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvar(lista.filter((x) => x.id !== c.id));
+  };
 
-  const mensagem = (c) => 'Olá, ' + c.nome.split(' ')[0] + '! Você foi convidado(a) a responder a Avaliação do Ambiente de Trabalho da sua empresa. É anônima e leva cerca de 15 minutos. Acesse: ' + linkDe(c);
-  const viaWhats = (c) => {
+  const mensagem = (c, token) => 'Olá, ' + c.nome.split(' ')[0] + '! Você foi convidado(a) a responder a Avaliação do Ambiente de Trabalho da sua empresa. É anônima e leva cerca de 15 minutos. Acesse: ' + baseUrl + '?t=' + token;
+  const viaWhats = async (c) => {
+    const token = modo === 'api' ? await garantirConvite(c) : c.token;
+    if (!token) return;
     const d = c.fone.replace(/\D/g, '');
     const n = d.length <= 11 ? '55' + d : d;
-    window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(mensagem(c)), '_blank');
+    window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(mensagem(c, token)), '_blank');
+    if (modo === 'local' && c.status === 'nao') marcar(c, 'env');
+  };
+  const viaEmail = async (c) => {
+    if (modo === 'api') {
+      const jaTinha = !!c.token;
+      const token = await garantirConvite(c);
+      // convite novo: a plataforma já enviou via SES; reenvio manual abre o e-mail pronto
+      if (jaTinha && token) {
+        window.open('mailto:' + c.email + '?subject=' + encodeURIComponent('Avaliação do Ambiente de Trabalho — sua participação é importante') + '&body=' + encodeURIComponent(mensagem(c, token)));
+      }
+      return;
+    }
+    window.open('mailto:' + c.email + '?subject=' + encodeURIComponent('Avaliação do Ambiente de Trabalho — sua participação é importante') + '&body=' + encodeURIComponent(mensagem(c, c.token)));
     if (c.status === 'nao') marcar(c, 'env');
   };
-  const viaEmail = (c) => {
-    window.open('mailto:' + c.email + '?subject=' + encodeURIComponent('Avaliação do Ambiente de Trabalho — sua participação é importante') + '&body=' + encodeURIComponent(mensagem(c)));
-    if (c.status === 'nao') marcar(c, 'env');
-  };
-  const copiarLink = (c) => {
-    navigator.clipboard.writeText(linkDe(c));
-    if (c.status === 'nao') marcar(c, 'env');
+  const copiarLink = async (c) => {
+    const token = modo === 'api' ? await garantirConvite(c) : c.token;
+    if (!token) return;
+    navigator.clipboard.writeText(baseUrl + '?t=' + token);
+    if (modo === 'local' && c.status === 'nao') marcar(c, 'env');
   };
 
   const StatusBadge = ({ s }) => (
@@ -617,10 +770,15 @@ function EnvioScreen() {
           <Button variant="primary" iconLeft="plus" onClick={adicionar}>Adicionar</Button>
         </div>
         {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+        {aviso && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--success-700)', fontWeight: 600 }}>{aviso}</div>}
       </PanelCard>
 
       <PanelCard>
-        <PanelTitle title="Colaboradores" sub={lista.length + ' cadastrado(s) · ' + respondidos + ' respondido(s)'} />
+        <PanelTitle title="Colaboradores"
+          sub={(modo === 'api'
+            ? (campanha ? 'Campanha: ' + campanha.nome + ' · ' : 'Sem campanha ativa (criada no 1º envio) · ')
+            : 'Modo demonstração — dados locais · ')
+            + lista.length + ' cadastrado(s) · ' + respondidos + ' respondido(s)'} />
         {lista.length === 0 ? (
           <EmptyState icon="users" title="Nenhum colaborador cadastrado" sub="Cadastre acima para enviar o questionário por e-mail ou WhatsApp." />
         ) : (

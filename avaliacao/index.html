@@ -94,6 +94,7 @@
   <div class="foot">Dados anônimos e agregados · Questionário Moorah v1.0<br>Núcleo COPSOQ II-Br (NRCWE · Gonçalves et al., 2021) + Indicadores Moorah</div>
 </div>
 
+<script src="../config.js"></script>
 <script src="questionario.js"></script>
 <script>
 (function () {
@@ -111,6 +112,20 @@
   // Token do convite individual (?t=...) — controla o status do convite;
   // a resposta permanece desvinculada da identidade nos relatórios.
   const convite = new URLSearchParams(window.location.search).get('t') || null;
+
+  // Valida o convite na API (rota pública, sem login). Sem API/sem token → fluxo local.
+  let infoConvite = null; // { empresa, campanha, respondido } | { invalido: true }
+  if (convite && window.MORAH_API) {
+    fetch(window.MORAH_API + '/q/' + encodeURIComponent(convite))
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (x) {
+        infoConvite = x.ok
+          ? { empresa: x.d.empresa, campanha: x.d.campanha, respondido: !!x.d.respondido }
+          : { invalido: true };
+        if (etapa < 0) render(); // atualiza a tela inicial com os dados do convite
+      })
+      .catch(function () { /* API fora do ar: segue o fluxo local */ });
+  }
 
   const total = Q.secoes.length;
 
@@ -133,8 +148,13 @@
       '<div class="card">' +
       '<span class="chip">Fase de teste</span>' +
       '<h1>Avaliação do ambiente psicossocial de trabalho</h1>' +
+      (infoConvite && infoConvite.empresa
+        ? '<p class="lead" style="margin-bottom:2px;"><b>' + esc(infoConvite.empresa) + '</b>' + (infoConvite.campanha && infoConvite.campanha.nome ? ' · ' + esc(infoConvite.campanha.nome) : '') + '</p>'
+        : '') +
       '<p class="lead">Este questionário avalia as condições do <b>ambiente de trabalho</b> — não avalia você. Leva de 15 a 20 minutos. Responda com sinceridade, pensando no seu dia a dia das últimas semanas.</p>' +
-      (ja ? '<div class="nota">Você já enviou uma resposta neste dispositivo. Durante a fase de teste, é possível responder novamente.</div>' : '') +
+      (infoConvite && infoConvite.invalido ? '<div class="nota" style="border-left:3px solid #E23D3D;">Convite inválido ou não encontrado. Confira o link recebido — se o problema continuar, fale com o RH da sua empresa.</div>' : '') +
+      (infoConvite && infoConvite.respondido ? '<div class="nota" style="border-left:3px solid #E9A115;">Este convite já foi utilizado. Obrigado pela sua participação! Se precisar responder novamente, fale com o RH da sua empresa.</div>' : '') +
+      (ja && !infoConvite ? '<div class="nota">Você já enviou uma resposta neste dispositivo. Durante a fase de teste, é possível responder novamente.</div>' : '') +
       '<div class="ethics">' +
       '<li>A participação é <b>voluntária</b>. Ninguém deve se sentir pressionado a participar.</li>' +
       '<li>Suas respostas são <b>anônimas</b>. Os resultados são calculados por grupos e respostas individuais não podem ser identificadas.</li>' +
@@ -144,10 +164,11 @@
       '<label class="field" for="setor">Em qual setor / departamento você trabalha?</label>' +
       '<input type="text" id="setor" placeholder="Ex.: Produção, Administrativo, Comercial…" value="' + esc(setor) + '">' +
       '<label class="consent"><input type="checkbox" id="consente"> <span>Entendi que a participação é voluntária e anônima, e concordo em responder o questionário. (LGPD — nenhum dado pessoal identificável é coletado)</span></label>' +
-      '<div class="navrow"><button class="btn primary" id="comecar">Começar avaliação</button></div>' +
+      '<div class="navrow"><button class="btn primary" id="comecar"' + (infoConvite && infoConvite.respondido ? ' disabled' : '') + '>Começar avaliação</button></div>' +
       '</div>';
 
     document.getElementById('comecar').onclick = function () {
+      if (infoConvite && infoConvite.respondido) return;
       const s = document.getElementById('setor').value.trim();
       const ok = document.getElementById('consente').checked;
       if (!s) { document.getElementById('setor').style.borderColor = '#C43535'; document.getElementById('setor').focus(); return; }
@@ -261,12 +282,18 @@
       fontesExposicao: followups,
       camposAbertos: textos,
     };
-    // Sem backend ainda: persiste localmente. Na integração AWS, definir window.MORAH_API_AVALIACAO
-    // (ex.: em config.js) e este bloco passa a enviar via POST.
-    const api = window.MORAH_API_AVALIACAO;
-    if (api) {
-      fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(function () { concluir(); })
+    // Com convite + API: envia pela rota pública (resposta gravada desacoplada
+    // da identidade no servidor). Sem convite/API ou em falha: persiste local.
+    if (convite && window.MORAH_API) {
+      fetch(window.MORAH_API + '/q/' + encodeURIComponent(convite) + '/resposta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(function (r) {
+          if (r.ok) { try { localStorage.setItem('morah-avaliacao-ok', '1'); } catch (e) {} concluir(); }
+          else { salvarLocal(payload); concluir(); }
+        })
         .catch(function () { salvarLocal(payload); concluir(); });
     } else {
       salvarLocal(payload);

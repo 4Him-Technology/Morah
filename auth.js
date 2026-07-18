@@ -198,6 +198,15 @@ window.MORAH_AUTH_CONFIG = {
       };
     },
 
+    // JWT (ID token) da sessão REAL do Cognito — null no modo demo.
+    // É o que a API do Mentask valida (authorizer JWT do API Gateway).
+    async idToken() {
+      if (isDemo()) return null;
+      const session = await this.currentSession();
+      if (!session || session.demo) return null;
+      try { return session.getIdToken().getJwtToken(); } catch (e) { return null; }
+    },
+
     // O usuário tem acesso a um produto? (etiqueta/grupo)
     async hasProduct(productKey) {
       const u = await this.currentUser();
