@@ -78,87 +78,166 @@ function BarChart({ chart }) {
 function OverviewScreen() {
   const D = window.MORAH;
   const [range, setRange] = React.useState('Últimos 6 meses');
+  const [kpisApi, setKpisApi] = React.useState(null); // sessão real → números do banco
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi || !window.MorahAuth) return;
+        if (!(await window.MorahAuth.idToken())) return; // modo demo → KPIs mock
+        const perfil = (window.MORAH_USER || {}).perfil;
+        const [cols, cps] = await Promise.all([
+          window.MorahApi.chamar('GET', '/colaboradores').catch(() => []),
+          window.MorahApi.chamar('GET', '/campanhas').catch(() => []),
+        ]);
+        let empresasN = null;
+        if (perfil === 'admin' || perfil === 'tecnico') {
+          const es = await window.MorahApi.chamar('GET', '/empresas').catch(() => null);
+          empresasN = es ? es.length : null;
+        }
+        const convites = cps.reduce((a, c) => a + (Number(c.convites) || 0), 0);
+        const respostas = cps.reduce((a, c) => a + (Number(c.respondidos) || 0), 0);
+        setKpisApi([
+          empresasN !== null
+            ? { id: 'emp', label: perfil === 'tecnico' ? 'Empresas na carteira' : 'Empresas', value: String(empresasN), icon: 'building-2', tone: 'blue' }
+            : { id: 'cps', label: 'Campanhas', value: String(cps.length), icon: 'calendar-range', tone: 'blue' },
+          { id: 'col', label: 'Colaboradores', value: String(cols.length), icon: 'users', tone: 'green' },
+          { id: 'env', label: 'Convites enviados', value: String(convites), icon: 'send', tone: 'amber' },
+          { id: 'res', label: 'Respostas · adesão', value: respostas + (convites ? ' · ' + Math.round((respostas / convites) * 100) + '%' : ''), icon: 'message-circle', tone: 'berry' },
+        ]);
+      } catch (e) { /* demo → KPIs mock */ }
+    })();
+  }, []);
+
+  const kpis = kpisApi || D.kpis;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
-        {D.kpis.map((k) => <StatCard key={k.id} label={k.label} value={k.value} icon={k.icon} tone={k.tone} data={k.data} />)}
+        {kpis.map((k) => <StatCard key={k.id} label={k.label} value={k.value} icon={k.icon} tone={k.tone} data={k.data} />)}
       </div>
-      <PanelCard>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-strong)' }}>Histórico de Avaliações</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--berry-500)' }}></span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Avaliações Realizadas</span>
-            </span>
-            <div style={{ width: 168 }}><Select value={range} onChange={(e) => setRange(e.target.value)} options={['Últimos 6 meses', 'Últimos 12 meses', 'Este ano']} /></div>
+      {!kpisApi && (
+        <PanelCard>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
+            <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-strong)' }}>Histórico de Avaliações</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--berry-500)' }}></span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Avaliações Realizadas</span>
+              </span>
+              <div style={{ width: 168 }}><Select value={range} onChange={(e) => setRange(e.target.value)} options={['Últimos 6 meses', 'Últimos 12 meses', 'Este ano']} /></div>
+            </div>
           </div>
-        </div>
-        <BarChart chart={D.chart} />
-      </PanelCard>
+          <BarChart chart={D.chart} />
+        </PanelCard>
+      )}
     </div>
   );
 }
 
-/* ---------- Empresas ---------- */
+/* ---------- Empresas (admin: todas as contratantes · técnico: carteira white-label) ---------- */
 function EmpresasScreen() {
   const D = window.MORAH;
+  const KEY = 'morah-empresas';
+  const seedLocal = () => D.companies.map((c, i) => ({ id: 'loc-' + i, razao_social: c.name, cnpj: c.cnpj, colaboradores: 0, status: 'ativa' }));
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || seedLocal(); } catch (e) { return seedLocal(); } };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
   const [q, setQ] = React.useState('');
-  const list = D.companies.filter(c => c.name.toLowerCase().includes(q.toLowerCase()) || c.cnpj.includes(q));
+  const [form, setForm] = React.useState({ razao: '', cnpj: '', rhNome: '', rhEmail: '' });
+  const [erro, setErro] = React.useState('');
+  const [aviso, setAviso] = React.useState('');
+  const perfil = (window.MORAH_USER || {}).perfil || 'tecnico';
+  const empresaAtivaId = (() => { try { return localStorage.getItem('morah-empresa-id'); } catch (e) { return null; } })();
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/empresas')); };
+  React.useEffect(() => {
+    (async () => { try { if (!window.MorahApi) return; await carregar(); setModo('api'); } catch (e) {} })();
+  }, []);
+  const salvarLocal = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+
+  const criar = async () => {
+    if (!form.razao.trim()) { setErro('Informe a razão social.'); return; }
+    setErro(''); setAviso('');
+    if (modo === 'api') {
+      try {
+        const corpo = { razao_social: form.razao.trim(), cnpj: form.cnpj.trim() || null };
+        if (perfil === 'admin' && form.rhEmail.trim()) { corpo.rh_email = form.rhEmail.trim(); corpo.rh_nome = form.rhNome.trim() || null; }
+        const r = await window.MorahApi.chamar('POST', '/empresas', corpo);
+        await carregar();
+        setForm({ razao: '', cnpj: '', rhNome: '', rhEmail: '' });
+        setAviso(r.rh ? 'Empresa criada — o RH (' + r.rh.email + ') recebeu a senha temporária por e-mail.' : 'Empresa criada' + (perfil === 'tecnico' ? ' na sua carteira.' : '.'));
+      } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal([{ id: 'loc-' + Date.now(), razao_social: form.razao.trim(), cnpj: form.cnpj.trim(), colaboradores: 0, status: 'ativa' }, ...lista]);
+    setForm({ razao: '', cnpj: '', rhNome: '', rhEmail: '' });
+  };
+
+  const gerenciar = (e) => {
+    try { localStorage.setItem('morah-empresa-id', e.id); } catch (x) {}
+    if (modo === 'api') { window.location.reload(); return; }
+    setAviso('Empresa "' + e.razao_social + '" selecionada (demonstração).');
+  };
+
+  const filtro = q.trim().toLowerCase();
+  const list = lista.filter((c) => !filtro || (c.razao_social || '').toLowerCase().includes(filtro) || (c.cnpj || '').includes(filtro));
+
   return (
-    <div>
-      {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 'var(--space-5)', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <PanelTitle title="Nova empresa"
+          sub={perfil === 'tecnico'
+            ? (modo === 'api' ? 'A empresa entra na sua carteira — você gerencia estrutura, colaboradores e campanhas dela.' : 'Modo demonstração — dados locais')
+            : 'Cadastro da contratante · informe o e-mail do RH para criar o acesso (senha temporária enviada automaticamente)'} />
+        <div style={{ display: 'grid', gridTemplateColumns: perfil === 'admin' ? '1.6fr 1fr 1fr 1.2fr auto' : '2fr 1.2fr auto', gap: 10 }}>
+          <Input placeholder="Razão social" value={form.razao} onChange={(e) => setForm({ ...form, razao: e.target.value })} />
+          <Input placeholder="CNPJ (opcional)" value={form.cnpj} onChange={(e) => setForm({ ...form, cnpj: e.target.value })} />
+          {perfil === 'admin' && <Input placeholder="Nome do RH (opcional)" value={form.rhNome} onChange={(e) => setForm({ ...form, rhNome: e.target.value })} />}
+          {perfil === 'admin' && <Input placeholder="E-mail do RH (cria o acesso)" value={form.rhEmail} onChange={(e) => setForm({ ...form, rhEmail: e.target.value })} />}
+          <Button variant="primary" iconLeft="plus" onClick={criar}>Cadastrar</Button>
+        </div>
+        {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+        {aviso && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--success-700)', fontWeight: 600 }}>{aviso}</div>}
+      </PanelCard>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 240, maxWidth: 360 }}>
           <Input icon="search" placeholder="Buscar por nome ou CNPJ" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div style={{ width: 86 }}><Select options={['10', '5', '25']} /></div>
-        <div style={{ flex: 1 }}></div>
-        <Button variant="secondary" iconLeft="upload">Importar em Lote</Button>
-        <Button variant="primary" iconLeft="plus">Nova Empresa</Button>
+        <Badge tone="berry">{list.length} empresa(s)</Badge>
+        {modo === 'local' && <Badge tone="warning" solid>Modo demonstração</Badge>}
       </div>
 
-      {/* Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
-        {list.map((c, i) => (
-          <Card key={i} interactive padding="var(--space-5)" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
-              <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
-                <Icon name="building-2" size={17} />
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                  <span style={{ flex: 1, fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)', lineHeight: 1.35 }}>{c.name}</span>
-                  <Badge tone={c.tone}>{c.tag}</Badge>
+      {list.length === 0 ? (
+        <PanelCard style={{ padding: 0 }}>
+          <EmptyState icon="building-2" title="Nenhuma empresa"
+            sub={perfil === 'tecnico' ? 'Cadastre a primeira empresa da sua carteira para começar a operar.' : 'Cadastre a primeira contratante.'} />
+        </PanelCard>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+          {list.map((c) => (
+            <Card key={c.id} interactive padding="var(--space-5)" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1 }}>
+                <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
+                  <Icon name="building-2" size={17} />
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <span style={{ flex: 1, fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)', lineHeight: 1.35 }}>{c.razao_social}</span>
+                    {c.id === empresaAtivaId && <Badge tone="success" solid>Ativa</Badge>}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 7 }}>
+                    {c.cnpj || 'CNPJ não informado'} · {c.colaboradores || 0} colaborador(es)
+                  </div>
                 </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 7 }}>{c.cnpj}</div>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 4, marginTop: 'auto', paddingTop: 10, borderTop: '1px solid var(--gray-100)' }}>
-              <Button size="sm" variant="ghost" iconLeft="pencil" style={{ color: 'var(--text-body)' }}>Editar</Button>
-              <Button size="sm" variant="ghost" iconLeft="trash-2" style={{ color: 'var(--critical-500)' }}>Excluir</Button>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'var(--space-5)' }}>
-        <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>Mostrando 1 a {list.length} de {D.companies.length} empresas</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Button size="sm" variant="ghost" iconLeft="chevron-left">Anterior</Button>
-          {[1, 2, 3].map(p => (
-            <button key={p} style={{
-              width: 32, height: 32, borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-              fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)',
-              background: p === 1 ? 'var(--berry-600)' : 'var(--surface-card)',
-              color: p === 1 ? '#fff' : 'var(--text-body)',
-              border: p === 1 ? '1px solid transparent' : '1px solid var(--border-subtle)',
-            }}>{p}</button>
+              <div style={{ display: 'flex', gap: 4, marginTop: 'auto', paddingTop: 10, borderTop: '1px solid var(--gray-100)' }}>
+                <Button size="sm" variant="secondary" iconLeft="arrow-right" onClick={() => gerenciar(c)}>Gerenciar</Button>
+              </div>
+            </Card>
           ))}
-          <Button size="sm" variant="ghost" iconRight="chevron-right">Próximo</Button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -354,13 +433,92 @@ function RelatoriosScreen() {
   );
 }
 
-/* ---------- Comparar Relatórios ---------- */
+/* ---------- Comparar Relatórios (evolução entre campanhas) ---------- */
 function CompararScreen() {
+  const [modo, setModo] = React.useState('local');
+  const [cps, setCps] = React.useState([]);
+  const [selA, setSelA] = React.useState('—');
+  const [selB, setSelB] = React.useState('—');
+  const [resA, setResA] = React.useState(null);
+  const [resB, setResB] = React.useState(null);
+  const [erro, setErro] = React.useState('');
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi) return;
+        const lista = await window.MorahApi.chamar('GET', '/campanhas');
+        setCps(lista); setModo('api');
+        if (lista.length >= 2) { setSelA(lista[1].nome); setSelB(lista[0].nome); }
+      } catch (e) {}
+    })();
+  }, []);
+
+  React.useEffect(() => {
+    (async () => {
+      if (modo !== 'api') return;
+      setErro('');
+      const buscar = async (nome, setRes) => {
+        const cp = cps.find((c) => c.nome === nome);
+        if (!cp) { setRes(null); return; }
+        try { setRes(await window.MorahApi.chamar('GET', '/campanhas/' + cp.id + '/resultados')); }
+        catch (e) { setRes(null); setErro(e.message); }
+      };
+      await buscar(selA, setResA);
+      await buscar(selB, setResB);
+    })();
+  }, [selA, selB, modo, cps]);
+
+  const prontos = resA && resA.global && resB && resB.global;
+  const compara = (dimId) => {
+    const a = resA.global.nucleo.find((d) => d.id === dimId);
+    const b = resB.global.nucleo.find((d) => d.id === dimId);
+    if (!a || !b || a.media === null || b.media === null) return null;
+    const delta = b.media - a.media;
+    const melhorou = a.dir === 'risco' ? delta < 0 : delta > 0;
+    return { a, b, delta, melhorou, estavel: Math.abs(delta) < 0.05 };
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       <PanelCard>
-        <PanelTitle title="Selecione os Relatórios para Comparação" />
-        <EmptyState icon="building-2" title="Selecione uma empresa" sub="Para comparar relatórios, selecione uma empresa específica no seletor de empresas, no topo da página." />
+        <PanelTitle title="Comparação entre campanhas" sub={modo === 'api' ? 'Escolha dois ciclos para ver a evolução por dimensão' : 'Disponível com sessão real e duas campanhas encerradas — no modo demonstração, os ciclos ainda não existem'} />
+        {modo === 'api' ? (
+          <React.Fragment>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ width: 260 }}><Select value={selA} onChange={(e) => setSelA(e.target.value)} options={['—', ...cps.map((c) => c.nome)]} /></div>
+              <Icon name="arrow-right" size={16} color="var(--text-muted)" />
+              <div style={{ width: 260 }}><Select value={selB} onChange={(e) => setSelB(e.target.value)} options={['—', ...cps.map((c) => c.nome)]} /></div>
+            </div>
+            {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+            {!prontos && !erro && (
+              <div style={{ marginTop: 14, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                {cps.length < 2 ? 'É preciso ter pelo menos 2 campanhas com respostas suficientes (n ≥ 5) para comparar.' : 'Selecione duas campanhas com resultados liberados (n ≥ 5).'}
+              </div>
+            )}
+            {prontos && (
+              <div style={{ marginTop: 16 }}>
+                {resA.global.nucleo.map((d) => {
+                  const cmp = compara(d.id);
+                  if (!cmp) return null;
+                  return (
+                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 4px', borderTop: '1px solid var(--gray-100)', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: 220, fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-strong)' }}>{d.nome}</div>
+                      <ResultBand level={cmp.a.nivel} />
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{cmp.a.media} → {cmp.b.media}</span>
+                      <ResultBand level={cmp.b.nivel} />
+                      {cmp.estavel
+                        ? <Badge tone="neutral">Estável</Badge>
+                        : cmp.melhorou ? <Badge tone="success" solid>Melhorou</Badge> : <Badge tone="critical" solid>Piorou</Badge>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </React.Fragment>
+        ) : (
+          <EmptyState icon="arrow-left-right" title="Dois ciclos são necessários" sub="Com sessão real, crie campanhas por período (ex.: 2026-1 e 2026-2); a evolução dimensão a dimensão aparece aqui." />
+        )}
       </PanelCard>
       <PanelCard>
         <PanelTitle title="Legenda de Interpretação dos Resultados" />
@@ -426,17 +584,53 @@ function ModelosScreen() {
 
 /* ---------- Termos ---------- */
 function TermosScreen() {
-  const D = window.MORAH;
+  const VERSAO = '1.0';
+  const KEY = 'morah-aceite-termos';
+  const [aceite, setAceite] = React.useState(null);   // { versao, aceito_em } | null
+  const [modo, setModo] = React.useState('local');
+  const [erro, setErro] = React.useState('');
+  const usuario = window.MORAH_USER || {};
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi) return;
+        const r = await window.MorahApi.chamar('GET', '/aceite-termos');
+        setModo('api');
+        setAceite(r.find((a) => a.versao === VERSAO) || null);
+      } catch (e) {
+        try { setAceite(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch (e2) {}
+      }
+    })();
+  }, []);
+
+  const aceitar = async () => {
+    const registro = { versao: VERSAO, aceito_em: new Date().toISOString() };
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('POST', '/aceite-termos', { versao: VERSAO }); setAceite(registro); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(registro)); } catch (e) {}
+    setAceite(registro);
+  };
+
+  const fmtQuando = (a) => { try { return new Date(a.aceito_em).toLocaleString('pt-BR'); } catch (e) { return '—'; } };
+
   return (
     <PanelCard style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 6 }}>
         <div>
-          <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-strong)' }}>Termos de Uso da Plataforma</h3>
+          <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-strong)' }}>Termos de Uso da Plataforma — v{VERSAO}</h3>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.8, marginTop: 6 }}>
-            Usuário: {D.tenant.tech} ({D.tenant.email}) · Aceito em: <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-body)' }}>06/05/2026, 18:14:13</span>
+            Usuário: {usuario.name || '—'}{usuario.email ? ' (' + usuario.email + ')' : ''}
+            {aceite && <span> · Aceito em: <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-body)' }}>{fmtQuando(aceite)}</span></span>}
           </div>
+          {erro && <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600, marginTop: 4 }}>{erro}</div>}
         </div>
-        <Badge tone="success" style={{ marginTop: 3 }}>Aceito</Badge>
+        {aceite
+          ? <Badge tone="success" style={{ marginTop: 3 }}>Aceito</Badge>
+          : <Badge tone="warning" solid style={{ marginTop: 3 }}>Pendente</Badge>}
       </div>
       <div style={{
         background: 'var(--gray-50)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)',
@@ -454,8 +648,8 @@ function TermosScreen() {
         <p><strong>7. DISPOSIÇÕES GERAIS.</strong> Dúvidas sobre estes termos ou sobre o tratamento de dados podem ser encaminhadas ao encarregado de dados indicado no contrato de licenciamento.</p>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 16 }}>
-        <Button variant="primary" iconLeft="file-text">Visualizar PDF</Button>
-        <Button variant="secondary" iconLeft="download">Baixar PDF</Button>
+        {!aceite && <Button variant="primary" iconLeft="check" onClick={aceitar}>Li e aceito os termos (v{VERSAO})</Button>}
+        <Button variant="secondary" iconLeft="printer" onClick={() => window.print()}>Imprimir / salvar PDF</Button>
       </div>
     </PanelCard>
   );

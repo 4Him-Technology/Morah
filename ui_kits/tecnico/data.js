@@ -27,6 +27,32 @@ window.MORAH = {
         ],
       },
     },
+    tecnico: {
+      rotulo: 'TÉCNICO SST',
+      tenant: { name: 'Consultoria SST Demo', tech: 'Técnico(a) SST Demo', role: 'Técnico de Segurança do Trabalho' },
+      inicio: 'overview',
+      seletorEmpresas: true, // carteira de empresas do técnico (white-label)
+      nav: {
+        navegacao: [
+          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
+          { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
+          { id: 'link',       icon: 'users',       label: 'Colaboradores' },
+          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
+          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
+          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
+          { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
+          { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
+        ],
+        ferramentas: [
+          { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
+          { id: 'setor',         icon: 'layers',    label: 'Setores' },
+          { id: 'departamentos', icon: 'network',   label: 'Departamentos' },
+          { id: 'cargos',        icon: 'briefcase', label: 'Cargos' },
+          { id: 'modelos',       icon: 'clipboard-list', label: 'Modelos de Apresentação' },
+          { id: 'termos',        icon: 'file-text', label: 'Termos de Aceite' },
+        ],
+      },
+    },
     rh: {
       rotulo: 'RH',
       tenant: { name: 'DG Sports', tech: 'Gestor(a) de RH Demo', role: 'RH — Gestão de Pessoas' },

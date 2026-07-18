@@ -9,10 +9,14 @@
     if (!base) throw Object.assign(new Error('API não configurada'), { code: 'SEM_API' });
     const token = window.MorahAuth ? await window.MorahAuth.idToken() : null;
     if (!token) throw Object.assign(new Error('sem sessão real (modo demo usa dados locais)'), { code: 'SEM_JWT' });
+    // Técnico white-label: a empresa ativa da carteira vai no header (validada no servidor)
+    let empresaAtiva = null;
+    try { empresaAtiva = localStorage.getItem('morah-empresa-id'); } catch (e) {}
     const r = await fetch(base + rota, {
       method: metodo,
       headers: Object.assign(
         { authorization: 'Bearer ' + token },
+        empresaAtiva ? { 'x-empresa-id': empresaAtiva } : {},
         corpo ? { 'content-type': 'application/json' } : {}
       ),
       body: corpo ? JSON.stringify(corpo) : undefined,

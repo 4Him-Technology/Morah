@@ -46,6 +46,7 @@ window.MORAH_AUTH_CONFIG = {
   // Três perfis de acesso: admin (Moorah), rh (empresa contratante) e colaborador.
   const DEMO_USERS = {
     admin: { email: 'admin@moorah.com.br', name: 'Admin Moorah', groups: ['moorah-admin'], sub: 'demo-admin' },
+    tecnico: { email: 'tecnico@sst.com.br', name: 'Técnico(a) SST Demo', groups: ['tecnico'], sub: 'demo-tec' },
     rh: { email: 'rh@empresa.com.br', name: 'Gestor(a) de RH Demo', groups: ['rh', 'mentask'], sub: 'demo-rh' },
     colaborador: { email: 'colaborador@empresa.com.br', name: 'Colaborador(a) Demo', groups: ['colaborador'], sub: 'demo-colab' },
   };
@@ -58,6 +59,7 @@ window.MORAH_AUTH_CONFIG = {
   // Papel do usuário a partir dos grupos do Cognito (fonte da verdade na produção).
   function perfilFromGroups(groups) {
     if (groups.indexOf('moorah-admin') !== -1) return 'admin';
+    if (groups.indexOf('tecnico') !== -1) return 'tecnico'; // white-label SST (carteira de empresas)
     if (groups.indexOf('colaborador') !== -1) return 'colaborador';
     return 'rh'; // 'rh', 'mentask' (legado) e demais grupos de produto
   }
@@ -131,6 +133,9 @@ window.MORAH_AUTH_CONFIG = {
     },
 
     // Login por SRP. Resolve com a sessão; rejeita com mensagem amigável.
+    // Primeiro acesso (senha temporária do AdminCreateUser): rejeita com
+    // NEW_PASSWORD_REQUIRED e guarda o desafio — concluir com completeNewPassword().
+    _pendingNewPassword: null,
     signIn({ email, password }) {
       return new Promise((resolve, reject) => {
         const user = cognitoUser(email);
@@ -138,10 +143,26 @@ window.MORAH_AUTH_CONFIG = {
           Username: email, Password: password,
         });
         user.authenticateUser(details, {
-          onSuccess: (session) => resolve(session),
+          onSuccess: (session) => { Auth._pendingNewPassword = null; resolve(session); },
           onFailure: (err) => reject(new Error(friendly(err))),
-          // Primeiro login de usuário criado pelo admin (B2B) exige nova senha.
-          newPasswordRequired: () => reject(Object.assign(new Error('NEW_PASSWORD_REQUIRED'), { code: 'NEW_PASSWORD_REQUIRED' })),
+          newPasswordRequired: (userAttributes) => {
+            Auth._pendingNewPassword = { user, userAttributes };
+            reject(Object.assign(new Error('NEW_PASSWORD_REQUIRED'), { code: 'NEW_PASSWORD_REQUIRED' }));
+          },
+        });
+      });
+    },
+
+    // Conclui o desafio de primeira senha (onboarding B2B: RH/técnico criado pelo admin).
+    completeNewPassword({ password }) {
+      return new Promise((resolve, reject) => {
+        const p = Auth._pendingNewPassword;
+        if (!p) return reject(new Error('Nenhum primeiro acesso pendente. Faça login novamente.'));
+        // Atributos exigidos não podem incluir os imutáveis retornados pelo desafio.
+        const attrs = {};
+        p.user.completeNewPasswordChallenge(password, attrs, {
+          onSuccess: (session) => { Auth._pendingNewPassword = null; resolve(session); },
+          onFailure: (err) => reject(new Error(friendly(err))),
         });
       });
     },

@@ -17,6 +17,14 @@ function App() {
     }
   }, []);
 
+  // Sessão real: /me traz a empresa (RH) ou a carteira de empresas (técnico)
+  const [me, setMe] = React.useState(null);
+  React.useEffect(() => {
+    (async () => {
+      try { if (window.MorahApi) setMe(await window.MorahApi.chamar('GET', '/me')); } catch (e) {}
+    })();
+  }, []);
+
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     try { localStorage.setItem('morah-theme', theme); } catch (e) {}
@@ -27,6 +35,24 @@ function App() {
   const tenant = Object.assign({}, P.tenant, user ? { tech: user.name } : {});
   const atual = screen || P.inicio;
 
+  // Empresa real (modo API): RH → a própria; técnico → empresa ativa da carteira
+  const carteira = me && me.empresas ? me.empresas : null;
+  const empresaAtivaId = (() => { try { return localStorage.getItem('morah-empresa-id'); } catch (e) { return null; } })();
+  const empresaAtiva = carteira ? (carteira.find((e) => e.id === empresaAtivaId) || carteira[0] || null) : null;
+  const tenantName = empresaAtiva ? empresaAtiva.razao_social
+    : (me && me.empresa ? me.empresa.razao_social : P.tenant.name);
+  const opcoesEmpresas = carteira && carteira.length
+    ? carteira.map((e) => e.razao_social)
+    : null; // null → Header usa a lista mock (demo/admin)
+  const trocarEmpresa = (nome) => {
+    if (carteira) {
+      const alvo = carteira.find((e) => e.razao_social === nome);
+      if (alvo) { try { localStorage.setItem('morah-empresa-id', alvo.id); } catch (e) {} window.location.reload(); }
+      return;
+    }
+    setCompany(nome);
+  };
+
   const Screen = window.Screens[atual] || window.Screens.overview;
   const t = D.titles[atual] || D.titles.overview;
 
@@ -34,8 +60,9 @@ function App() {
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-app)' }}>
       <Sidebar active={atual} onNavigate={setScreen} nav={P.nav} tenant={tenant} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Header screen={atual} company={company} onCompany={setCompany}
-          rotulo={P.rotulo} tenantName={P.tenant.name} seletorEmpresas={P.seletorEmpresas}
+        <Header screen={atual} company={empresaAtiva ? empresaAtiva.razao_social : company} onCompany={trocarEmpresa}
+          rotulo={P.rotulo} tenantName={tenantName} seletorEmpresas={P.seletorEmpresas}
+          opcoesEmpresas={opcoesEmpresas}
           theme={theme} onToggleTheme={() => setTheme(tm => tm === 'plum' ? 'light' : 'plum')} />
         <main style={{ flex: 1, overflowY: 'auto' }}>
           <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '28px 32px 56px' }}>

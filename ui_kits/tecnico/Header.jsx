@@ -1,7 +1,7 @@
 // Morah técnico — slim top bar (light, hairline divider, soft blur).
 const { Select: DsSelect, Icon: HdrIcon } = window.MorahDesignSystem_32f810;
 
-function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tenantName, seletorEmpresas }) {
+function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tenantName, seletorEmpresas, opcoesEmpresas }) {
   const D = window.MORAH;
   const iconBtn = {
     width: 38, height: 38, borderRadius: 'var(--radius-control)', cursor: 'pointer',
@@ -35,7 +35,7 @@ function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tena
         {seletorEmpresas && (
           <div style={{ width: 230 }}>
             <DsSelect value={company} onChange={(e) => onCompany(e.target.value)}
-              options={['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
+              options={opcoesEmpresas || ['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
           </div>
         )}
         <button aria-label="Alternar tema do painel" title="Alternar tema" onClick={onToggleTheme} style={iconBtn}>
