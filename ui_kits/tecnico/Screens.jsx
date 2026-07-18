@@ -461,11 +461,398 @@ function TermosScreen() {
   );
 }
 
-function EstruturaScreen({ what }) {
+/* ---------- Estrutura organizacional (CRUD genérico: unidades/setores/departamentos/cargos) ---------- */
+function EstruturaScreen({ recurso, rotuloSing, rotuloPl, exemplo }) {
+  const KEY = 'morah-estr-' + recurso;
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
+  const [nome, setNome] = React.useState('');
+  const [erro, setErro] = React.useState('');
+  const [editando, setEditando] = React.useState(null); // { id, nome }
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/' + recurso)); };
+  React.useEffect(() => {
+    (async () => { try { if (!window.MorahApi) return; await carregar(); setModo('api'); } catch (e) {} })();
+  }, []);
+  const salvarLocal = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+
+  const adicionar = async () => {
+    if (!nome.trim()) { setErro('Informe o nome.'); return; }
+    setErro('');
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('POST', '/' + recurso, { nome: nome.trim() }); await carregar(); setNome(''); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal([...lista, { id: Date.now(), nome: nome.trim() }]);
+    setNome('');
+  };
+  const renomear = async (item, novo) => {
+    setEditando(null);
+    if (!novo.trim() || novo.trim() === item.nome) return;
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('PATCH', '/' + recurso + '/' + item.id, { nome: novo.trim() }); await carregar(); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.map((x) => (x.id === item.id ? { ...x, nome: novo.trim() } : x)));
+  };
+  const remover = async (item) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('DELETE', '/' + recurso + '/' + item.id); await carregar(); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.filter((x) => x.id !== item.id));
+  };
+
   return (
-    <PanelCard style={{ padding: 0 }}>
-      <EmptyState icon="layers" title={`Gestão de ${what}`} sub={`Cadastre e organize ${what} da empresa. Esta funcionalidade será liberada com a integração ao banco de dados (em breve).`} />
-    </PanelCard>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <PanelTitle title={'Nova ' + rotuloSing} sub={modo === 'api' ? 'Salvo no banco da sua empresa' : 'Modo demonstração — dados locais'} />
+        <div style={{ display: 'flex', gap: 10, maxWidth: 560 }}>
+          <div style={{ flex: 1 }}>
+            <Input placeholder={'Nome — ex.: ' + exemplo} value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') adicionar(); }} />
+          </div>
+          <Button variant="primary" iconLeft="plus" onClick={adicionar}>Adicionar</Button>
+        </div>
+        {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+      </PanelCard>
+
+      <PanelCard>
+        <PanelTitle title={rotuloPl} sub={lista.length + ' cadastrado(s)'} />
+        {lista.length === 0 ? (
+          <EmptyState icon="layers" title={'Nenhum(a) ' + rotuloSing + ' cadastrado(a)'} sub={'Use o formulário acima para estruturar ' + rotuloPl.toLowerCase() + ' da empresa.'} />
+        ) : (
+          lista.map((item) => (
+            <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 4px', borderTop: '1px solid var(--gray-100)' }}>
+              {editando && editando.id === item.id ? (
+                <div style={{ flex: 1, maxWidth: 420 }}>
+                  <Input autoFocus value={editando.nome}
+                    onChange={(e) => setEditando({ id: item.id, nome: e.target.value })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') renomear(item, editando.nome); if (e.key === 'Escape') setEditando(null); }}
+                    onBlur={() => renomear(item, editando.nome)} />
+                </div>
+              ) : (
+                <div style={{ flex: 1, fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{item.nome}</div>
+              )}
+              <Button size="sm" variant="ghost" iconLeft="pencil" onClick={() => setEditando({ id: item.id, nome: item.nome })}>Renomear</Button>
+              <Button size="sm" variant="ghost" iconLeft="trash-2" style={{ color: 'var(--critical-500)' }} onClick={() => remover(item)} />
+            </div>
+          ))
+        )}
+      </PanelCard>
+    </div>
+  );
+}
+
+/* ---------- Campanhas de avaliação ---------- */
+function CampanhasScreen() {
+  const KEY = 'morah-campanhas';
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
+  const [form, setForm] = React.useState({ nome: 'Avaliação Psicossocial ' + new Date().getFullYear(), inicio: '', fim: '' });
+  const [erro, setErro] = React.useState('');
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/campanhas')); };
+  React.useEffect(() => {
+    (async () => { try { if (!window.MorahApi) return; await carregar(); setModo('api'); } catch (e) {} })();
+  }, []);
+  const salvarLocal = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+
+  const criar = async () => {
+    if (!form.nome.trim()) { setErro('Dê um nome à campanha.'); return; }
+    setErro('');
+    if (modo === 'api') {
+      try {
+        await window.MorahApi.chamar('POST', '/campanhas', { nome: form.nome.trim(), inicio: form.inicio || null, fim: form.fim || null });
+        await carregar();
+      } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal([{ id: Date.now(), nome: form.nome.trim(), inicio: form.inicio, fim: form.fim, status: 'ativa', convites: 0, respondidos: 0 }, ...lista]);
+  };
+  const mudarStatus = async (c, status) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('PATCH', '/campanhas/' + c.id, { status }); await carregar(); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.map((x) => (x.id === c.id ? { ...x, status } : x)));
+  };
+
+  const dataStyle = {
+    fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-strong)',
+    background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-control)', padding: '10px 12px', outline: 'none',
+  };
+  const fmtData = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('/') : '—');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <PanelCard>
+        <PanelTitle title="Nova campanha" sub={modo === 'api' ? 'Um ciclo de avaliação por período — os convites são vinculados à campanha ativa' : 'Modo demonstração — dados locais'} />
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <Input placeholder="Nome da campanha" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+          </div>
+          <input type="date" value={form.inicio} onChange={(e) => setForm({ ...form, inicio: e.target.value })} style={dataStyle} title="Início" />
+          <input type="date" value={form.fim} onChange={(e) => setForm({ ...form, fim: e.target.value })} style={dataStyle} title="Fim" />
+          <Button variant="primary" iconLeft="plus" onClick={criar}>Criar campanha</Button>
+        </div>
+        {erro && <div style={{ marginTop: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+      </PanelCard>
+
+      <PanelCard>
+        <PanelTitle title="Campanhas" sub={lista.length + ' campanha(s)'} />
+        {lista.length === 0 ? (
+          <EmptyState icon="calendar-range" title="Nenhuma campanha" sub="Crie a primeira campanha para organizar o ciclo de avaliação e enviar os convites." />
+        ) : (
+          lista.map((c) => (
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 4px', borderTop: '1px solid var(--gray-100)', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1.4, minWidth: 200 }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{c.nome}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-muted)' }}>
+                  {fmtData(c.inicio)} — {fmtData(c.fim)} · v{c.instrumento_versao || '1.0'}
+                </div>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                {(c.convites || 0)} convite(s) · {(c.respondidos || 0)} resposta(s)
+              </span>
+              {c.status === 'ativa' ? <Badge tone="success" solid>Ativa</Badge>
+                : c.status === 'encerrada' ? <Badge tone="neutral">Encerrada</Badge>
+                : <Badge tone="info">Rascunho</Badge>}
+              {c.status !== 'ativa' && <Button size="sm" variant="leaf" iconLeft="play" onClick={() => mudarStatus(c, 'ativa')}>Ativar</Button>}
+              {c.status === 'ativa' && <Button size="sm" variant="secondary" iconLeft="square" onClick={() => mudarStatus(c, 'encerrada')}>Encerrar</Button>}
+            </div>
+          ))
+        )}
+      </PanelCard>
+    </div>
+  );
+}
+
+/* ---------- Gestão de Denúncias (RH / comitê — Lei 14.457/22) ---------- */
+function DenunciasGestaoScreen() {
+  const KEY = 'morah-denuncias';
+  const lerLocal = () => {
+    try { return (JSON.parse(localStorage.getItem(KEY) || '[]')).map((d) => ({ status: 'aberta', ...d, id: d.id || d.protocolo })); }
+    catch (e) { return []; }
+  };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
+  const [erro, setErro] = React.useState('');
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/denuncias')); };
+  React.useEffect(() => {
+    (async () => { try { if (!window.MorahApi) return; await carregar(); setModo('api'); } catch (e) {} })();
+  }, []);
+
+  const mudarStatus = async (d, status) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('PATCH', '/denuncias/' + d.id, { status }); await carregar(); }
+      catch (e) { setErro(e.message); }
+      return;
+    }
+    const novo = lista.map((x) => (x.id === d.id ? { ...x, status } : x));
+    setLista(novo);
+    try { localStorage.setItem(KEY, JSON.stringify(novo)); } catch (e) {}
+  };
+
+  const abertas = lista.filter((d) => d.status === 'aberta').length;
+  const apurando = lista.filter((d) => d.status === 'apurando').length;
+  const fmtData = (d) => { try { return new Date(d.criado_em || d.em).toLocaleDateString('pt-BR'); } catch (e) { return '—'; } };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+        <StatCard label="Relatos abertos" value={String(abertas)} icon="inbox" tone={abertas ? 'amber' : 'green'} />
+        <StatCard label="Em apuração" value={String(apurando)} icon="search" tone="blue" />
+        <StatCard label="Total recebidos" value={String(lista.length)} icon="shield" tone="berry" />
+      </div>
+
+      <PanelCard>
+        <PanelTitle title="Relatos recebidos" sub="Apuração sigilosa — a identidade de quem relata nunca é registrada. Retorno pelo número de protocolo." />
+        {erro && <div style={{ marginBottom: 8, fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</div>}
+        {lista.length === 0 ? (
+          <EmptyState icon="shield" title="Nenhum relato recebido" sub="Os relatos enviados pelos colaboradores no Canal de Denúncias aparecem aqui para apuração." />
+        ) : (
+          lista.map((d) => (
+            <div key={d.id} style={{ display: 'flex', gap: 12, padding: '12px 4px', borderTop: '1px solid var(--gray-100)', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--berry-700)' }}>{d.protocolo}</span>
+                  <Badge tone="berry">{d.categoria}</Badge>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-faint)' }}>{fmtData(d)}</span>
+                </div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--text-body)', marginTop: 6, lineHeight: 1.6 }}>{d.relato}</div>
+              </div>
+              {d.status === 'concluida' ? <Badge tone="success" solid>Concluída</Badge>
+                : d.status === 'apurando' ? <Badge tone="info">Em apuração</Badge>
+                : <Badge tone="warning" solid>Aberta</Badge>}
+              {d.status === 'aberta' && <Button size="sm" variant="secondary" iconLeft="search" onClick={() => mudarStatus(d, 'apurando')}>Iniciar apuração</Button>}
+              {d.status === 'apurando' && <Button size="sm" variant="leaf" iconLeft="check" onClick={() => mudarStatus(d, 'concluida')}>Concluir</Button>}
+              {d.status === 'concluida' && <Button size="sm" variant="ghost" iconLeft="rotate-ccw" onClick={() => mudarStatus(d, 'apurando')}>Reabrir</Button>}
+            </div>
+          ))
+        )}
+      </PanelCard>
+    </div>
+  );
+}
+
+/* ---------- Plano de Ação (NR-1: medidas com prazo, responsável e indicador) ---------- */
+function PlanoScreen() {
+  const KEY = 'morah-plano';
+  const M = window.MorahMotor;
+  const DIMENSOES = ['—'].concat(M.NUCLEO.map((d) => d.nome)).concat(M.MOORAH.map((m) => m.nome)).concat(['Outra']);
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  const [modo, setModo] = React.useState('local');
+  const [lista, setLista] = React.useState(lerLocal);
+  const [form, setForm] = React.useState({ titulo: '', dimensao: '—', prioridade: 'media', responsavel: '', prazo: '', indicador: '' });
+  const [erro, setErro] = React.useState('');
+  const [aviso, setAviso] = React.useState('');
+
+  const carregar = async () => { setLista(await window.MorahApi.chamar('GET', '/acoes')); };
+  React.useEffect(() => {
+    (async () => { try { if (!window.MorahApi) return; await carregar(); setModo('api'); } catch (e) {} })();
+  }, []);
+  const salvarLocal = (l) => { setLista(l); try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+
+  const criarAcao = async (dados) => {
+    if (modo === 'api') { await window.MorahApi.chamar('POST', '/acoes', dados); return; }
+    salvarLocal([{ id: Date.now() + Math.random(), status: 'pendente', criado_em: new Date().toISOString(), ...dados }, ...lerLocal()]);
+  };
+
+  const adicionar = async () => {
+    if (!form.titulo.trim()) { setErro('Descreva a medida (título).'); return; }
+    setErro('');
+    try {
+      await criarAcao({
+        titulo: form.titulo.trim(),
+        dimensao: form.dimensao === '—' ? null : form.dimensao,
+        prioridade: form.prioridade,
+        responsavel: form.responsavel.trim() || null,
+        prazo: form.prazo || null,
+        indicador: form.indicador.trim() || null,
+      });
+      if (modo === 'api') await carregar();
+      setForm({ titulo: '', dimensao: '—', prioridade: 'media', responsavel: '', prazo: '', indicador: '' });
+    } catch (e) { setErro(e.message); }
+  };
+
+  // Sugestões a partir do último relatório (bandeiras + dimensões críticas)
+  const sugerir = async () => {
+    let agg = null;
+    try { agg = JSON.parse(sessionStorage.getItem('morah-ultimo-resultado') || 'null'); } catch (e) {}
+    if (!agg || !agg.global) { setAviso('Abra a tela Relatórios primeiro — as sugestões nascem do último diagnóstico.'); return; }
+    const existentes = new Set(lista.map((a) => a.titulo));
+    const sugestoes = [];
+    agg.global.bandeiras.forEach((b) => {
+      if (!existentes.has(b.acao)) sugestoes.push({ titulo: b.acao, dimensao: b.titulo, prioridade: b.nivel === 'critico' ? 'alta' : 'media', indicador: 'Reavaliação no próximo ciclo' });
+    });
+    agg.global.nucleo.filter((d) => d.nivel === 'critico').forEach((d) => {
+      const t = 'Tratar dimensão crítica: ' + d.nome;
+      if (!existentes.has(t)) sugestoes.push({ titulo: t, dimensao: d.nome, prioridade: 'alta', indicador: 'Sair do tercil crítico no próximo ciclo' });
+    });
+    agg.global.moorah.filter((m) => m.nivel === 'critico').forEach((m) => {
+      const t = 'Tratar indicador crítico: ' + m.nome;
+      if (!existentes.has(t)) sugestoes.push({ titulo: t, dimensao: m.nome, prioridade: 'alta', indicador: 'Índice abaixo de 2,67 no próximo ciclo' });
+    });
+    if (!sugestoes.length) { setAviso('Nenhuma sugestão nova — o plano já cobre as bandeiras e dimensões críticas do último relatório.'); return; }
+    try {
+      for (const s of sugestoes) await criarAcao(s);
+      if (modo === 'api') await carregar();
+      setAviso(sugestoes.length + ' ação(ões) sugerida(s) adicionada(s) a partir do último relatório.');
+    } catch (e) { setErro(e.message); }
+  };
+
+  const mudarStatus = async (a, status) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('PATCH', '/acoes/' + a.id, { status }); await carregar(); } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.map((x) => (x.id === a.id ? { ...x, status } : x)));
+  };
+  const remover = async (a) => {
+    if (modo === 'api') {
+      try { await window.MorahApi.chamar('DELETE', '/acoes/' + a.id); await carregar(); } catch (e) { setErro(e.message); }
+      return;
+    }
+    salvarLocal(lista.filter((x) => x.id !== a.id));
+  };
+
+  const vencida = (a) => a.prazo && a.status !== 'concluida' && new Date(a.prazo) < new Date(new Date().toDateString());
+  const fmtData = (d) => (d ? String(d).slice(0, 10).split('-').reverse().join('/') : 'sem prazo');
+  const pendentes = lista.filter((a) => a.status !== 'concluida').length;
+  const vencidas = lista.filter(vencida).length;
+
+  const inputStyle = {
+    fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-strong)',
+    background: 'var(--surface-card)', border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-control)', padding: '10px 12px', outline: 'none', width: '100%',
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+        <StatCard label="Ações no plano" value={String(lista.length)} icon="list-checks" tone="berry" />
+        <StatCard label="Em aberto" value={String(pendentes)} icon="clock" tone={pendentes ? 'amber' : 'green'} />
+        <StatCard label="Vencidas" value={String(vencidas)} icon="alert-triangle" tone={vencidas ? 'amber' : 'green'} />
+      </div>
+
+      <PanelCard>
+        <PanelTitle title="Nova ação" sub={modo === 'api' ? 'Registrada no banco da empresa — compõe a evidência de gestão exigida pela NR-1' : 'Modo demonstração — dados locais'} />
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr 0.9fr', gap: 10 }}>
+          <Input placeholder="Medida — ex.: Revisar metas do setor Produção" value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+          <Select value={form.dimensao} onChange={(e) => setForm({ ...form, dimensao: e.target.value })} options={DIMENSOES} />
+          <Select value={form.prioridade} onChange={(e) => setForm({ ...form, prioridade: e.target.value })} options={['alta', 'media', 'baixa']} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1.6fr auto', gap: 10, marginTop: 10 }}>
+          <Input placeholder="Responsável" value={form.responsavel} onChange={(e) => setForm({ ...form, responsavel: e.target.value })} />
+          <input type="date" value={form.prazo} onChange={(e) => setForm({ ...form, prazo: e.target.value })} style={inputStyle} title="Prazo" />
+          <Input placeholder="Indicador de eficácia — ex.: absenteísmo do setor" value={form.indicador} onChange={(e) => setForm({ ...form, indicador: e.target.value })} />
+          <Button variant="primary" iconLeft="plus" onClick={adicionar}>Adicionar</Button>
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Button variant="secondary" iconLeft="sparkles" onClick={sugerir}>Sugerir ações do último relatório</Button>
+          {aviso && <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--success-700)', fontWeight: 600 }}>{aviso}</span>}
+          {erro && <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--critical-500)', fontWeight: 600 }}>{erro}</span>}
+        </div>
+      </PanelCard>
+
+      <PanelCard>
+        <PanelTitle title="Plano de ação" sub="Medidas priorizadas · o fiscal verifica prazos, responsáveis e indicadores" />
+        {lista.length === 0 ? (
+          <EmptyState icon="list-checks" title="Plano vazio" sub="Adicione medidas manualmente ou gere sugestões a partir do último relatório." />
+        ) : (
+          lista.map((a) => (
+            <div key={a.id} style={{ display: 'flex', gap: 12, padding: '12px 4px', borderTop: '1px solid var(--gray-100)', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 280 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {a.prioridade === 'alta' ? <Badge tone="critical" solid>Alta</Badge> : a.prioridade === 'baixa' ? <Badge tone="neutral">Baixa</Badge> : <Badge tone="warning" solid>Média</Badge>}
+                  <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{a.titulo}</span>
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: vencida(a) ? 'var(--critical-500)' : 'var(--text-muted)', marginTop: 5 }}>
+                  {(a.dimensao ? a.dimensao + ' · ' : '')}{(a.responsavel ? a.responsavel + ' · ' : '')}prazo {fmtData(a.prazo)}{vencida(a) ? ' (VENCIDA)' : ''}{a.indicador ? ' · indicador: ' + a.indicador : ''}
+                </div>
+              </div>
+              {a.status === 'concluida' ? <Badge tone="success" solid>Concluída</Badge>
+                : a.status === 'andamento' ? <Badge tone="info">Em andamento</Badge>
+                : <Badge tone="neutral">Pendente</Badge>}
+              {a.status === 'pendente' && <Button size="sm" variant="secondary" iconLeft="play" onClick={() => mudarStatus(a, 'andamento')}>Iniciar</Button>}
+              {a.status !== 'concluida' && <Button size="sm" variant="leaf" iconLeft="check" onClick={() => mudarStatus(a, 'concluida')}>Concluir</Button>}
+              {a.status === 'concluida' && <Button size="sm" variant="ghost" iconLeft="rotate-ccw" onClick={() => mudarStatus(a, 'andamento')}>Reabrir</Button>}
+              <Button size="sm" variant="ghost" iconLeft="trash-2" style={{ color: 'var(--critical-500)' }} onClick={() => remover(a)} />
+            </div>
+          ))
+        )}
+      </PanelCard>
+    </div>
   );
 }
 
@@ -823,12 +1210,14 @@ window.Screens = {
   comparar: CompararScreen,
   modelos: ModelosScreen,
   termos: TermosScreen,
-  setor: () => <EstruturaScreen what="os setores" />,
-  cargos: () => <EstruturaScreen what="os cargos" />,
-  unidades: () => <EstruturaScreen what="as unidades" />,
-  departamentos: () => <EstruturaScreen what="os departamentos" />,
-  campanhas: () => <EstruturaScreen what="as campanhas" />,
+  unidades: () => <EstruturaScreen recurso="unidades" rotuloSing="unidade" rotuloPl="Unidades" exemplo="Matriz — São Paulo" />,
+  setor: () => <EstruturaScreen recurso="setores" rotuloSing="setor" rotuloPl="Setores" exemplo="Produção" />,
+  departamentos: () => <EstruturaScreen recurso="departamentos" rotuloSing="departamento" rotuloPl="Departamentos" exemplo="Recursos Humanos" />,
+  cargos: () => <EstruturaScreen recurso="cargos" rotuloSing="cargo" rotuloPl="Cargos" exemplo="Operador de Máquinas" />,
+  campanhas: CampanhasScreen,
   link: EnvioScreen,
   pendentes: PendentesScreen,
   denuncia: DenunciaScreen,
+  denuncias: DenunciasGestaoScreen,
+  plano: PlanoScreen,
 };
