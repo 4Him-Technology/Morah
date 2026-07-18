@@ -8,7 +8,15 @@ const { StatCard, Card, Button, Badge, Tabs, Input, Select, ResultBand, Icon } =
 function chaveEmpresa(base) {
   let id = null;
   try { id = localStorage.getItem('morah-empresa-id'); } catch (e) {}
-  return base + '-' + (id || 'padrao');
+  const k = base + '-' + (id || 'padrao');
+  // Migração: dados demo antigos (chave sem sufixo) reaparecem no contexto atual
+  try {
+    if (localStorage.getItem(k) === null && localStorage.getItem(base) !== null) {
+      localStorage.setItem(k, localStorage.getItem(base));
+      localStorage.removeItem(base);
+    }
+  } catch (e) {}
+  return k;
 }
 
 function PanelCard({ children, style }) {

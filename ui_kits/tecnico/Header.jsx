@@ -1,7 +1,7 @@
 // Morah técnico — slim top bar (light, hairline divider, soft blur).
 const { Select: DsSelect, Icon: HdrIcon } = window.MorahDesignSystem_32f810;
 
-function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tenantName, seletorEmpresas, opcoesEmpresas }) {
+function Header({ screen, theme, onToggleTheme, rotulo, tenantName, empresaAberta, onTrocarEmpresa }) {
   const D = window.MORAH;
   const iconBtn = {
     width: 38, height: 38, borderRadius: 'var(--radius-control)', cursor: 'pointer',
@@ -32,10 +32,23 @@ function Header({ screen, company, onCompany, theme, onToggleTheme, rotulo, tena
 
       {/* Global actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        {seletorEmpresas && (
-          <div style={{ width: 230 }}>
-            <DsSelect value={company} onChange={(e) => onCompany(e.target.value)}
-              options={opcoesEmpresas || ['Todas as empresas', ...window.MORAH.companies.map(c => c.name)]} />
+        {/* Empresa aberta: contexto TRAVADO — para trocar, volta à tela Empresas */}
+        {empresaAberta && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--berry-50)', border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-control)', padding: '6px 8px 6px 12px', maxWidth: 340,
+          }}>
+            <HdrIcon name="building-2" size={15} color="var(--berry-600)" />
+            <span style={{
+              fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)',
+              color: 'var(--berry-700)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>{empresaAberta}</span>
+            <button onClick={onTrocarEmpresa} title="Voltar para a tela Empresas" style={{
+              cursor: 'pointer', border: '1px solid var(--border-subtle)', background: 'var(--surface-card)',
+              borderRadius: 'var(--radius-xs)', padding: '4px 10px', flexShrink: 0,
+              fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-2xs)', color: 'var(--text-body)',
+            }}>Trocar</button>
           </div>
         )}
         <button aria-label="Alternar tema do painel" title="Alternar tema" onClick={onToggleTheme} style={iconBtn}>

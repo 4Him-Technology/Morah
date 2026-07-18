@@ -7,52 +7,69 @@ window.MORAH = {
   //  rh          → empresa contratante: estrutura própria + colaboradores + relatórios
   //  colaborador → telas do trabalhador (questionários pendentes, canal de denúncias)
   perfis: {
+    // Admin e técnico usam DRILL-DOWN: fora da empresa veem o hub (Empresas +
+    // Cobrança); ao "Gerenciar" uma empresa, a sidebar troca para o contexto
+    // dela (navEmpresa) e o topo trava na empresa (sem seletor — trocar = voltar).
     admin: {
       rotulo: 'ADMIN MOORAH',
       tenant: { name: 'Moorah — Administração', tech: 'Admin Moorah', role: 'Administrador Moorah' },
-      inicio: 'overview',
-      seletorEmpresas: true,
+      inicio: 'empresas',
       nav: {
         navegacao: [
-          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
           { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
           { id: 'cobranca',   icon: 'credit-card', label: 'Cobrança' },
-          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
-          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
-          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
         ],
         ferramentas: [
-          { id: 'link',    icon: 'send',           label: 'Enviar Questionário' },
           { id: 'modelos', icon: 'clipboard-list', label: 'Modelos de Apresentação' },
           { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
         ],
       },
-    },
-    tecnico: {
-      rotulo: 'TÉCNICO SST',
-      tenant: { name: 'Consultoria SST Demo', tech: 'Técnico(a) SST Demo', role: 'Técnico de Segurança do Trabalho' },
-      inicio: 'overview',
-      seletorEmpresas: true, // carteira de empresas do técnico (white-label)
-      nav: {
+      navEmpresa: {
         navegacao: [
           { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
-          { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
           { id: 'link',       icon: 'users',       label: 'Colaboradores' },
+          { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
+          { id: 'setor',         icon: 'layers',    label: 'Setores' },
+          { id: 'departamentos', icon: 'network',   label: 'Departamentos' },
+          { id: 'cargos',        icon: 'briefcase', label: 'Cargos' },
           { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
           { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
           { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
           { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
           { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
+        ],
+        ferramentas: [],
+      },
+    },
+    tecnico: {
+      rotulo: 'TÉCNICO SST',
+      tenant: { name: 'Consultoria SST Demo', tech: 'Técnico(a) SST Demo', role: 'Técnico de Segurança do Trabalho' },
+      inicio: 'empresas',
+      nav: {
+        navegacao: [
+          { id: 'empresas',   icon: 'building-2',  label: 'Empresas' },
           { id: 'cobranca',   icon: 'credit-card', label: 'Cobrança' },
         ],
         ferramentas: [
+          { id: 'modelos', icon: 'clipboard-list', label: 'Modelos de Apresentação' },
+          { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
+        ],
+      },
+      navEmpresa: {
+        navegacao: [
+          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
+          { id: 'link',       icon: 'users',       label: 'Colaboradores' },
           { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
           { id: 'setor',         icon: 'layers',    label: 'Setores' },
           { id: 'departamentos', icon: 'network',   label: 'Departamentos' },
           { id: 'cargos',        icon: 'briefcase', label: 'Cargos' },
-          { id: 'modelos',       icon: 'clipboard-list', label: 'Modelos de Apresentação' },
-          { id: 'termos',        icon: 'file-text', label: 'Termos de Aceite' },
+          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
+          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
+          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
+          { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
+          { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
         ],
+        ferramentas: [],
       },
     },
     rh: {
@@ -99,7 +116,7 @@ window.MORAH = {
   titles: {
     overview:   { h: 'Visão Geral',            sub: 'Acompanhe os indicadores das suas avaliações' },
     termos:     { h: 'Termos de Aceite',       sub: 'Status do aceite dos termos de uso da plataforma' },
-    empresas:   { h: 'Empresas',               sub: 'Gerencie as empresas vinculadas à sua conta' },
+    empresas:   { h: 'Empresas',               sub: 'Sua carteira — clique em Gerenciar para entrar em uma empresa e operar dentro dela' },
     setor:      { h: 'Setores',                sub: 'Estruture as empresas por setor' },
     cargos:     { h: 'Cargos',                 sub: 'Gerencie os cargos de cada setor' },
     campanhas:  { h: 'Campanhas',              sub: 'Organize os períodos de avaliação' },

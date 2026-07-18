@@ -50,63 +50,52 @@ function App() {
   const perfil = user && user.perfil && D.perfis[user.perfil] ? user.perfil : 'rh';
   const P = D.perfis[perfil];
   const tenant = Object.assign({}, P.tenant, user ? { tech: user.name } : {});
-  const atual = screen || P.inicio;
-
-  // Empresa real (modo API): RH → a própria; técnico → carteira; admin → todas
+  // ===== Drill-down por empresa (técnico e admin) =====
+  // Fora da empresa: hub (Empresas + Cobrança). "Gerenciar" abre a empresa:
+  // a sidebar troca para o contexto dela e o topo TRAVA (sem seletor).
+  // Para trocar de empresa: botão "Trocar" → volta à tela Empresas.
   const selecionaveis = (me && me.empresas) || empresasAdmin || null;
   const empresaAtivaId = (() => { try { return localStorage.getItem('morah-empresa-id'); } catch (e) { return null; } })();
-  const empresaAtiva = selecionaveis
-    ? (selecionaveis.find((e) => e.id === empresaAtivaId) || (perfil === 'admin' ? null : selecionaveis[0] || null))
-    : null;
-  const tenantName = me && me.empresa ? me.empresa.razao_social : P.tenant.name;
-  const opcoesEmpresas = selecionaveis
-    ? (perfil === 'admin' ? ['Todas as empresas'] : []).concat(selecionaveis.map((e) => e.razao_social))
-    : null; // null → Header usa a lista mock (demo)
-  const trocarEmpresa = (nome) => {
+  const empresaAberta = (() => {
+    if (!empresaAtivaId) return null;
     if (selecionaveis) {
-      if (nome === 'Todas as empresas') {
-        try { localStorage.removeItem('morah-empresa-id'); } catch (e) {}
-        window.location.reload(); return;
-      }
-      const alvo = selecionaveis.find((e) => e.razao_social === nome);
-      if (alvo) { try { localStorage.setItem('morah-empresa-id', alvo.id); } catch (e) {} window.location.reload(); }
-      return;
+      const e = selecionaveis.find((x) => x.id === empresaAtivaId);
+      return e ? e.razao_social : null;
     }
-    // Demo: tenta achar a empresa local para escopar os dados locais
     try {
       const locais = JSON.parse(localStorage.getItem('morah-empresas') || '[]');
-      const alvo = locais.find((e) => e.razao_social === nome);
-      if (alvo) { localStorage.setItem('morah-empresa-id', alvo.id); window.location.reload(); return; }
-      if (nome === 'Todas as empresas') { localStorage.removeItem('morah-empresa-id'); window.location.reload(); return; }
+      const e = locais.find((x) => x.id === empresaAtivaId);
+      return e ? e.razao_social : null;
+    } catch (e) { return null; }
+  })();
+  const drillDown = !!P.navEmpresa; // admin e técnico
+  const nav = drillDown && empresaAberta ? P.navEmpresa : P.nav;
+  const sairEmpresa = () => {
+    try {
+      localStorage.removeItem('morah-empresa-id');
+      sessionStorage.setItem('morah-ir-para', 'empresas');
     } catch (e) {}
-    setCompany(nome);
+    window.location.reload();
   };
 
-  // Contexto exibido nas telas escopadas por empresa
-  const ESCOPADAS = ['overview', 'link', 'campanhas', 'relatorios', 'comparar', 'plano', 'denuncias', 'cobranca', 'unidades', 'setor', 'departamentos', 'cargos'];
-  const empresaContexto = (() => {
-    if (empresaAtiva) return empresaAtiva.razao_social;
-    if (me && me.empresa) return me.empresa.razao_social;            // RH real
-    if (perfil === 'rh') return P.tenant.name;                       // RH demo
-    // demo técnico/admin: empresa local selecionada
-    try {
-      const locais = JSON.parse(localStorage.getItem('morah-empresas') || '[]');
-      const alvo = locais.find((e) => e.id === empresaAtivaId);
-      if (alvo) return alvo.razao_social;
-    } catch (e) {}
-    return null;
-  })();
+  // Telas escopadas só existem com empresa aberta (nos perfis drill-down)
+  const ESCOPADAS = ['overview', 'link', 'campanhas', 'relatorios', 'comparar', 'plano', 'denuncias', 'unidades', 'setor', 'departamentos', 'cargos'];
+  let atual = screen || (drillDown && empresaAberta ? 'overview' : P.inicio);
+  if (drillDown && !empresaAberta && ESCOPADAS.indexOf(atual) !== -1) atual = 'empresas';
+
+  const tenantName = empresaAberta || (me && me.empresa ? me.empresa.razao_social : P.tenant.name);
+  const empresaContexto = empresaAberta || (me && me.empresa ? me.empresa.razao_social : (perfil === 'rh' ? P.tenant.name : null));
 
   const Screen = window.Screens[atual] || window.Screens.overview;
   const t = D.titles[atual] || D.titles.overview;
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-app)' }}>
-      <Sidebar active={atual} onNavigate={setScreen} nav={P.nav} tenant={tenant} />
+      <Sidebar active={atual} onNavigate={setScreen} nav={nav} tenant={tenant} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Header screen={atual} company={empresaAtiva ? empresaAtiva.razao_social : company} onCompany={trocarEmpresa}
-          rotulo={P.rotulo} tenantName={tenantName} seletorEmpresas={P.seletorEmpresas}
-          opcoesEmpresas={opcoesEmpresas}
+        <Header screen={atual}
+          rotulo={P.rotulo} tenantName={tenantName}
+          empresaAberta={drillDown ? empresaAberta : null} onTrocarEmpresa={sairEmpresa}
           theme={theme} onToggleTheme={() => setTheme(tm => tm === 'plum' ? 'light' : 'plum')} />
         <main style={{ flex: 1, overflowY: 'auto' }}>
           <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '28px 32px 56px' }}>
@@ -114,18 +103,17 @@ function App() {
             <div style={{ marginBottom: 'var(--space-6)' }}>
               <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-strong)', letterSpacing: 'var(--tracking-tight)' }}>{t.h}</h1>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--text-muted)', margin: '6px 0 0' }}>{t.sub}</p>
-              {ESCOPADAS.indexOf(atual) !== -1 && (
+              {ESCOPADAS.indexOf(atual) !== -1 && empresaContexto && (
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 10,
                   padding: '5px 12px', borderRadius: 'var(--radius-control)',
-                  background: empresaContexto ? 'var(--berry-50)' : 'var(--warning-50)',
-                  border: '1px solid ' + (empresaContexto ? 'var(--berry-100, var(--border-subtle))' : 'var(--warning-100)'),
+                  background: 'var(--berry-50)',
+                  border: '1px solid var(--berry-100, var(--border-subtle))',
                   fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 700,
-                  color: empresaContexto ? 'var(--berry-700)' : 'var(--warning-700)',
+                  color: 'var(--berry-700)',
                 }}>
                   <window.MorahDesignSystem_32f810.Icon name="building-2" size={14} />
-                  {empresaContexto
-                    || (perfil === 'admin' ? 'Todas as empresas — selecione uma no topo para operar' : 'Nenhuma empresa selecionada — escolha na tela Empresas')}
+                  {empresaContexto}
                 </div>
               )}
             </div>
