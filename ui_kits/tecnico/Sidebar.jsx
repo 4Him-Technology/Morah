@@ -76,17 +76,38 @@ window.Sidebar = Sidebar;
    SidebarEmpresa — menu contextual da empresa aberta
    ============================================================ */
 
-// Botão circular flutuante na borda (metade para fora) — abre/recolhe o menu.
-function ToggleFab({ exp, onClick, top }) {
+// Botão circular de recolher/expandir — CANTO INFERIOR DIREITO do menu.
+// `style` permite ajustar cor/posição por menu (trilho x menu da empresa).
+function ToggleFab({ exp, onClick, style }) {
   return (
     <button onClick={onClick} title={exp ? 'Recolher menu' : 'Expandir menu'} style={{
-      position: 'absolute', top: top || 26, right: -13, zIndex: 30,
+      position: 'absolute', bottom: 16, right: -13, zIndex: 30,
       width: 26, height: 26, cursor: 'pointer', padding: 0,
       border: '1px solid var(--sidebar-border)', borderRadius: '50%',
       background: 'var(--surface-card)', boxShadow: 'var(--shadow-sm)',
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)',
+      ...style,
     }}>
       <DsIcon name={exp ? 'chevron-left' : 'chevron-right'} size={15} />
+    </button>
+  );
+}
+
+// Item de seção do menu da empresa (fundo CLARO). Cores próprias (--text-body/--berry)
+// em vez do NavItem, que usa os tokens --nav-* do fundo ESCURO da sidebar e ficaria
+// invisível (texto claro no card claro) no tema plum.
+function SecaoItem({ s, active, onClick }) {
+  const [hover, setHover] = React.useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{
+      display: 'flex', alignItems: 'center', gap: 10, width: '100%', cursor: 'pointer', textAlign: 'left',
+      padding: '9px 11px', border: 'none', borderRadius: 'var(--radius-md)',
+      background: active ? 'var(--berry-50)' : (hover ? 'var(--gray-50)' : 'transparent'),
+      color: active ? 'var(--berry-700)' : 'var(--text-body)',
+      fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-sm)',
+    }}>
+      <DsIcon name={s.icon} size={17} color={active ? 'var(--berry-600)' : 'var(--text-muted)'} />
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
     </button>
   );
 }
@@ -104,15 +125,22 @@ function SidebarRail({ nav, active, onNavigate }) {
 
   return (
     <aside style={{
-      position: 'relative', width: W, flexShrink: 0, height: '100%',
+      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 20,
       background: 'var(--sidebar-bg)', display: 'flex', flexDirection: 'column',
       borderRight: '1px solid var(--sidebar-border)', alignItems: 'stretch',
       transition: 'width var(--dur-base) var(--ease-out)',
     }}>
-      <ToggleFab exp={exp} onClick={toggle} top={26} />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 0 16px' }}>
-        <img className="morah-logo-light" src="../../assets/morah-mark.png" alt="Moorah" style={{ width: 28, height: 'auto' }} />
-        <img className="morah-logo-dark" src="../../assets/morah-mark-white.png" alt="" style={{ width: 28, height: 'auto' }} />
+      {/* Botão de recolher no canto inferior direito do trilho. zIndex do aside
+          faz ele aparecer por cima do menu da empresa. */}
+      <ToggleFab exp={exp} onClick={toggle} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: exp ? 'flex-start' : 'center', padding: exp ? '22px 16px 20px' : '22px 0 20px' }}>
+        {/* Logo Moorah: amora sempre; wordmark MOORAH quando expandido. */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
+          <img className="morah-logo-light" src="../../assets/morah-mark.png" alt="" style={{ width: 30, height: 'auto' }} />
+          <img className="morah-logo-dark" src="../../assets/morah-mark-white.png" alt="" style={{ width: 30, height: 'auto' }} />
+          {exp && <img className="morah-logo-light" src="../../assets/morah-wordmark.png" alt="Moorah" style={{ width: 92, height: 'auto' }} />}
+          {exp && <img className="morah-logo-dark" src="../../assets/morah-wordmark-white.png" alt="Moorah" style={{ width: 92, height: 'auto' }} />}
+        </div>
       </div>
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: '4px 10px' }}>
         {itens.map((it) => {
@@ -149,12 +177,14 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
 
   return (
     <aside style={{
-      position: 'relative', width: W, flexShrink: 0, height: '100%',
+      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 10,
       background: 'var(--surface-card)', display: 'flex', flexDirection: 'column',
       borderRight: '1px solid var(--sidebar-border)',
       transition: 'width var(--dur-base) var(--ease-out)',
     }}>
-      <ToggleFab exp={exp} onClick={toggle} top={26} />
+      {/* Botão de recolher no canto inferior direito do menu da empresa.
+          ROXO (berry) para diferenciar do trilho e ficar bem visível. */}
+      <ToggleFab exp={exp} onClick={toggle} style={{ background: 'var(--berry-600)', color: '#fff', border: '1px solid var(--berry-700)' }} />
 
       {exp ? (
         <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid var(--gray-100)' }}>
@@ -170,7 +200,7 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '18px 0 12px', borderBottom: '1px solid var(--gray-100)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0 12px', borderBottom: '1px solid var(--gray-100)' }}>
           <button onClick={onVoltar} title={'Voltar para Empresas · ' + empresaNome} style={{
             width: 38, height: 38, cursor: 'pointer', border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-md)', background: 'var(--berry-50)', color: 'var(--berry-600)',
@@ -185,7 +215,7 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: exp ? 'stretch' : 'center' }}>
           {secoes.map((s) => (
             exp
-              ? <DsNavItem key={s.id} icon={s.icon} label={s.label} active={active === s.id} onClick={() => onNavigate(s.id)} />
+              ? <SecaoItem key={s.id} s={s} active={active === s.id} onClick={() => onNavigate(s.id)} />
               : <button key={s.id} title={s.label} onClick={() => onNavigate(s.id)} style={{
                   width: 44, height: 40, cursor: 'pointer', border: 'none', borderRadius: 'var(--radius-md)',
                   background: active === s.id ? 'var(--berry-50)' : 'transparent',
