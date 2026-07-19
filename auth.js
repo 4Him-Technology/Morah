@@ -64,6 +64,16 @@ window.MORAH_AUTH_CONFIG = {
     return 'rh'; // 'rh', 'mentask' (legado) e demais grupos de produto
   }
 
+  // Zera o contexto de empresa (drill-down). Chamado ao entrar, sair e alternar
+  // demo — evita que um 'morah-empresa-id' antigo (ex.: 'loc-3' do modo demo)
+  // vaze para a sessão real e vá no header x-empresa-id. Auditoria C5.
+  function limparContextoEmpresa() {
+    try {
+      localStorage.removeItem('morah-empresa-id');
+      localStorage.removeItem('morah-empresa-nome');
+    } catch (e) {}
+  }
+
   function pool() {
     if (!window.AmazonCognitoIdentity) {
       throw new Error('SDK do Cognito não carregado (amazon-cognito-identity-js).');
@@ -143,7 +153,14 @@ window.MORAH_AUTH_CONFIG = {
           Username: email, Password: password,
         });
         user.authenticateUser(details, {
-          onSuccess: (session) => { Auth._pendingNewPassword = null; resolve(session); },
+          onSuccess: (session) => {
+            Auth._pendingNewPassword = null;
+            // Login real: sai do modo demo e limpa o contexto de empresa herdado
+            // (senão um 'loc-N' do demo vazaria no header x-empresa-id). Auditoria C5.
+            try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {}
+            limparContextoEmpresa();
+            resolve(session);
+          },
           onFailure: (err) => reject(new Error(friendly(err))),
           newPasswordRequired: (userAttributes) => {
             Auth._pendingNewPassword = { user, userAttributes };
@@ -161,7 +178,12 @@ window.MORAH_AUTH_CONFIG = {
         // Atributos exigidos não podem incluir os imutáveis retornados pelo desafio.
         const attrs = {};
         p.user.completeNewPasswordChallenge(password, attrs, {
-          onSuccess: (session) => { Auth._pendingNewPassword = null; resolve(session); },
+          onSuccess: (session) => {
+            Auth._pendingNewPassword = null;
+            try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {}
+            limparContextoEmpresa();
+            resolve(session);
+          },
           onFailure: (err) => reject(new Error(friendly(err))),
         });
       });
@@ -254,6 +276,7 @@ window.MORAH_AUTH_CONFIG = {
 
     signOut() {
       try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {}
+      limparContextoEmpresa();
       const user = pool().getCurrentUser();
       if (user) user.signOut();
     },
@@ -265,8 +288,9 @@ window.MORAH_AUTH_CONFIG = {
         localStorage.setItem(DEMO_KEY, '1');
         localStorage.setItem(DEMO_PERFIL_KEY, DEMO_USERS[perfil] ? perfil : 'rh');
       } catch (e) {}
+      limparContextoEmpresa(); // não herda a empresa de uma sessão anterior
     },
-    exitDemo() { try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {} },
+    exitDemo() { try { localStorage.removeItem(DEMO_KEY); localStorage.removeItem(DEMO_PERFIL_KEY); } catch (e) {} limparContextoEmpresa(); },
     isDemo,
 
     // Guarda de rota: garante sessão; se não houver, manda pro login.

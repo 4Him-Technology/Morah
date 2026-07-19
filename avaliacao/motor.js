@@ -72,7 +72,9 @@ window.MorahMotor = (function () {
   function pct(parte, todo) { return todo ? Math.round((parte / todo) * 100) : 0; }
 
   // ---------- Cálculo de um conjunto de respostas ----------
-  function resultadoDe(avs) {
+  // incluirVozes: só o resultado GLOBAL leva as citações abertas (F1/F2). Em
+  // recortes por setor pequeno uma citação verbatim identifica quem escreveu. (C6)
+  function resultadoDe(avs, incluirVozes) {
     const n = avs.length;
 
     // Núcleo COPSOQ: soma por respondente → média
@@ -148,13 +150,16 @@ window.MorahMotor = (function () {
       afastamento: pctResposta('D5', ['Sim']),
     };
 
-    // Vozes (campos abertos)
+    // Vozes (campos abertos) — só no resultado GLOBAL (k-anonimato, C6).
+    // String() protege contra payload não-string (paridade com motor-core, C6/B9).
     const vozes = [];
-    avs.forEach(function (av) {
-      const c = av.camposAbertos || {};
-      if (c.F1 && c.F1.trim()) vozes.push({ pergunta: 'F1', texto: c.F1.trim() });
-      if (c.F2 && c.F2.trim()) vozes.push({ pergunta: 'F2', texto: c.F2.trim() });
-    });
+    if (incluirVozes) {
+      avs.forEach(function (av) {
+        const c = av.camposAbertos || {};
+        if (c.F1 && String(c.F1).trim()) vozes.push({ pergunta: 'F1', texto: String(c.F1).trim() });
+        if (c.F2 && String(c.F2).trim()) vozes.push({ pergunta: 'F2', texto: String(c.F2).trim() });
+      });
+    }
 
     // ---------- Bandeiras de alerta ----------
     const bandeiras = [];
@@ -236,16 +241,18 @@ window.MorahMotor = (function () {
       const g = porSetor[k];
       const suficiente = g.avs.length >= K_ANONIMATO;
       return {
-        setor: g.setor, n: g.avs.length, suficiente: suficiente,
-        resultado: suficiente ? resultadoDe(g.avs) : null, // k-anonimato: sem dados abaixo de 5
+        // n só é exposto em recortes suficientes: revelar 'n=2' de um setor
+        // pequeno já é informação identificante. Auditoria C6.
+        setor: g.setor, n: suficiente ? g.avs.length : null, suficiente: suficiente,
+        resultado: suficiente ? resultadoDe(g.avs, false) : null, // k-anonimato: sem dados abaixo de 5
       };
-    }).sort(function (a, b) { return b.n - a.n; });
+    }).sort(function (a, b) { return (b.n || 0) - (a.n || 0); });
 
     return {
       n: avs.length,
       kAnonimato: K_ANONIMATO,
       amostraSuficiente: avs.length >= K_ANONIMATO,
-      global: avs.length ? resultadoDe(avs) : null,
+      global: avs.length ? resultadoDe(avs, true) : null,
       recortes: recortes,
     };
   }

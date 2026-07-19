@@ -155,7 +155,15 @@ function EmpresasScreen() {
   const D = window.MORAH;
   const KEY = 'morah-empresas';
   const seedLocal = () => D.companies.map((c, i) => ({ id: 'loc-' + i, razao_social: c.name, cnpj: c.cnpj, colaboradores: 0, status: 'ativa' }));
-  const lerLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || seedLocal(); } catch (e) { return seedLocal(); } };
+  const lerLocal = () => {
+    try {
+      const v = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (v) return v;
+      const s = seedLocal();
+      localStorage.setItem(KEY, JSON.stringify(s)); // persiste o seed: "Gerenciar" resolve o nome após o reload
+      return s;
+    } catch (e) { return seedLocal(); }
+  };
   const [modo, setModo] = React.useState('local');
   const [lista, setLista] = React.useState(lerLocal);
   const [q, setQ] = React.useState('');
@@ -190,9 +198,11 @@ function EmpresasScreen() {
   };
 
   const gerenciar = (e) => {
-    // Entra na empresa: define o contexto e abre a Visão Geral dela
+    // Entra na empresa: define o contexto e abre a Visão Geral dela.
+    // O nome é guardado junto p/ o topo travado aparecer imediatamente após o reload.
     try {
       localStorage.setItem('morah-empresa-id', e.id);
+      localStorage.setItem('morah-empresa-nome', e.razao_social || '');
       sessionStorage.setItem('morah-ir-para', 'overview');
     } catch (x) {}
     window.location.reload();

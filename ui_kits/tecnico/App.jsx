@@ -60,19 +60,23 @@ function App() {
     if (!empresaAtivaId) return null;
     if (selecionaveis) {
       const e = selecionaveis.find((x) => x.id === empresaAtivaId);
-      return e ? e.razao_social : null;
+      if (e) return e.razao_social;
     }
     try {
       const locais = JSON.parse(localStorage.getItem('morah-empresas') || '[]');
       const e = locais.find((x) => x.id === empresaAtivaId);
-      return e ? e.razao_social : null;
-    } catch (e) { return null; }
+      if (e) return e.razao_social;
+    } catch (e) {}
+    // Fallback: nome gravado no "Gerenciar" (cobre o intervalo antes do /me
+    // responder no modo API e qualquer divergência de listas no demo)
+    try { return localStorage.getItem('morah-empresa-nome') || null; } catch (e) { return null; }
   })();
   const drillDown = !!P.navEmpresa; // admin e técnico
   const nav = drillDown && empresaAberta ? P.navEmpresa : P.nav;
   const sairEmpresa = () => {
     try {
       localStorage.removeItem('morah-empresa-id');
+      localStorage.removeItem('morah-empresa-nome');
       sessionStorage.setItem('morah-ir-para', 'empresas');
     } catch (e) {}
     window.location.reload();
