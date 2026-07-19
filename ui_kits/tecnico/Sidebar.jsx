@@ -76,16 +76,18 @@ window.Sidebar = Sidebar;
    SidebarEmpresa — menu contextual da empresa aberta
    ============================================================ */
 
-// Botão circular de recolher/expandir — CANTO INFERIOR DIREITO do menu.
-// `style` permite ajustar cor/posição por menu (trilho x menu da empresa).
+// Botão circular de recolher/expandir — CANTO INFERIOR DIREITO do menu, na borda.
+// Roxo sólido + anel branco: sempre visível sobre qualquer fundo (plum escuro do
+// trilho OU claro do menu da empresa), pois o botão fica na linha divisória.
 function ToggleFab({ exp, onClick, style }) {
   return (
     <button onClick={onClick} title={exp ? 'Recolher menu' : 'Expandir menu'} style={{
-      position: 'absolute', bottom: 16, right: -13, zIndex: 30,
-      width: 26, height: 26, cursor: 'pointer', padding: 0,
-      border: '1px solid var(--sidebar-border)', borderRadius: '50%',
-      background: 'var(--surface-card)', boxShadow: 'var(--shadow-sm)',
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)',
+      position: 'absolute', bottom: 16, right: -14, zIndex: 40,
+      width: 28, height: 28, cursor: 'pointer', padding: 0,
+      border: '2px solid var(--surface-card)', borderRadius: '50%',
+      background: 'var(--berry-600)', color: '#fff',
+      boxShadow: '0 2px 6px rgba(75,36,77,0.28)',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       ...style,
     }}>
       <DsIcon name={exp ? 'chevron-left' : 'chevron-right'} size={15} />
@@ -125,7 +127,7 @@ function SidebarRail({ nav, active, onNavigate }) {
 
   return (
     <aside style={{
-      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 20,
+      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 30,
       background: 'var(--sidebar-bg)', display: 'flex', flexDirection: 'column',
       borderRight: '1px solid var(--sidebar-border)', alignItems: 'stretch',
       transition: 'width var(--dur-base) var(--ease-out)',
@@ -177,14 +179,14 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
 
   return (
     <aside style={{
-      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 10,
+      position: 'relative', width: W, flexShrink: 0, height: '100%', zIndex: 20,
       background: 'var(--surface-card)', display: 'flex', flexDirection: 'column',
       borderRight: '1px solid var(--sidebar-border)',
       transition: 'width var(--dur-base) var(--ease-out)',
     }}>
       {/* Botão de recolher no canto inferior direito do menu da empresa.
           ROXO (berry) para diferenciar do trilho e ficar bem visível. */}
-      <ToggleFab exp={exp} onClick={toggle} style={{ background: 'var(--berry-600)', color: '#fff', border: '1px solid var(--berry-700)' }} />
+      <ToggleFab exp={exp} onClick={toggle} />
 
       {exp ? (
         <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid var(--gray-100)' }}>
