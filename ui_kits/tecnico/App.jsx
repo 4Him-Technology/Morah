@@ -97,9 +97,28 @@ function App() {
   const Screen = window.Screens[atual] || window.Screens.overview;
   const t = D.titles[atual] || D.titles.overview;
 
+  // Navegar para o menu global recolhe o contexto da empresa; navegar para uma
+  // seção interna abre a empresa (via central ou direto pela sidebar contextual).
+  const irGlobal = (id) => {
+    const P2 = D.perfis[perfil];
+    const idsGlobais = [...P2.nav.navegacao, ...P2.nav.ferramentas].map((x) => x.id);
+    if (drillDown && idsGlobais.indexOf(id) !== -1) {
+      try { localStorage.removeItem('morah-empresa-id'); localStorage.removeItem('morah-empresa-nome'); } catch (e) {}
+    }
+    setScreen(id);
+  };
+
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-app)' }}>
-      <Sidebar active={dentroDaEmpresa ? 'empresas' : atual} onNavigate={setScreen} nav={nav} tenant={tenant} />
+      {dentroDaEmpresa ? (
+        <React.Fragment>
+          <SidebarRail nav={nav} active={atual} onNavigate={irGlobal} />
+          <SidebarEmpresa empresaNome={empresaAberta} secoes={D.secoesEmpresa}
+            active={atual} onNavigate={setScreen} onVoltar={sairEmpresa} tenant={tenant} />
+        </React.Fragment>
+      ) : (
+        <Sidebar active={atual} onNavigate={setScreen} nav={nav} tenant={tenant} />
+      )}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Header screen={atual}
           rotulo={P.rotulo} tenantName={tenantName}

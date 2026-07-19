@@ -2,6 +2,21 @@
 window.MORAH = {
   tenant: { name: 'Clínica Pedrosa', tech: 'Lucas C. Pedrosa Marques', email: 'tec.pedrosa@gmail.com', role: 'Administrador' },
 
+  // Seções internas da empresa (central de cards + sidebar contextual do drill-down)
+  secoesEmpresa: [
+    { id: 'link',          icon: 'users',            label: 'Colaboradores',   desc: 'Cadastro e envio do questionário' },
+    { id: 'campanhas',     icon: 'calendar-range',   label: 'Campanhas',       desc: 'Ciclos de avaliação' },
+    { id: 'relatorios',    icon: 'bar-chart-3',      label: 'Relatórios',      desc: 'Semáforo de riscos e laudo' },
+    { id: 'plano',         icon: 'list-checks',      label: 'Plano de Ação',   desc: 'Medidas, prazos e responsáveis' },
+    { id: 'denuncias',     icon: 'shield',           label: 'Denúncias',       desc: 'Apuração dos relatos do canal' },
+    { id: 'comparar',      icon: 'arrow-left-right', label: 'Comparar Ciclos', desc: 'Evolução entre campanhas' },
+    { id: 'unidades',      icon: 'map-pin',          label: 'Unidades',        desc: 'Filiais e locais' },
+    { id: 'setor',         icon: 'layers',           label: 'Setores',         desc: 'Estrutura de setores' },
+    { id: 'departamentos', icon: 'network',          label: 'Departamentos',   desc: 'Organização interna' },
+    { id: 'cargos',        icon: 'briefcase',        label: 'Cargos',          desc: 'Funções e posições' },
+    { id: 'overview',      icon: 'layout-grid',      label: 'Visão Geral',     desc: 'Indicadores da empresa' },
+  ],
+
   // Navegação e identidade por perfil de acesso:
   //  admin       → Moorah: gerencia todas as empresas contratantes
   //  rh          → empresa contratante: estrutura própria + colaboradores + relatórios
