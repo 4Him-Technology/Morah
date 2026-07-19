@@ -203,7 +203,7 @@ function EmpresasScreen() {
     try {
       localStorage.setItem('morah-empresa-id', e.id);
       localStorage.setItem('morah-empresa-nome', e.razao_social || '');
-      sessionStorage.setItem('morah-ir-para', 'overview');
+      sessionStorage.setItem('morah-ir-para', 'empresa');
     } catch (x) {}
     window.location.reload();
   };
@@ -1555,6 +1555,78 @@ function CobrancaScreen() {
   );
 }
 
+/* ---------- Central da Empresa (drill-down: admin/técnico entram aqui) ---------- */
+function EmpresaDetalheScreen() {
+  const ir = (id) => { if (window.MORAH_NAV) window.MORAH_NAV(id); };
+  const contar = (chave) => { try { return (JSON.parse(localStorage.getItem(chaveEmpresa(chave)) || '[]')).length; } catch (e) { return 0; } };
+  const [kpis, setKpis] = React.useState(null);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!window.MorahApi || !window.MorahAuth || !(await window.MorahAuth.idToken())) throw new Error('demo');
+        const [cols, cps, dens] = await Promise.all([
+          window.MorahApi.chamar('GET', '/colaboradores').catch(() => []),
+          window.MorahApi.chamar('GET', '/campanhas').catch(() => []),
+          window.MorahApi.chamar('GET', '/denuncias').catch(() => []),
+        ]);
+        const conv = cps.reduce((a, c) => a + (Number(c.convites) || 0), 0);
+        const resp = cps.reduce((a, c) => a + (Number(c.respondidos) || 0), 0);
+        setKpis({ colaboradores: cols.length, campanhas: cps.length, adesao: conv ? Math.round((resp / conv) * 100) + '%' : '—', denuncias: dens.filter((d) => d.status !== 'concluida').length });
+      } catch (e) {
+        setKpis({
+          colaboradores: contar('morah-colaboradores'),
+          campanhas: contar('morah-campanhas'),
+          adesao: '—',
+          denuncias: 0,
+        });
+      }
+    })();
+  }, []);
+
+  const SECOES = [
+    { id: 'link',          icon: 'users',          titulo: 'Colaboradores',      desc: 'Cadastro e envio do questionário' },
+    { id: 'campanhas',     icon: 'calendar-range', titulo: 'Campanhas',          desc: 'Ciclos de avaliação' },
+    { id: 'relatorios',    icon: 'bar-chart-3',    titulo: 'Relatórios',         desc: 'Semáforo de riscos e laudo' },
+    { id: 'plano',         icon: 'list-checks',    titulo: 'Plano de Ação',      desc: 'Medidas, prazos e responsáveis' },
+    { id: 'denuncias',     icon: 'shield',         titulo: 'Denúncias',          desc: 'Apuração dos relatos do canal' },
+    { id: 'comparar',      icon: 'arrow-left-right', titulo: 'Comparar Ciclos',  desc: 'Evolução entre campanhas' },
+    { id: 'unidades',      icon: 'map-pin',        titulo: 'Unidades',           desc: 'Filiais e locais' },
+    { id: 'setor',         icon: 'layers',         titulo: 'Setores',            desc: 'Estrutura de setores' },
+    { id: 'departamentos', icon: 'network',        titulo: 'Departamentos',      desc: 'Organização interna' },
+    { id: 'cargos',        icon: 'briefcase',      titulo: 'Cargos',             desc: 'Funções e posições' },
+    { id: 'overview',      icon: 'layout-grid',    titulo: 'Visão Geral',        desc: 'Indicadores da empresa' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>
+        <StatCard label="Colaboradores" value={String(kpis ? kpis.colaboradores : '…')} icon="users" tone="berry" />
+        <StatCard label="Campanhas" value={String(kpis ? kpis.campanhas : '…')} icon="calendar-range" tone="blue" />
+        <StatCard label="Adesão" value={String(kpis ? kpis.adesao : '…')} icon="message-circle" tone="green" />
+        <StatCard label="Denúncias em aberto" value={String(kpis ? kpis.denuncias : '…')} icon="shield" tone={kpis && kpis.denuncias ? 'amber' : 'green'} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)' }}>
+        {SECOES.map((s) => (
+          <Card key={s.id} interactive padding="var(--space-5)" onClick={() => ir(s.id)} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--berry-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--berry-600)', flexShrink: 0 }}>
+                <Icon name={s.icon} size={18} />
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-strong)' }}>{s.titulo}</div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 2 }}>{s.desc}</div>
+              </div>
+              <Icon name="chevron-right" size={16} color="var(--text-faint)" />
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 window.Screens = {
   overview: OverviewScreen,
   empresas: EmpresasScreen,
@@ -1573,4 +1645,5 @@ window.Screens = {
   denuncias: DenunciasGestaoScreen,
   plano: PlanoScreen,
   cobranca: CobrancaScreen,
+  empresa: EmpresaDetalheScreen,
 };

@@ -24,22 +24,6 @@ window.MORAH = {
           { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
         ],
       },
-      navEmpresa: {
-        navegacao: [
-          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
-          { id: 'link',       icon: 'users',       label: 'Colaboradores' },
-          { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
-          { id: 'setor',         icon: 'layers',    label: 'Setores' },
-          { id: 'departamentos', icon: 'network',   label: 'Departamentos' },
-          { id: 'cargos',        icon: 'briefcase', label: 'Cargos' },
-          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
-          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
-          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
-          { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
-          { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
-        ],
-        ferramentas: [],
-      },
     },
     tecnico: {
       rotulo: 'TÉCNICO SST',
@@ -54,22 +38,6 @@ window.MORAH = {
           { id: 'modelos', icon: 'clipboard-list', label: 'Modelos de Apresentação' },
           { id: 'termos',  icon: 'file-text',      label: 'Termos de Aceite' },
         ],
-      },
-      navEmpresa: {
-        navegacao: [
-          { id: 'overview',   icon: 'layout-grid', label: 'Visão Geral' },
-          { id: 'link',       icon: 'users',       label: 'Colaboradores' },
-          { id: 'unidades',      icon: 'map-pin',   label: 'Unidades' },
-          { id: 'setor',         icon: 'layers',    label: 'Setores' },
-          { id: 'departamentos', icon: 'network',   label: 'Departamentos' },
-          { id: 'cargos',        icon: 'briefcase', label: 'Cargos' },
-          { id: 'campanhas',  icon: 'calendar-range', label: 'Campanhas' },
-          { id: 'relatorios', icon: 'bar-chart-3', label: 'Relatórios' },
-          { id: 'comparar',   icon: 'arrow-left-right', label: 'Comparar Relatórios' },
-          { id: 'plano',      icon: 'list-checks', label: 'Plano de Ação' },
-          { id: 'denuncias',  icon: 'shield',      label: 'Denúncias' },
-        ],
-        ferramentas: [],
       },
     },
     rh: {
@@ -131,6 +99,7 @@ window.MORAH = {
     denuncias:  { h: 'Gestão de Denúncias',    sub: 'Apuração dos relatos do canal com protocolo e prazo (Lei 14.457/22)' },
     plano:      { h: 'Plano de Ação',          sub: 'Medidas com prazo, responsável e indicador — exigência da NR-1' },
     cobranca:   { h: 'Cobrança',               sub: 'Faturas, boletos e links de pagamento (integração Asaas em breve)' },
+    empresa:    { h: '',                       sub: 'Central da empresa — informações e ferramentas de gestão em um só lugar' },
   },
 
   companies: [
