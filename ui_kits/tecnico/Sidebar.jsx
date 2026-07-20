@@ -76,15 +76,14 @@ window.Sidebar = Sidebar;
    SidebarEmpresa — menu contextual da empresa aberta
    ============================================================ */
 
-// Botão circular de recolher/expandir — CANTO INFERIOR DIREITO do menu, na borda.
-// Padrão: branco com borda cinza VISÍVEL (--border-default) + chevron berry.
-// (O bug antigo era usar --sidebar-border, um branco quase transparente do tema
-// escuro, que sumia sobre o menu claro.) `style` permite o override roxo do menu
-// da empresa.
+// Botão circular de recolher/expandir — TOPO, na borda direita do menu.
+// Os dois menus usam o MESMO estilo: branco com borda cinza VISÍVEL
+// (--border-default) + chevron berry. O bug antigo era a borda --sidebar-border
+// (branco quase transparente do tema escuro) que sumia sobre o menu claro.
 function ToggleFab({ exp, onClick, style }) {
   return (
     <button onClick={onClick} title={exp ? 'Recolher menu' : 'Expandir menu'} style={{
-      position: 'absolute', bottom: 16, right: -13, zIndex: 40,
+      position: 'absolute', top: 26, right: -13, zIndex: 40,
       width: 26, height: 26, cursor: 'pointer', padding: 0,
       border: '1px solid var(--border-default)', borderRadius: '50%',
       background: 'var(--surface-card)', color: 'var(--berry-600)',
@@ -186,9 +185,8 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
       borderRight: '1px solid var(--sidebar-border)',
       transition: 'width var(--dur-base) var(--ease-out)',
     }}>
-      {/* Botão de recolher no canto inferior direito do menu da empresa.
-          ROXO (berry) para diferenciar do trilho e ficar bem visível. */}
-      <ToggleFab exp={exp} onClick={toggle} style={{ background: 'var(--berry-600)', color: '#fff', border: '1px solid var(--berry-700)' }} />
+      {/* Botão de recolher no topo, borda direita — mesmo estilo do trilho. */}
+      <ToggleFab exp={exp} onClick={toggle} />
 
       {exp ? (
         <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid var(--gray-100)' }}>
