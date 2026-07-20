@@ -77,16 +77,18 @@ window.Sidebar = Sidebar;
    ============================================================ */
 
 // Botão circular de recolher/expandir — CANTO INFERIOR DIREITO do menu, na borda.
-// Roxo sólido + anel branco: sempre visível sobre qualquer fundo (plum escuro do
-// trilho OU claro do menu da empresa), pois o botão fica na linha divisória.
+// Padrão: branco com borda cinza VISÍVEL (--border-default) + chevron berry.
+// (O bug antigo era usar --sidebar-border, um branco quase transparente do tema
+// escuro, que sumia sobre o menu claro.) `style` permite o override roxo do menu
+// da empresa.
 function ToggleFab({ exp, onClick, style }) {
   return (
     <button onClick={onClick} title={exp ? 'Recolher menu' : 'Expandir menu'} style={{
-      position: 'absolute', bottom: 16, right: -14, zIndex: 40,
-      width: 28, height: 28, cursor: 'pointer', padding: 0,
-      border: '2px solid var(--surface-card)', borderRadius: '50%',
-      background: 'var(--berry-600)', color: '#fff',
-      boxShadow: '0 2px 6px rgba(75,36,77,0.28)',
+      position: 'absolute', bottom: 16, right: -13, zIndex: 40,
+      width: 26, height: 26, cursor: 'pointer', padding: 0,
+      border: '1px solid var(--border-default)', borderRadius: '50%',
+      background: 'var(--surface-card)', color: 'var(--berry-600)',
+      boxShadow: 'var(--shadow-sm)',
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       ...style,
     }}>
@@ -186,7 +188,7 @@ function SidebarEmpresa({ empresaNome, secoes, active, onNavigate, onVoltar, ten
     }}>
       {/* Botão de recolher no canto inferior direito do menu da empresa.
           ROXO (berry) para diferenciar do trilho e ficar bem visível. */}
-      <ToggleFab exp={exp} onClick={toggle} />
+      <ToggleFab exp={exp} onClick={toggle} style={{ background: 'var(--berry-600)', color: '#fff', border: '1px solid var(--berry-700)' }} />
 
       {exp ? (
         <div style={{ padding: '18px 16px 12px', borderBottom: '1px solid var(--gray-100)' }}>
